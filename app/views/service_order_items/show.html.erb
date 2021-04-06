@@ -1,0 +1,84 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Número:</strong>
+  <%= @service_order_item.service_order.id %>
+</p>
+
+<p>
+  <strong>Seq.:</strong>
+  <%= @service_order_item.id %>
+</p>
+
+<p>
+  <strong>Nomepax:</strong>
+  <%= @service_order_item.nomepax %>
+</p>
+
+<p>
+  <strong>Documenttype:</strong>
+  <%= @service_order_item.documenttype %>
+</p>
+
+<p>
+  <strong>Document:</strong>
+  <%= @service_order_item.document %>
+</p>
+
+<p>
+  <strong>Hotel:</strong>
+  <%= @service_order_item.hotel.sname %>
+</p>
+
+<p>
+  <strong>Apto:</strong>
+  <%= @service_order_item.apto %>
+</p>
+
+<p>
+  <strong>Qtdepax:</strong>
+  <%= @service_order_item.qtdepax %>
+</p>
+
+<p>
+  <strong>Hour:</strong>
+  <%= @service_order_item.hour %>
+</p>
+
+<p>
+  <strong>Phone:</strong>
+  <%= @service_order_item.phone %>
+</p>
+
+<p>
+  <strong>Vendor:</strong>
+  <%= @service_order_item.vendor.sname %>
+</p>
+
+<p>
+  <strong>Agency:</strong>
+  <%= @service_order_item.agency.sname %>
+</p>
+
+<p>
+  <strong>Amount:</strong>
+  <%= @service_order_item.amount %>
+</p>
+
+<p>
+  <strong>Amountpay:</strong>
+  <%= @service_order_item.amountpay %>
+</p>
+
+<p>
+  <strong>Amountcomission:</strong>
+  <%= @service_order_item.amountcomission %>
+</p>
+
+<p>
+  <strong>Comments:</strong>
+  <%= @service_order_item.comments %>
+</p>
+
+<%= link_to 'Edit', edit_service_order_item_path(@service_order_item) %> |
+<%= link_to 'Back', service_order_items_path %>

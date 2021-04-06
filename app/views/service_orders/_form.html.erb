@@ -1,0 +1,123 @@
+<%= form_with(model: service_order, local: true) do |form| %>
+  <% if service_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(service_order.errors.count, "error") %> prohibited this service_order from being saved:</h2>
+
+      <ul>
+      <% service_order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :data %>
+    <%= form.datetime_select :data %>
+  </div>
+
+  <div class="field">
+  <%= form.label :Destino %>
+  <%= form.select( "destination_id", @destination_options, { include_blank: "Selecione" }) %>
+  </div>
+
+  <div class="field">
+  <%= form.label :Guia %>
+  <%= form.select( "tourguide_id", @tourguide_options, { include_blank: "Selecione" }) %>
+  </div>
+
+
+  <div class="field">
+    <%= form.label :Motorista %>
+    <%= form.select( "driver_id", @driver_options, { include_blank: "Selecione" }) %>
+    </div>
+
+  <div class="field">
+    <%= form.label :Veiculo %>
+    <%= form.select( "vehicle_id", @vehicle_options, { include_blank: "Selecione" }) %>
+    </div>
+
+  <div class="field">
+    <%= form.label :valorguia %>
+    <%= form.text_field :valorguia %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valormotorista %>
+    <%= form.text_field :valormotorista %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valorpedagio %>
+    <%= form.text_field :valorpedagio %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valordespesas %>
+    <%= form.text_field :valordespesas %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valorcombustivel %>
+    <%= form.text_field :valorcombustivel %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valoros %>
+    <%= form.text_field :valoros %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valorfinalos %>
+    <%= form.text_field :valorfinalos %>
+  </div>
+
+  <div class="field">
+    <%= form.label :bpagto %>
+    <%= form.check_box :bpagto %>
+  </div>
+
+  <div class="field">
+    <%= form.label :bcancelado %>
+    <%= form.check_box :bcancelado %>
+  </div>
+
+  <div class="field">
+    <%= form.label :icapacidade %>
+    <%= form.number_field :icapacidade %>
+  </div>
+
+  <div class="field">
+    <%= form.label :ibloqueio %>
+    <%= form.number_field :ibloqueio %>
+  </div>
+
+  <div class="field">
+    <%= form.label :iflgaberto %>
+    <%= form.number_field :iflgaberto %>
+  </div>
+
+  <div class="field">
+    <%= form.label :ilitros %>
+    <%= form.number_field :ilitros %>
+  </div>
+
+  <div class="field">
+    <%= form.label :sobservacoes %>
+    <%= form.text_field :sobservacoes %>
+  </div>
+
+  <div class="field">
+    <%= form.label :sodometroinicio %>
+    <%= form.text_field :sodometroinicio %>
+  </div>
+
+  <div class="field">
+    <%= form.label :sodometrofim %>
+    <%= form.text_field :sodometrofim %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

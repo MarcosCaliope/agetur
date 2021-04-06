@@ -1,0 +1,2 @@
+class Tourguide < ApplicationRecord
+end
