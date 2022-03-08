@@ -1,0 +1,4 @@
+nome,email,fone,doc,com,city
+Maria Adelina,maria@maria.com,85988885555,doc,comments,Fortaleza
+Pedro jose,pedrojose@gmail.com,85988885555,doc123,obs222,Fortaleza
+francisco da Silva,fcoSilva@gmail.com,85988885555,cpf,obs,Fortaleza

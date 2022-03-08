@@ -1,0 +1,50 @@
+<table class="table table-hover">
+    <div class="nested-fields">
+        
+    <p>Teste Employee: <%= "@sorder_item.Hotel" %></p>
+        <%= f.label :ID %>
+               
+        <%= f.text_field :id  ,disabled: true , size:2%>
+        
+        <%= f.label :Hotel %>
+ 
+        <%= f.label :Apto %>
+        <%= f.text_field :apto , size:7%>
+
+        <%= f.label :Passageiro%>
+
+        <%= f.label :Hora %>
+        <%= f.text_field  :hour , size:8%>
+
+        <%= f.label :PAX %>
+        <%= f.number_field :qtdepax , size:5%>
+
+        <%= f.label :CHD %>
+        <%= f.number_field :qtdechd , size:5%>
+
+        <div>
+        <%= f.label :Documento %>
+        <%= f.select :documenttype, ["CPF", "RG", "PASSP"] %>
+
+        <%= f.label :Número %>
+        <%= f.text_field :document , size:10%>
+        <%= f.label :Fone %>
+        <%= f.telephone_field  :phone , size:10%>
+
+        <%= f.label :Vendedor %>
+        <%= f.label :Comissão %>
+        <%= f.text_field :amountcomission , size:7%>
+        </div>
+        <%= f.label :Repassado %>
+        <%= f.label :Valor %>
+        <%= f.text_field :amount , size:7%>
+        <%= f.label :Pago %>
+        <%= f.text_field :amountpay , size:7%>
+        <%= f.label :obs %>
+        <%= f.text_field :comments %>
+
+        
+        ________________________________________________________________________________________________________________________________________________________________________________!
+        </div>
+    
+</table>

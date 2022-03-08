@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  description: MyString
+  distance: 1
+  valuenormal: 1.5
+  valuenormalchd: 1.5
+  valuenet: 1.5
+  valuenetchd: 1.5
+  valuecard: 1.5
+  valuecardchd: 1.5
+  state: one
+
+two:
+  description: MyString
+  distance: 1
+  valuenormal: 1.5
+  valuenormalchd: 1.5
+  valuenet: 1.5
+  valuenetchd: 1.5
+  valuecard: 1.5
+  valuecardchd: 1.5
+  state: two

@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @destination.description %>
+</p>
+
+<p>
+  <strong>Distance:</strong>
+  <%= @destination.distance %>
+</p>
+
+<p>
+  <strong>Valuenormal:</strong>
+  <%= @destination.valuenormal %>
+</p>
+
+<p>
+  <strong>Valuenormalchd:</strong>
+  <%= @destination.valuenormalchd %>
+</p>
+
+<p>
+  <strong>Valuenet:</strong>
+  <%= @destination.valuenet %>
+</p>
+
+<p>
+  <strong>Valuenetchd:</strong>
+  <%= @destination.valuenetchd %>
+</p>
+
+<p>
+  <strong>Valuecard:</strong>
+  <%= @destination.valuecard %>
+</p>
+
+<p>
+  <strong>Valuecardchd:</strong>
+  <%= @destination.valuecardchd %>
+</p>
+
+<p>
+  <strong>State:</strong>
+  <%= @destination.state.uf %>
+</p>
+
+<%= link_to 'Edit', edit_destination_path(@destination) %> |
+<%= link_to 'Back', destinations_path %>

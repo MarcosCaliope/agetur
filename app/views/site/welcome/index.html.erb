@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% if user_signed_in? %>
+  <p> User Login: <%= current_user.email %> </p>
+  <% else %>
+<% end %>
+
+<% if admin_signed_in? %>
+  <p> User Login: <%= current_admin.email %> </p>
+  <% else %>
+<% end %>
+<p>
+<%= link_to "Ordem de Serviço", sorders_path %>
+<p>
+<%= link_to "Clientes", customers_path %>
+<p>
+<%= link_to "Agencias", agencies_path %>
+<p>
+<%= link_to "Hoteis", hotels_path %>
+<p>
+<%= link_to "Vendedores", vendors_path %>
+<p>
+<%= link_to "Veículos", vehicles_path %>
+<p>
+<%= link_to "Motoristas", drivers_path %>
+<p>
+<%= link_to "Guias", tourguides_path %>
+<p>
+<%= link_to "Dados da Empresa", companies_path %>
+<p>
+<%= link_to "Roteiros", destinations_path, class: "btn btn-primary btn-lg", role:"button" %>
+<p>
+<%= link_to "TXT", txt_path, class: "btn btn-primary btn-lg", role:"button" %>
+
+<p>Find me in app/views/site/welcome/index.html.erb</p>

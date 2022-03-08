@@ -1,0 +1,63 @@
+<p id="notice"><%= notice %> </p>
+
+<style type="text/css">
+      @media print {  
+      .print {
+        display: block;
+      }
+      .no-print {
+        display: none;
+      }
+  }  
+  </style>
+  <div class="no-print">
+    Pesquisar por Data, informe no formato "dd/mm/yyyy"
+    <%= search_form_for @q do |f| %>
+      <%= f.label :data_gteq, "Data Inicial:" %>
+      <%= f.search_field :data_gteq %>
+      <%= f.label :data_lteq, "Data Final:" %>
+      <%= f.search_field :data_lteq %>
+      <%= f.submit %>
+    <% end %>
+  </div>
+<h1>Ordens</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>No.Ordem</th>
+      <th>Data</th>
+      <th>Observacoes</th>
+      <th>Destino</th>
+      <th>Guia</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @sorders.each do |sorder| %>
+      <tr>
+        <td><%= sorder.id %></td>
+        <td><%= sorder.data.strftime("%d/%m/%Y") %></td>
+        <td><%= sorder.sobservacoes %></td>
+        <td><%= sorder.destination.description%></td>
+        <td><%= sorder.tourguide.sname%></td>
+        
+        <td><%= link_to 'Show', sorder, class:"no-print"  %></td>
+        <div class="no-print">
+          <td><%= link_to 'PDF', sorder_item_path(sorder, format: 'pdf'), class:"no-print"  %></td>
+          <td><%= link_to 'Edit', edit_sorder_path(sorder), class:"no-print"  %></td>
+          <td><%= link_to 'Destroy', sorder, method: :delete, data: { confirm: 'Are you sure?' }, class:"no-print"  %></td>
+        </div>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<div class="no-print">
+  <%= link_to 'New Sorder', new_sorder_path %> <br>
+  <td><%= link_to '[Rel.PDF]', sorders_path(format: 'pdf') %></td>
+  <br>
+  <td><%= link_to '[Inicio]', site_welcome_index_path %></td>
+</div>
+  <button onclick="print()" class="no-print">imprimir </button>

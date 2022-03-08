@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Guias</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Endereço</th>
+      <th>Fone</th>
+      <th>Observações</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tourguides.each do |tourguide| %>
+      <tr>
+        <td><%= tourguide.sname %></td>
+        <td><%= tourguide.email %></td>
+        <td><%= tourguide.address %></td>
+        <td><%= tourguide.phone %></td>
+        <td><%= tourguide.comments %></td>
+        <td><%= link_to 'Exibe', tourguide %></td>
+        <td><%= link_to 'Edita', edit_tourguide_path(tourguide) %></td>
+        <td><%= link_to 'Exclui', tourguide, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'Novo Guia', new_tourguide_path %>

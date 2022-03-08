@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nome:</strong>
+  <%= @tourguide.sname %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @tourguide.email %>
+</p>
+
+<p>
+  <strong>Endereço:</strong>
+  <%= @tourguide.address %>
+</p>
+
+<p>
+  <strong>Fone:</strong>
+  <%= @tourguide.phone %>
+</p>
+
+<p>
+  <strong>Observações:</strong>
+  <%= @tourguide.comments %>
+</p>
+
+<%= link_to 'Edit', edit_tourguide_path(@tourguide) %> |
+<%= link_to 'Back', tourguides_path %>

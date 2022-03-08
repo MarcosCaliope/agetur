@@ -1,0 +1,57 @@
+<%= form_with(model: vehicle, local: true) do |form| %>
+  <% if vehicle.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(vehicle.errors.count, "error") %> prohibited this vehicle from being saved:</h2>
+
+      <ul>
+      <% vehicle.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :Placas %>
+    <%= form.text_field :license %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Marca %>
+    <%= form.text_field :brand %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Modelo %>
+    <%= form.text_field :smodel %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Ano %>
+    <%= form.text_field :year %>
+  </div>
+
+  <div class="field">
+    <%= form.label :cor %>
+    <%= form.text_field :color %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Cidade %>
+    <%= form.text_field :city %>
+  </div>
+
+  <div class="field">
+  <%= form.label :State %>
+  <%= form.select( "state_id", @state_options, { include_blank: "Selecione" }) %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Observações %>
+    <%= form.text_field :comments %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

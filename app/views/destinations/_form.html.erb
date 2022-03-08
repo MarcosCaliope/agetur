@@ -1,0 +1,62 @@
+<%= form_with(model: destination, local: true) do |form| %>
+  <% if destination.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(destination.errors.count, "error") %> prohibited this destination from being saved:</h2>
+
+      <ul>
+      <% destination.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_field :description %>
+  </div>
+
+  <div class="field">
+    <%= form.label :distance %>
+    <%= form.number_field :distance %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuenormal %>
+    <%= form.text_field :valuenormal %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuenormalchd %>
+    <%= form.text_field :valuenormalchd %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuenet %>
+    <%= form.text_field :valuenet %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuenetchd %>
+    <%= form.text_field :valuenetchd %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuecard %>
+    <%= form.text_field :valuecard %>
+  </div>
+
+  <div class="field">
+    <%= form.label :valuecardchd %>
+    <%= form.text_field :valuecardchd %>
+  </div>
+
+  <div class="field">
+    <%= form.label :State %>
+    <%= form.select( "state_id", @state_options, { include_blank: "Selecione" }) %>
+    </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

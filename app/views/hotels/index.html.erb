@@ -1,0 +1,64 @@
+<p id="notice"><%= notice %></p>
+<style type="text/css">
+      @media print {  
+      .print {
+        display: block;
+      }
+      .no-print {
+        display: none;
+      }
+    }  
+  tt {
+    color: yellow;
+    font-family: verdana;
+    }
+  </style>
+  
+  <div class="no-print">
+    Pesquisar por Nome
+    <%= search_form_for @q do |f| %>
+      <%= f.label :sname_cont, "Nome Contém" %>
+      <%= f.search_field :sname_cont %>
+      <%= f.submit %>
+    <% end %>
+  </div>
+
+<h1>Hoteis</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Endereço</th>
+      <th>Fone</th>
+      <th>Obs.</th>
+      <th class="no-print"> Valor diaria</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @hotels.each do |hotel| %>
+      <tr>
+        <td><%= hotel.sname %></td>
+        <td><%= hotel.email %></td>
+        <td><%= hotel.address %></td>
+        <td><%= hotel.phone %></td>
+        <td><%= hotel.comments %></td>
+        <td class="no-print"> <%= hotel.Valordiaria %></td>
+        <div class="no-print">
+          <td><%= link_to 'Show', hotel, class:"no-print" %></td>
+          <td><%= link_to 'Edit', edit_hotel_path(hotel), class:"no-print" %></td>
+          <td><%= link_to 'Destroy', hotel, class:"no-print", method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </div>
+        </tr>
+    <% end %>
+  </tbody>
+</table>
+<div class="no-print">
+  <br>
+  <%= link_to 'New Hotel', new_hotel_path %>
+  <br>
+ </div>
+<button onclick="print()" class="no-print">imprimir </button>

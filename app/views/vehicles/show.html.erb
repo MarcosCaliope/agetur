@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Placas:</strong>
+  <%= @vehicle.license %>
+</p>
+
+<p>
+  <strong>Marca:</strong>
+  <%= @vehicle.brand %>
+</p>
+
+<p>
+  <strong>Modelo:</strong>
+  <%= @vehicle.smodel %>
+</p>
+
+<p>
+  <strong>Ano:</strong>
+  <%= @vehicle.year %>
+</p>
+
+<p>
+  <strong>Cor:</strong>
+  <%= @vehicle.color %>
+</p>
+
+<p>
+  <strong>Cidade:</strong>
+  <%= @vehicle.city %>
+</p>
+
+<p>
+  <strong>UF:</strong>
+  <%= @vehicle.state.uf %>
+</p>
+
+<p>
+  <strong>Observações:</strong>
+  <%= @vehicle.comments %>
+</p>
+
+<%= link_to 'Edit', edit_vehicle_path(@vehicle) %> |
+<%= link_to 'Back', vehicles_path %>

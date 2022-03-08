@@ -1,0 +1,52 @@
+<table class="table table-hover">
+    <div class="nested-fields">
+        <%= f.label :ID %>
+        <%= f.text_field :id  ,disabled: true , size:2%>
+        
+        <%= f.label :Hotel %>
+        <%= f.select( "hotel_id", @hotel_options, { include_blank: "Selecione" }) %>
+ 
+        <%= f.label :Apto %>
+        <%= f.text_field :apto , size:7%>
+
+        <%= f.label :Passageiro%>
+        <%= f.select( "customer_id", @customer_options, { include_blank: "Selecione" })%>
+
+        <%= f.label :Hora %>
+        <%= f.text_field  :hour , size:8%>
+
+        <%= f.label :PAX %>
+        <%= f.number_field :qtdepax , size:5%>
+
+        <%= f.label :CHD %>
+        <%= f.number_field :qtdechd , size:5%>
+
+        <div>
+        <%= f.label :Documento %>
+        <%= f.select :documenttype, ["CPF", "RG", "PASSP"] %>
+
+        <%= f.label :Número %>
+        <%= f.text_field :document , size:10%>
+        <%= f.label :Fone %>
+        <%= f.telephone_field  :phone , size:10%>
+
+        <%= f.label :Vendedor %>
+        <%= f.select( "vendor_id", @vendor_options, { include_blank: "Selecione" }) %>
+        <%= f.label :Comissão %>
+        <%= f.text_field :amountcomission , size:7%>
+        </div>
+        <%= f.label :Repassado %>
+        <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
+        <%= f.label :Valor %>
+        <%= f.text_field :amount , size:7%>
+        <%= f.label :Pago %>
+        <%= f.text_field :amountpay , size:7%>
+        <%= f.label :obs %>
+        <%= f.text_field :comments %>
+
+        <%= link_to_remove_association('X', f, class: "btn btn-danger") %>
+        
+        ________________________________________________________________________________________________________________________________________________________________________________!
+        </div>
+    
+</table>

@@ -1,0 +1,42 @@
+<%= form_with(model: tourguide, local: true) do |form| %>
+  <% if tourguide.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(tourguide.errors.count, "error") %> prohibited this tourguide from being saved:</h2>
+
+      <ul>
+      <% tourguide.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :Nome %>
+    <%= form.text_field :sname %>
+  </div>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Endereço %>
+    <%= form.text_field :address %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Fone %>
+    <%= form.text_field :phone %>
+  </div>
+
+  <div class="field">
+    <%= form.label :Observações %>
+    <%= form.text_field :comments %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

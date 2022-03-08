@@ -1,0 +1,27 @@
+<%= form_with(model: sorder_item, local: true) do |form| %>
+  <% if sorder_item.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(sorder_item.errors.count, "error") %> prohibited this sorder_item from being saved:</h2>
+
+      <ul>
+      <% sorder_item.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :sorder_id %>
+    <%= form.text_field :sorder_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :comments %>
+    <%= form.text_field :comments %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

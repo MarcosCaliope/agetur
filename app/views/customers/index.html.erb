@@ -1,0 +1,38 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Clientes</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Documento</th>
+      <th>Observações</th>
+      <th>Cidade</th>
+      <th>UF</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @customers.each do |customer| %>
+      <tr>
+        <td><%= customer.nome %></td>
+        <td><%= customer.email %></td>
+        <td><%= customer.phone %></td>
+        <td><%= customer.document %></td>
+        <td><%= customer.comments %></td>
+        <td><%= customer.city %></td>
+        <td><%= link_to 'Show', customer %></td>
+        <td><%= link_to 'Edit', edit_customer_path(customer) %></td>
+        <td><%= link_to 'Destroy', customer, method: :delete, data: { confirm: 'Tem Certeza?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Customer', new_customer_path %>

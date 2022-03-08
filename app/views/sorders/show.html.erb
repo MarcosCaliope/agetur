@@ -1,0 +1,94 @@
+
+<%= form_with(model: @sorder, local: true) do |form| %>
+  <p id="notice"><%= notice %></p>
+
+  <style type="text/css">
+      @media print {  
+      .print {
+        display: block;
+      }
+      .no-print {
+        display: none;
+      }
+  }  
+  </style>
+
+  <div class="container">
+  <td><%= image_tag @sorder.company.logoform, midth:50, height:50%>
+  <%= @sorder.company.name %>
+    <p> 
+    Endereço:
+    <%= @sorder.company.address %>
+      Fone: 
+    <%= @sorder.company.phone %>
+      Cidade: 
+    <%= @sorder.company.city %>
+      CNPJ: 
+    <%= @sorder.company.cnpj %>
+    <p> 
+    Email: 
+    <%= @sorder.company.email %>
+      Site: 
+    <%= @sorder.company.site %>
+    </td>
+  </div>
+  <p>
+    <div class="container">  
+      <strong>No.Ordem:</strong>
+        <%= @sorder.id %>
+        <strong>Data:</strong>
+        <%= @sorder.data %>
+        <strong>Destino:</strong>
+        <%= @sorder.destination.description %>
+        <strong>Guia:</strong>
+        <%= @sorder.tourguide.sname %>
+        <p>
+          <strong>observacoes:</strong>
+          <%= @sorder.sobservacoes %>
+        </p>
+    </div>
+     
+  <table class="table table-hover">
+    <th scope="col">Hotel:</th>  
+    <th scope="col">Apto:</th>  
+    <th scope="col">Passageiro:</th>  
+    <th scope="col">Tipo Doc:</th>  
+    <th scope="col">Documento:</th>  
+    <th scope="col">Telefone:</th>  
+    <th scope="col">PAX:</th>  
+    <th scope="col">CHD:</th>  
+    <th scope="col">Valor:</th>  
+    <th scope="col">Solicitante:</th>  
+    <th scope="col">Observações:</th>  
+  </table>
+
+    <% @sorder_item.each do |sorder_item| %>
+      <table class="table table-hover">
+      <tr>
+      
+        <td><%= sorder_item.hotel.sname %></td>
+        <td><%= sorder_item.apto %></td>
+        <td><%= sorder_item.customer.nome %></td>
+        <td><%= sorder_item.documenttype %></td>
+        <td><%= sorder_item.document %></td>
+        <td><%= sorder_item.phone %></td>
+        <td><%= sorder_item.qtdepax %></td>
+        <td><%= sorder_item.qtdechd %></td>
+
+        <td><%= sorder_item.amount %></td>
+        <td><%= sorder_item.vendor.sname %></td>
+      </tr>
+      <div>
+        <td><%= sorder_item.comments %></td>
+      </div>
+      </table>
+    <% end %>
+    
+    <br>
+    
+    <div class="no-print">
+      <td><%= link_to '[Voltar]', sorders_path %></td>
+    </div>
+    
+    <% end %>
+    <button onclick="print()" class="no-print">imprimir </button>
