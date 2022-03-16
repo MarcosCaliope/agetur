@@ -11,16 +11,16 @@
   }  
   </style>
   <div class="no-print">
-    Pesquisar por Data, informe no formato "dd/mm/yyyy"
+    
     <%= search_form_for @q do |f| %>
       <%= f.label :data_gteq, "Data Inicial:" %>
-      <%= f.search_field :data_gteq %>
+      <%= f.date_field :data_gteq %>
       <%= f.label :data_lteq, "Data Final:" %>
-      <%= f.search_field :data_lteq %>
+      <%= f.date_field :data_lteq %>
       <%= f.submit %>
     <% end %>
   </div>
-<h1>Ordens</h1>
+<h3>Ordens de Serviço</h3>
 
 <table class="table table-hover">
   <thead>
@@ -45,7 +45,6 @@
         
         <td><%= link_to 'Show', sorder, class:"no-print"  %></td>
         <div class="no-print">
-          <td><%= link_to 'PDF', sorder_item_path(sorder, format: 'pdf'), class:"no-print"  %></td>
           <td><%= link_to 'Edit', edit_sorder_path(sorder), class:"no-print"  %></td>
           <td><%= link_to 'Destroy', sorder, method: :delete, data: { confirm: 'Are you sure?' }, class:"no-print"  %></td>
         </div>
@@ -55,9 +54,8 @@
 
 <br>
 <div class="no-print">
-  <%= link_to 'New Sorder', new_sorder_path %> <br>
-  <td><%= link_to '[Rel.PDF]', sorders_path(format: 'pdf') %></td>
-  <br>
+  <%= link_to 'Nova Ordem', new_sorder_path %> <br>
+  
   <td><%= link_to '[Inicio]', site_welcome_index_path %></td>
 </div>
   <button onclick="print()" class="no-print">imprimir </button>

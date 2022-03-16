@@ -15,8 +15,7 @@ class SordersController < ApplicationController
 
   #before_action :sorder_params, only: [:show, :edit, :update, :destroy]
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
-# Nós incluimos aqui a lib que vamos criar chamada generate_pdf.rb
-#require './lib/generate_pdf'
+
   # GET /sorders
   # GET /sorders.json
   def index
@@ -59,6 +58,14 @@ class SordersController < ApplicationController
         #send_data pdf.render, filename: 'sorder.pdf', type: 'application/pdf', disposition: "inline"
         # quando não aciona o index.pdf.prawn
       end
+    end
+  end
+
+  def ShowComis
+    @q = Sorder.ransack(params[:q])
+    @sorders = @q.result
+    respond_to do |format|
+      format.html
     end
   end
 

@@ -1,12 +1,22 @@
 class SorderItemsController < SordersController
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_vendor_options, only: [:show, :new, :create, :edit, :update]
 # Incluimos a Lib que vamos criar para podermos chama-la no nosso método
-require './lib/generate_pdf'
+#require './lib/generate_pdf'
   # GET /sorder_items
   # GET /sorder_items.json
   def index
-    @sorder_items = SorderItem.all
-  end
+#    @sorder_items = SorderItem.all
+    #@q = SorderItem.ransack(params[:q])
+    if params[:q].blank?
+      @q = SorderItem.none.search # so you have a ransack search
+    else
+      @q = SorderItem.search params[:q]
+      @sorder_items = @q.result
+      render 'showcomis', sorder_item: @q.result
+    end
+      @sorder_items = @q.result
+    end
 
   # GET /sorder_items/1
   # GET /sorder_items/1.json
@@ -22,6 +32,11 @@ require './lib/generate_pdf'
     end
 end
 
+def showcomis
+#  @sorder_items = SorderItem.all
+  @q = SorderItem.ransack(params[:q])
+  @sorder_items = @q.result
+end
   # GET /sorder_items/new
   def new
     @sorder_item = SorderItem.new
@@ -81,6 +96,10 @@ end
     # Use callbacks to share common setup or constraints between actions.
     def set_sorder_item
       @sorder_item = SorderItem.find(params[:id])
+    end
+
+    def set_vendor_options
+      @vendor_options = Vendor.all.pluck(:sname, :id)
     end
 
     # Only allow a list of trusted parameters through.

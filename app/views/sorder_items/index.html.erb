@@ -1,12 +1,36 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Sorder Items</h1>
+<
+<style type="text/css">
+      @media print {  
+      .print {
+        display: block;
+      }
+      .no-print {
+        display: none;
+      }
+  }  
+  </style>
+  <div class="no-print">
+    
+    <%= search_form_for @q do |f| %>
+      <%= f.label :created_at_gteq, "Data Inicial:" %>
+      <%= f.date_field :created_at_gteq %>
+      <%= f.label :created_at_lteq, "Data Final:" %>
+      <%= f.date_field :created_at_lteq %>
+      <%= f.submit %>
+    <% end %>
+  </div>
+
+<h3>Comissões</h3>
 
 <table>
   <thead>
     <tr>
-      <th>Sorder</th>
-      <th>Comments</th>
+      <th>Ordem</th>
+      <th>Vendedor</th>
+      <th>Comissão</th>
+      <th>Data</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -14,11 +38,10 @@
   <tbody>
     <% @sorder_items.each do |sorder_item| %>
       <tr>
-        <td><%= sorder_item.sorder %></td>
-        <td><%= sorder_item.comments %></td>
-        <td><%= link_to 'Show', sorder_item %></td>
-        <td><%= link_to 'Edit', edit_sorder_item_path(sorder_item) %></td>
-        <td><%= link_to 'Destroy', sorder_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= sorder_item.sorder_id %></td>
+        <td><%= sorder_item.vendor_id %></td>
+        <td><%= sorder_item.amountcomission %></td>
+        <td><%= sorder_item.created_at %></td>
       </tr>
     <% end %>
   </tbody>
@@ -26,4 +49,3 @@
 
 <br>
 
-<%= link_to 'New Sorder Item', new_sorder_item_path %>
