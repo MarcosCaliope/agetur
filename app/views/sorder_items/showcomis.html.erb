@@ -36,7 +36,7 @@
       <th>Valor</th>
       <th>Comissão</th>
       <th>Recebido</th>
-      <th>Pagar</th>
+      <th>Receber</th>
       <th>Data</th>
       <th colspan="3"></th>
     </tr>
@@ -47,10 +47,12 @@
       <tr>
         <td><%= sorder_item.sorder_id %></td>
         <td><%= sorder_item.vendor.sname %></td>
-        <td><%= sorder_item.customer.nome %></td>
+        <td><%= sorder_item.snomepax %></td>
         <td><%= sorder_item.hotel.sname %></td>
         <td><%= sorder_item.amount %></td>
         <td><%= sorder_item.amountcomission %></td>
+        <td><%= sorder_item.amountcomissionpay %></td>
+        <td><%= sorder_item.total_receber %></td>
         <td><%= sorder_item.created_at.strftime("%d/%m/%Y") %></td>
       </tr>
     <% end %>

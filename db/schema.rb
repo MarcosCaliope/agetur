@@ -2,17 +2,17 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_18_143517) do
+ActiveRecord::Schema.define(version: 2022_03_16_152642) do
 
-  create_table "admins", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "admins", charset: "utf8mb3", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "agencies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "agencies", charset: "utf8mb3", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "companies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "companies", charset: "utf8mb3", force: :cascade do |t|
     t.string "name"
     t.string "cnpj"
     t.string "address"
@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["state_id"], name: "index_companies_on_state_id"
   end
 
-  create_table "customers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "customers", charset: "utf8mb3", force: :cascade do |t|
     t.string "nome"
     t.string "email"
     t.string "phone"
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["state_id"], name: "index_customers_on_state_id"
   end
 
-  create_table "destinations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "destinations", charset: "utf8mb3", force: :cascade do |t|
     t.string "description"
     t.integer "distance"
     t.float "valuenormal"
@@ -86,7 +86,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["state_id"], name: "index_destinations_on_state_id"
   end
 
-  create_table "drivers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "drivers", charset: "utf8mb3", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
@@ -97,7 +97,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "hotels", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "hotels", charset: "utf8mb3", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
@@ -108,7 +108,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "service_order_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "service_order_items", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "service_order_id"
     t.string "nomepax"
     t.string "documenttype"
@@ -134,7 +134,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["vendor_id"], name: "index_service_order_items_on_vendor_id"
   end
 
-  create_table "service_orders", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "service_orders", charset: "utf8mb3", force: :cascade do |t|
     t.datetime "data"
     t.bigint "destination_id"
     t.bigint "tourguide_id"
@@ -164,7 +164,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["vehicle_id"], name: "index_service_orders_on_vehicle_id"
   end
 
-  create_table "sorder_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "sorder_items", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "sorder_id"
     t.string "comments"
     t.datetime "created_at", null: false
@@ -183,6 +183,11 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.float "amount"
     t.float "amountpay"
     t.float "amountcomission"
+    t.float "amountcomissionpay"
+    t.float "amountcomissionrep"
+    t.float "amountcomissionreppay"
+    t.string "snomepax"
+    t.string "scancelado"
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"
     t.index ["hotel_id"], name: "index_sorder_items_on_hotel_id"
@@ -190,7 +195,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["vendor_id"], name: "index_sorder_items_on_vendor_id"
   end
 
-  create_table "sorders", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "sorders", charset: "utf8mb3", force: :cascade do |t|
     t.datetime "data"
     t.string "sobservacoes"
     t.datetime "created_at", null: false
@@ -215,14 +220,14 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["vehicle_id"], name: "index_sorders_on_vehicle_id"
   end
 
-  create_table "states", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "states", charset: "utf8mb3", force: :cascade do |t|
     t.string "uf"
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "tourguides", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "tourguides", charset: "utf8mb3", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
@@ -232,7 +237,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "users", charset: "utf8mb3", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -244,7 +249,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "vehicles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "vehicles", charset: "utf8mb3", force: :cascade do |t|
     t.string "license"
     t.string "brand"
     t.string "smodel"
@@ -258,7 +263,7 @@ ActiveRecord::Schema.define(version: 2021_09_18_143517) do
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
 
-  create_table "vendors", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "vendors", charset: "utf8mb3", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"

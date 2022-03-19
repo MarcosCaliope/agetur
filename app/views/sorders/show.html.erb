@@ -49,40 +49,41 @@
     </div>
      
   <table class="table table-hover">
-    <th scope="col">Hotel:</th>  
-    <th scope="col">Apto:</th>  
-    <th scope="col">Passageiro:</th>  
-    <th scope="col">Tipo Doc:</th>  
-    <th scope="col">Documento:</th>  
-    <th scope="col">Telefone:</th>  
-    <th scope="col">PAX:</th>  
-    <th scope="col">CHD:</th>  
-    <th scope="col">Valor:</th>  
-    <th scope="col">Solicitante:</th>  
-    <th scope="col">Observações:</th>  
-  </table>
+  <thead>
+    <tr>
+      <th>Hotel</th>
+      <th>Apto:</th>  
+      <th>Passageiro:</th>  
+      <th>Tipo Doc:</th>  
+      <th>Documento:</th>  
+      <th>Telefone:</th>  
+      <th>PAX:</th>  
+      <th>CHD:</th>  
+      <th>Valor:</th>  
+      <th>Solicitante:</th>  
+      </tr> 
+  </thead>
+    <tbody>
 
     <% @sorder_item.each do |sorder_item| %>
-      <table class="table table-hover">
       <tr>
-      
         <td><%= sorder_item.hotel.sname %></td>
         <td><%= sorder_item.apto %></td>
-        <td><%= sorder_item.customer.nome %></td>
+        <td><%= sorder_item.snomepax %></td>
         <td><%= sorder_item.documenttype %></td>
         <td><%= sorder_item.document %></td>
         <td><%= sorder_item.phone %></td>
         <td><%= sorder_item.qtdepax %></td>
         <td><%= sorder_item.qtdechd %></td>
-
         <td><%= sorder_item.amount %></td>
         <td><%= sorder_item.vendor.sname %></td>
       </tr>
       <div>
-        <td><%= sorder_item.comments %></td>
+        <td>Observações: <%= sorder_item.comments %></td>
       </div>
-      </table>
-    <% end %>
+      <% end %>
+    </tbody>
+    </table>
     
     <br>
     

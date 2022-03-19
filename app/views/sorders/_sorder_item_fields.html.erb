@@ -9,8 +9,6 @@
         <%= f.label :Apto %>
         <%= f.text_field :apto , size:7%>
 
-        <%= f.label :Passageiro%>
-        <%= f.select( "customer_id", @customer_options, { include_blank: "Selecione" })%>
 
         <%= f.label :Hora %>
         <%= f.text_field  :hour , size:8%>
@@ -20,8 +18,15 @@
 
         <%= f.label :CHD %>
         <%= f.number_field :qtdechd , size:5%>
+        <%= f.label :Valor_Passeio%>
+        <%= f.text_field :amount , size:7%>
+        <%= f.label :Pago %>
+        <%= f.text_field :amountpay , size:7%>
 
         <div>
+        <%= f.label :Passageiro%>
+        <%= f.text_field  :snomepax , size:45%>
+
         <%= f.label :Documento %>
         <%= f.select :documenttype, ["CPF", "RG", "PASSP"] %>
 
@@ -29,24 +34,32 @@
         <%= f.text_field :document , size:10%>
         <%= f.label :Fone %>
         <%= f.telephone_field  :phone , size:10%>
-
+        <p>
         <%= f.label :Vendedor %>
         <%= f.select( "vendor_id", @vendor_options, { include_blank: "Selecione" }) %>
         <%= f.label :Comissão %>
         <%= f.text_field :amountcomission , size:7%>
+        <%= f.label :Recebido %>
+        <%= f.text_field :amountcomissionpay , size:7%>
         </div>
         <%= f.label :Repassado %>
         <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
-        <%= f.label :Valor %>
-        <%= f.text_field :amount , size:7%>
-        <%= f.label :Pago %>
-        <%= f.text_field :amountpay , size:7%>
-        <%= f.label :obs %>
-        <%= f.text_field :comments %>
+        <%= f.label :Comissão %>
+        <%= f.text_field :amountcomissionrep , size:7%>
+        <%= f.label :Recebido %>
+        <%= f.text_field :amountcomissionreppay , size:7%>
 
-        <%= link_to_remove_association('X', f, class: "btn btn-danger") %>
+        <%= f.label :Cancelado %>
+        <%= f.select :scancelado, ["N", "S"] %>
+        <p>
+        <%= f.label :obs %>
+        <%= f.text_field :comments , size:130%>
+        <%= f.label :Param %>
+        <%= f.select :customer_id, ["1"] %>        
+        <%= link_to_remove_association('X', f, class: "btn btn-danger" ) %>
+
         
         ________________________________________________________________________________________________________________________________________________________________________________!
         </div>
-    
+  
 </table>

@@ -17,6 +17,10 @@
       <%= f.date_field :data_gteq %>
       <%= f.label :data_lteq, "Data Final:" %>
       <%= f.date_field :data_lteq %>
+
+      <%= f.label :destination_id_eq, "Roteiro" %>
+      <%= f.collection_select :destination_id_eq, Destination.all, :id, :description, include_blank: true %>
+  
       <%= f.submit %>
     <% end %>
   </div>
@@ -27,8 +31,8 @@
     <tr>
       <th>No.Ordem</th>
       <th>Data</th>
-      <th>Observacoes</th>
       <th>Destino</th>
+      <th>Observacoes</th>
       <th>Guia</th>
       <th colspan="3"></th>
     </tr>
@@ -39,8 +43,8 @@
       <tr>
         <td><%= sorder.id %></td>
         <td><%= sorder.data.strftime("%d/%m/%Y") %></td>
-        <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.destination.description%></td>
+        <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.tourguide.sname%></td>
         
         <td><%= link_to 'Show', sorder, class:"no-print"  %></td>

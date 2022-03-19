@@ -6,4 +6,8 @@ class Sorder < ApplicationRecord
     belongs_to :company
     belongs_to :driver
     belongs_to :vehicle
+    
+    def total_pax
+        return Sorder.sorder_items.sum(qtdepax)
+    end
 end
