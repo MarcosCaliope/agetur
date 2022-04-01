@@ -45,8 +45,11 @@
         <p>
           <strong>observacoes:</strong>
           <%= @sorder.sobservacoes %>
-        </p>
-    </div>
+          </p>
+          
+          <td>Total de PAX: <%= @sorder.total_pax %></td>
+          <td>Total de CHD: <%= @sorder.total_chd %></td>
+          </div>
      
   <table class="table table-hover">
   <thead>
@@ -66,21 +69,21 @@
     <tbody>
 
     <% @sorder_item.each do |sorder_item| %>
-      <tr>
-        <td><%= sorder_item.hotel.sname %></td>
-        <td><%= sorder_item.apto %></td>
-        <td><%= sorder_item.snomepax %></td>
-        <td><%= sorder_item.documenttype %></td>
-        <td><%= sorder_item.document %></td>
-        <td><%= sorder_item.phone %></td>
-        <td><%= sorder_item.qtdepax %></td>
-        <td><%= sorder_item.qtdechd %></td>
-        <td><%= sorder_item.amount %></td>
-        <td><%= sorder_item.vendor.sname %></td>
-      </tr>
-      <div>
-        <td>Observações: <%= sorder_item.comments %></td>
-      </div>
+      <% if sorder_item.scancelado == 'N' %>
+        <tr>
+          <td><%= sorder_item.hotel.sname %></td>
+          <td><%= sorder_item.apto %></td>
+          <td><%= sorder_item.snomepax %></td>
+          <td><%= sorder_item.documenttype %></td>
+          <td><%= sorder_item.document %></td>
+          <td><%= sorder_item.phone %></td>
+          <td><%= sorder_item.qtdepax %></td>
+          <td><%= sorder_item.qtdechd %></td>
+          <td><%= sorder_item.total_passeio %></td>
+          <td><%= sorder_item.vendor.sname %></td>
+          </tr>
+      <% end %>
+          <td>Observações: <%= sorder_item.comments %></td>
       <% end %>
     </tbody>
     </table>

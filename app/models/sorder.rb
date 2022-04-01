@@ -8,6 +8,14 @@ class Sorder < ApplicationRecord
     belongs_to :vehicle
     
     def total_pax
-        return Sorder.sorder_items.sum(qtdepax)
+       #User.includes(:posts).where('posts.name = ?', 'example')
+        #Sorder.includes(:sorder_items).where('sorder_items.scancelado = ?', 'N').references(:sorder_items)
+        sorder_items.where('sorder_items.scancelado = ?', 'N').sum("qtdepax")
     end
+
+    def total_chd
+       #Sorder.includes(:sorder_items)
+       sorder_items.where('sorder_items.scancelado = ?', 'N').sum("qtdechd")
+    end
+    
 end

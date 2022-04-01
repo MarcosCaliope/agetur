@@ -10,38 +10,50 @@
       </ul>
     </div>
   <% end %>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+  <!------ Include the above in your HEAD tag ---------->
+  
+  <!DOCTYPE html>
+  <head>
+  <body>
 
-  <div class="field">
-    <%= form.label :sname %>
-    <%= form.text_field :sname %>
-  </div>
-
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
-  </div>
-
-  <div class="field">
-    <%= form.label :address %>
-    <%= form.text_field :address %>
-  </div>
-
-  <div class="field">
-    <%= form.label :phone %>
-    <%= form.text_field :phone %>
-  </div>
-
-  <div class="field">
-    <%= form.label :comments %>
-    <%= form.text_field :comments %>
-  </div>
-
-  <div class="field">
-    <%= form.label :Valordiaria %>
-    <%= form.text_field :Valordiaria %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
+    <form class="form-horizontal">
+      <fieldset>
+      <div class="panel panel-primary">
+      <div class="panel-heading">Cadastro de Hoteis</div>
+      <div class="panel-body">
+      <div class="form-group">
+            <div class="form-group"
+              <label class="col-md-2 control-label" for="Nome">Nome <h11>*</h11></label>  
+              <%= form.text_field :sname, size:50 %>
+            </div>
+            <div class="form-group"
+              <label class="col-md-2 control-label" for="Nome">Endereço <h11>*</h11></label>  
+              <%= form.text_field :address, size:100 %>
+            </div>
+            <div class="form-group"
+              <label class="col-md-2 control-label" for="Nome">Email <h11>*</h11></label>  
+              <%= form.text_field :email, size:100 %>
+            </div>
+            <div class="form-group"
+            <label class="col-md-2 control-label" for="Nome">Fone <h11>*</h11></label>  
+            <%= form.text_field :phone %>
+            </div>
+            <div class="form-group"
+            <label class="col-md-2 control-label" for="Nome">Observações <h11>*</h11></label>  
+                <%= form.text_field :comments, size:100 %>
+            </div>
+            <div class="form-group"
+              <label class="col-md-2 control-label" for="Nome">Valor Diária <h11>*</h11></label>  
+              <%= form.text_field :Valordiaria %>
+            </div>
+            <div class="actions">
+               <%= form.submit %>
+            </div>
+            </div>
+        </form>
+  </body>
+</head>
 <% end %>

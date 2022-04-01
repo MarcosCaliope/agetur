@@ -10,4 +10,9 @@ class SorderItem < ApplicationRecord
     return amountcomission - amountcomissionpay if amountcomissionpay.present?
     amountcomission
   end
+  def total_passeio
+     return amount - amountpay if amountpay.present?
+     amount
+end
+
 end
