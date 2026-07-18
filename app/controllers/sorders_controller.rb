@@ -153,12 +153,12 @@ require './lib/generate_pdf'
       @agency_options = Agency.all.pluck(:sname, :id)
     end
     def set_company_options
-      @company_options = Company.all.pluck(:cnpj, :address, :phone, :city, :state_id, :email, :site,  :name, :logoform, :logoentrada, :id)
+      @company_options = Company.all.pluck(:name, :id)
     end
 
     # Only allow a list of trusted parameters through.
     def sorder_params
-      params.require(:sorder).permit(:data, :sobservacoes, :destination_id, :tourguide_id, :driver_id, :vehicle_id,
+      params.require(:sorder).permit(:data, :sobservacoes, :destination_id, :tourguide_id, :driver_id, :vehicle_id, :company_id,
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,

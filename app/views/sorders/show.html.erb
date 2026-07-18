@@ -2,7 +2,7 @@
 <%= form_with(model: @sorder, local: true) do |form| %>
   <p id="notice"><%= notice %></p>
   <div class="container">
-  <td><%= image_tag @sorder.company.logoform, midth:50, height:50%>
+  <td><%= image_tag @sorder.company.logoform, midth:50, height:50, skip_pipeline: true%>
   <%= @sorder.company.name %>
     <p> 
     Endereço:
@@ -51,10 +51,10 @@
     <% @sorder_item.each do |sorder_item| %>
       <table class="table table-hover">
         <div>
-        <td><%= sorder_item.hotel.sname %></td>
+        <td><%= sorder_item.hotel&.sname %></td>
         <td><%= sorder_item.apto %></td>
 
-        <td><%= sorder_item.customer.nome %></td>
+        <td><%= sorder_item.customer&.nome %></td>
         <td><%= sorder_item.documenttype %></td>
         <td><%= sorder_item.document %></td>
 
@@ -63,7 +63,7 @@
         <td><%= sorder_item.qtdechd %></td>
 
         <td><%= sorder_item.amount %></td>
-        <td><%= sorder_item.vendor.sname %></td>
+        <td><%= sorder_item.vendor&.sname %></td>
       
       </div>
       <div>

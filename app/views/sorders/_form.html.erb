@@ -12,12 +12,15 @@
   <% end %>
 
   <div class="jumbotron">
-    <td><%= image_tag @sorder.company.logoform, midth:50, height:50%>
+    <% if sorder.company&.logoform.present? %>
+      <td><%= image_tag sorder.company.logoform, midth:50, height:50, skip_pipeline: true%>
+    <% end %>
     <p>
     <%= form.label :ordem %>
     <%= form.text_field :id, disabled: true , size:2 %>
 
-
+    <%= form.label :Empresa %>
+    <%= form.select( "company_id", @company_options, { include_blank: "Selecione" }) %>
     <%= form.label :data %>
     <%= form.date_field :data %>
     <%= form.label :Destino %>
