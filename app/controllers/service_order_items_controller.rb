@@ -67,6 +67,12 @@ class ServiceOrderItemsController < ApplicationController
     end
   end
 
+  # Criamos o método export para chamar a lib que gera o PDF e depois redirecionar o usuário para baixo o PDF
+  def export
+    GeneratePdf::spending(service_order_item.all.map {|s| [s.section, s.value.to_f]})
+    redirect_to '/service_order_item.pdf'
+  end
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_service_order_item

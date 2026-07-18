@@ -38,6 +38,15 @@ gem 'jbuilder', '~> 2.5'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
 
+# Gem para gerar os gráficos
+gem 'gruff'
+# Gem para gerar os pdfs
+gem 'prawn-rails'
+gem 'prawn-table'
+gem 'pdfkit'
+gem 'wkhtmltopdf-binary'
+gem 'wicked_pdf'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]

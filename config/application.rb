@@ -17,3 +17,9 @@ module Agetur
     # the framework and any gems in your application.
   end
 end
+module RailsPdf
+  # Ativa o PDFKit
+  class Application < Rails::Application
+  #    config.middleware.use PDFKit::Middleware
+    end
+end

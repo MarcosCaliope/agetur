@@ -2,15 +2,15 @@
 
 <h1>Hotels</h1>
 
-<table>
+<table class="table table-hover">
   <thead>
     <tr>
-      <th>Sname</th>
+      <th>Nome</th>
       <th>Email</th>
-      <th>Address</th>
-      <th>Phone</th>
-      <th>Comments</th>
-      <th>Valordiaria</th>
+      <th>Endereço</th>
+      <th>Fone</th>
+      <th>Obs.</th>
+      <th>Valor diaria</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -27,11 +27,12 @@
         <td><%= link_to 'Show', hotel %></td>
         <td><%= link_to 'Edit', edit_hotel_path(hotel) %></td>
         <td><%= link_to 'Destroy', hotel, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+        </tr>
     <% end %>
   </tbody>
 </table>
 
 <br>
-
 <%= link_to 'New Hotel', new_hotel_path %>
+<br>
+<td><%= link_to 'Lista em PDF', hotels_path(format: 'pdf') %></td>

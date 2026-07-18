@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :hotels
   resources :vendors
   resources :service_orders
+  
   resources :vehicles
   resources :drivers
   resources :tourguides

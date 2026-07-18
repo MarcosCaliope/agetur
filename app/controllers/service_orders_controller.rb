@@ -7,15 +7,56 @@ class ServiceOrdersController < ApplicationController
   
   before_action :set_service_order_item, only: [:show, :edit, :update, :destroy]
 
+  # Nós incluimos aqui a lib que vamos criar chamada generate_pdf.rb
+  require './lib/generate_pdf'
+
   # GET /service_orders
   # GET /service_orders.json
   def index
-    @service_orders = ServiceOrder.all
-  end
+    @service_orders = ServiceOrder.all.includes(:service_order_item)
+    #@service_orders = ServiceOrder.all.includes(:invoice_items)
+ 
+    #respond_to do |format|
+    #  format.html
+    #  format.pdf do
+    #    render pdf: "ServiceOrder",
+    #    template: "service_orders/show.html.erb"
+    #    #layout: "pdf.html"
+    #  end
+  #end
+end
 
   # GET /service_orders/1
   # GET /service_orders/1.json
-  def show
+  def  show
+    # outro modo com wicked
+    #@invoice = scope.find(params[:id])
+    @service_order = ServiceOrder.find(params[:id])
+    respond_to do |format|
+        format.html
+        format.pdf do
+            render pdf: "Invoice No. #{@ServiceOrder.id}",
+            page_size: 'A4',
+            template: "ServiceOrder/show.html.erb",
+            layout: "pdf.html",
+            orientation: "Landscape",
+            lowquality: true,
+            zoom: 1,
+            dpi: 75
+        end
+    end    
+    # fim
+    # incluindo opção para o Wicked-pdf
+    #@service_orders = scope.find(params[:id])
+
+    #respond_to do |format|
+    #    format.html
+    #    format.pdf do
+    #      render pdf: "ServiceOrderItem",
+    #      template: "service_orders/show.html.erb"
+    #      #layout: "pdf.html.erb"
+    #    end
+    #end
   end
 
   # GET /service_orders/new
@@ -67,13 +108,18 @@ class ServiceOrdersController < ApplicationController
       format.json { head :no_content }
     end
   end
-
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_service_order
       @service_order = ServiceOrder.find(params[:id])
     end
-    
+# metodo para wicked
+    #def scope
+    #  ::ServiceOrder.all.includes(:ServiceOrderItem)
+    # end
+
+
     def set_service_order_item
       @service_order_item = ServiceOrderItem.where('service_order_id = ?', params[:id])
     end
