@@ -1,7 +1,7 @@
 require_relative 'boot'
 
 require 'rails/all'
-
+#require 'pdfkit'
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -20,6 +20,6 @@ end
 module RailsPdf
   # Ativa o PDFKit
   class Application < Rails::Application
-  #    config.middleware.use PDFKit::Middleware
+     # config.middleware.use PDFKit::Middleware
     end
 end

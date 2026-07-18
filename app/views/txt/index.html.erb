@@ -1,0 +1,23 @@
+<form action="/txt/importar"  enctype="multipart/form-data" method="post">
+  <fieldset>
+    <legend>Arquivo</legend>
+    <input type="file" name="txt"> <br> <br>
+    <input type="submit" class="btn btn-primary" value="Enviar">
+  </fieldset>
+
+  <tbody>
+  <% @customers.each do |customer| %>
+    <div>
+    <tr>
+      <td><%= customer.nome %></td>
+      <td><%= customer.email %></td>
+      <td><%= customer.phone %></td>
+      <td><%= customer.document %></td>
+      <td><%= customer.comments %></td>
+      <td><%= customer.city %></td>
+    </tr>
+    </div>
+  <% end %>
+</tbody>
+
+  </form>

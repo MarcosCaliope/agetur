@@ -1,0 +1,89 @@
+<%= form_with(model: sorder, local: true) do |form| %>
+  <% if sorder.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(sorder.errors.count, "error") %> prohibited this sorder from being saved:</h2>
+
+      <ul>
+      <% sorder.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="jumbotron">
+    <td><%= image_tag @sorder.company.logoform, midth:50, height:50%>
+    <p>
+    <%= form.label :ordem %>
+    <%= form.text_field :id, disabled: true , size:2 %>
+
+
+    <%= form.label :data %>
+    <%= form.date_field :data %>
+    <%= form.label :Destino %>
+    <%= form.select( "destination_id", @destination_options, { include_blank: "Selecione" }) %>
+    <%= form.label :Guia %>
+    <%= form.select( "tourguide_id", @tourguide_options, { include_blank: "Selecione" }) %>
+    <%= form.label :Motorista %>
+    <%= form.select( "driver_id", @driver_options, { include_blank: "Selecione" }) %>
+    <%= form.label :Veiculo %>
+    <%= form.select( "vehicle_id", @vehicle_options, { include_blank: "Selecione" }) %>
+      <%= form.label :observacoes %>
+      <%= form.text_field :sobservacoes %>
+
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+      detalhes
+      </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">detalhes das Despesas</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <%= form.label :Pedagio %>
+            <%= form.text_field :valorpedagio, size:7 %>
+          
+            <%= form.label :Despesas %>
+            <%= form.text_field :valordespesas, size:7 %>
+          
+            <%= form.label :Combustivel %>
+            <%= form.text_field :valorcombustivel, size:7 %>
+          
+            <%= form.label :Valor %>
+            <%= form.text_field :valoros, size:7 %>
+            <%= form.label :Final %>
+            <%= form.text_field :valorfinalos, size:7 %>
+            <%= form.label :Guia %>
+            <%= form.text_field :valorguia, size:7%>
+            <br>
+            <%= form.label :Motorista %>
+            <%= form.text_field :valormotorista, size:7 %>
+      
+                    <div>                  </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+  </div>
+    <div id='sorder_items'>
+      <%= form.fields_for :sorder_items do |sorder_item| %>
+      <%= render partial: "sorder_item_fields", locals: { f: sorder_item } %>
+      <% end %>
+    
+    <%= link_to_add_association '[+ PAX]', form, :sorder_items %>
+    </div>
+
+    <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

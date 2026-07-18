@@ -1,0 +1,34 @@
+<%= form_with(model: sorder, local: true) do |form| %>
+    <% if sorder.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(sorder.errors.count, "error") %> prohibited this sorder from being saved:</h2>
+  
+        <ul>
+        <% sorder.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+  
+    <div class="jumbotron">
+      <%= form.label :ordem %>
+      <%= form.text_field :id, disabled: true , size:2 %>
+  
+  
+      <%= form.label :data %>
+      <%= form.date_field :data %>
+      <%= form.label :Destino %>
+        <%= form.label :observacoes %>
+        <%= form.text_field :sobservacoes %>
+  
+       
+    </div>
+    <div id='sorder_items'>
+        <%= form_for :sordera_items do |sorder_item| %>
+        <%= render partial: "sordera_item_fields", locals: { f: sorder_item } %>
+        <% end %>
+    </div>
+  
+  <% end %>
+  

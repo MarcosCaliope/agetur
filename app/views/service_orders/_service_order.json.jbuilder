@@ -1,2 +1,0 @@
-json.extract! service_order, :id, :data, :destination_id, :tourguide_id, :driver_id, :vehicle_id, :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos, :bpagto, :bcancelado, :icapacidade, :ibloqueio, :iflgaberto, :ilitros, :sobservacoes, :sodometroinicio, :sodometrofim, :created_at, :updated_at
-json.url service_order_url(service_order, format: :json)

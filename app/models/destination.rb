@@ -1,3 +1,4 @@
 class Destination < ApplicationRecord
   belongs_to :state
-end
+  belongs_to :sorder
+  end

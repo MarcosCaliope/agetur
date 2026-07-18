@@ -1,15 +1,24 @@
 Rails.application.routes.draw do
   
-  resources :service_order_items
+  resources :companies
+  resources :sorder_items
+  get '/sorder_items_export' => 'sorder_items#export'
+  resources :sorders do
+    get 'export'
+  end
+  
   resources :agencies
   resources :hotels
   resources :vendors
-  resources :service_orders
+  
+  resources :service_orders  do  #, :has_many => :service_order_items
+    end
   
   resources :vehicles
   resources :drivers
   resources :tourguides
   resources :destinations
+  
   namespace :site do
     get 'welcome/index'
   end
@@ -24,7 +33,10 @@ Rails.application.routes.draw do
   devise_for :admins
  
   get 'inicio', to: 'site/welcome#index'
-  
+
+  get '/txt', to: 'txt#index'
+  post '/txt/importar',  to: 'txt#importar'
+
   root to: 'site/welcome#index'
  
   resources :customers

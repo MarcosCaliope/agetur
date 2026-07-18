@@ -1,0 +1,41 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  cnpj: MyString
+  address: MyString
+  phone: MyString
+  city: MyString
+  state: one
+  osmodel: 1
+  osdupla: 1
+  email: MyString
+  site: MyString
+  logoform: MyString
+  logoentrada: MyString
+  iretorno: 1
+  osshowcan: 1
+  osshowcanrel: 1
+  osshowrep: 1
+  osincludechdcalc: MyString
+  comments: MyString
+
+two:
+  name: MyString
+  cnpj: MyString
+  address: MyString
+  phone: MyString
+  city: MyString
+  state: two
+  osmodel: 1
+  osdupla: 1
+  email: MyString
+  site: MyString
+  logoform: MyString
+  logoentrada: MyString
+  iretorno: 1
+  osshowcan: 1
+  osshowcanrel: 1
+  osshowrep: 1
+  osincludechdcalc: MyString
+  comments: MyString

@@ -18,7 +18,7 @@
 
   <div class="field">
     <%= form.label :email %>
-    <%= form.text_field :email %>
+    <%= form.email_field :email %>
   </div>
 
   <div class="field">
@@ -41,11 +41,7 @@
     <%= form.text_field :city %>
   </div>
   
-  <div class="field">
-  <%= form.label :UF %>
-  <%= form.select( "state_id", @state_options, { include_blank: "Selecione" }) %>
-  </div>
-
+  
   <div class="actions">
     <%= form.submit %>
   </div>

@@ -1,0 +1,107 @@
+<%= form_with(model: company, local: true) do |form| %>
+  <% if company.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(company.errors.count, "error") %> prohibited this company from being saved:</h2>
+
+      <ul>
+      <% company.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :cnpj %>
+    <%= form.text_field :cnpj %>
+  </div>
+
+  <div class="field">
+    <%= form.label :address %>
+    <%= form.text_field :address %>
+  </div>
+
+  <div class="field">
+    <%= form.label :phone %>
+    <%= form.text_field :phone %>
+  </div>
+
+  <div class="field">
+    <%= form.label :city %>
+    <%= form.text_field :city %>
+  </div>
+
+  <div class="field">
+    <%= form.label :state_id %>
+    <%= form.text_field :state_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osmodel %>
+    <%= form.number_field :osmodel %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osdupla %>
+    <%= form.number_field :osdupla %>
+  </div>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= form.label :site %>
+    <%= form.text_field :site %>
+  </div>
+
+  <div class="field">
+    <%= form.label :logoform %>
+    <%= form.text_field :logoform %>
+  </div>
+
+  <div class="field">
+    <%= form.label :logoentrada %>
+    <%= form.text_field :logoentrada %>
+  </div>
+
+  <div class="field">
+    <%= form.label :iretorno %>
+    <%= form.number_field :iretorno %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osshowcan %>
+    <%= form.number_field :osshowcan %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osshowcanrel %>
+    <%= form.number_field :osshowcanrel %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osshowrep %>
+    <%= form.number_field :osshowrep %>
+  </div>
+
+  <div class="field">
+    <%= form.label :osincludechdcalc %>
+    <%= form.text_field :osincludechdcalc %>
+  </div>
+
+  <div class="field">
+    <%= form.label :comments %>
+    <%= form.text_field :comments %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

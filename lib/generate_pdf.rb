@@ -11,16 +11,15 @@ module GeneratePdf
     :margin      => [40, 75]
   }
  
-#  def self.service_order name, details, price
-  def self.service_order data
-      # Apenas uma string aleatório para termos um corpo de texto pro contrato
+  def self.sorder id, data, destination_id
+    # Apenas uma string aleatório para termos um corpo de texto pro contrato
     lorem_ipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum nulla id dignissim iaculis. Vestibulum a egestas elit, vitae feugiat velit. Vestibulum consectetur non neque sit amet tristique. Maecenas sollicitudin enim elit, in auctor ligula facilisis sit amet. Fusce imperdiet risus sed bibendum hendrerit. Sed vitae ante sit amet sapien aliquam consequat. Duis sed magna dignissim, lobortis tortor nec, suscipit velit. Nulla sit amet fringilla nisl. Integer tempor mauris vitae augue lobortis posuere. Ut quis tellus purus. Nullam dolor mauris, egestas varius ligula non, cursus faucibus orci sectetur non neque sit amet tristique. Maecenas sollicitudin enim elit, in auctor ligula facilisis sit amet. Fusce imperdiet risus sed bibendum hendrerit. Sed vitae ante sit amet sapien aliquam consequat."
  
     Prawn::Document.new(PDF_OPTIONS) do |pdf|
       # Define a cor do traçado
       pdf.fill_color "666666"
       # Cria um texto com tamanho 30 PDF Points, bold alinha no centro
-      pdf.text "service_order", :size => 32, :style => :bold, :align => :center
+      pdf.text "Agreement", :size => 32, :style => :bold, :align => :center
       # Move 80 PDF points para baixo o cursor
       pdf.move_down 80
       # Escreve o texto do contrato com o tamanho de 14 PDF points, com o alinhamento justify
@@ -32,8 +31,7 @@ module GeneratePdf
       # Move mais 30 PDF points para baixo o cursor
       pdf.move_down 10
       # Adiciona o nome com 12 PDF points, justify e com o formato inline (Observe que o <b></b> funciona para deixar em negrito)
-#      pdf.text "Com o cliente: <b>#{name}</b> por R$#{price}", :size => 12, :align => :justify, :inline_format => true
-      pdf.text "Com o Data: <b>#{data}</b> por R$#{data}", :size => 12, :align => :justify, :inline_format => true
+      pdf.text "Com o cliente: <b>#{name}</b> por R$#{price}", :size => 12, :align => :justify, :inline_format => true
       # Muda de font para Helvetica
       pdf.font "Helvetica"
       # Inclui um texto com um link clicável (usando a tag link) no bottom da folha do lado esquerdo e coloca uma cor especifica nessa parte (usando a tag color)
@@ -45,37 +43,37 @@ module GeneratePdf
     end
   end
  
-  def self.spending spendings
-    ## Gráfico 1 ##
- 
-    # Formata os dados para gerar o gráfico (Não se preocupe com isso, apenas saiba que nesse gráfico os dados de label precisa entrar como um hash)
-    spending_labels = {}
-    spendings.each_with_index {|s,i| spending_labels[i] = s[0].to_s}
- 
-    # Cria um objeto Gruff (gerador de gráfico)
-    g = Gruff::AccumulatorBar.new 1000
-    # Esconde a legenda
-    g.hide_legend = true
-    # Escolhe o tamanho da Font
-    g.marker_font_size = 16
-    # Escolhe as cores que serão usadas
-    g.theme = {
-     :colors => ['#aedaa9', '#12a702'],
-     :marker_color => '#dddddd',
-     :font_color => 'black',
-     :background_colors => 'white'
-    }
-    # Aqui nós colocamos os dados y da tabela
-    g.data 'Savings', spendings.map {|s| s[1]}
-    # Aqui colocamos os dados que formatamos antes da coluna x
-    g.labels = spending_labels
-    # Gera a imagem no diretório público (você pode escolher onde gerar)
-    g.write('public/graph.jpg')
+  def self.SorderItem SorderItem
+  #  ## Gráfico 1 ##
+# 
+#    # Formata os dados para gerar o gráfico (Não se preocupe com isso, apenas saiba que nesse gráfico os dados de label precisa entrar como um hash)
+#    sSorderItem_labels = {}
+#    SorderItem.each_with_index {|s,i| SorderItem_labels[i] = s[0].to_s}
+# 
+#    # Cria um objeto Gruff (gerador de gráfico)
+#    g = Gruff::AccumulatorBar.new 1000
+#    # Esconde a legenda
+#    g.hide_legend = true
+#    # Escolhe o tamanho da Font
+#    g.marker_font_size = 16
+#    # Escolhe as cores que serão usadas
+#    g.theme = {
+#     :colors => ['#aedaa9', '#12a702'],
+#     :marker_color => '#dddddd',
+#     :font_color => 'black',
+#     :background_colors => 'white'
+#    }
+#    # Aqui nós colocamos os dados y da tabela
+#    g.data 'Savings', SorderItem.map {|s| s[1]}
+#    # Aqui colocamos os dados que formatamos antes da coluna x
+#    g.labels = SorderItem_labels
+#    # Gera a imagem no diretório público (você pode escolher onde gerar)
+#    g.write('public/graph.jpg')
  
  
     ## Gráfico 2 ##
     # Estamos colocando nossos dados direto em @datasets para preencher o gráfico 2
-    @datasets = spendings
+    @datasets = SorderItem
     # Cria o objeto Gruff
     g = Gruff::Pie.new 900
     g.theme = Gruff::Themes::PASTEL

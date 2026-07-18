@@ -1,0 +1,75 @@
+
+<%= form_with(model: @sorder, local: true) do |form| %>
+  <p id="notice"><%= notice %></p>
+  <div class="container">
+  <td><%= image_tag @sorder.company.logoform, midth:50, height:50%>
+  <%= @sorder.company.name %>
+    <p> 
+    Endereço:
+    <%= @sorder.company.address %>
+      Fone: 
+    <%= @sorder.company.phone %>
+      Cidade: 
+    <%= @sorder.company.city %>
+      CNPJ: 
+    <%= @sorder.company.cnpj %>
+    <p> 
+    Email: 
+    <%= @sorder.company.email %>
+      Site: 
+    <%= @sorder.company.site %>
+    </td>
+  </div>
+  <p>
+    <div class="container">  
+      <strong>No.Ordem:</strong>
+        <%= @sorder.id %>
+        <strong>Data:</strong>
+        <%= @sorder.data %>
+        <strong>Destino:</strong>
+        <%= @sorder.destination.description %>
+        <strong>Guia:</strong>
+        <%= @sorder.tourguide.sname %>
+        <p>
+          <strong>observacoes:</strong>
+          <%= @sorder.sobservacoes %>
+        </p>
+        </div>
+     
+  <table>
+    <strong>Hotel:</strong>  
+    <strong>Apto:</strong>  
+    <strong>Passageiro/Titular:</strong>  
+    <strong>Telefone:</strong>  
+    <strong>PAX:</strong>  
+    <strong>CHD:</strong>  
+    <strong>Valor:</strong>  
+    <strong>Solicitante:</strong>  
+    <strong>Observações:</strong>  
+  </table>
+
+    <% @sorder_item.each do |sorder_item| %>
+      <table class="table table-hover">
+        <div>
+        <td><%= sorder_item.hotel.sname %></td>
+        <td><%= sorder_item.apto %></td>
+
+        <td><%= sorder_item.customer.nome %></td>
+        <td><%= sorder_item.documenttype %></td>
+        <td><%= sorder_item.document %></td>
+
+        <td><%= sorder_item.phone %></td>
+        <td><%= sorder_item.qtdepax %></td>
+        <td><%= sorder_item.qtdechd %></td>
+
+        <td><%= sorder_item.amount %></td>
+        <td><%= sorder_item.vendor.sname %></td>
+      
+      </div>
+      <div>
+        <td><%= sorder_item.comments %></td>
+      </div>
+      </table>
+    <% end %>
+    <%= link_to 'Download Report', sorder_path(format: 'pdf') %>
+<% end %>
