@@ -10,10 +10,7 @@ Rails.application.routes.draw do
   resources :agencies
   resources :hotels
   resources :vendors
-  
-  resources :service_orders  do  #, :has_many => :service_order_items
-    end
-  
+
   resources :vehicles
   resources :drivers
   resources :tourguides
