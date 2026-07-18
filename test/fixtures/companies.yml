@@ -6,7 +6,7 @@ one:
   address: MyString
   phone: MyString
   city: MyString
-  state: one
+  state: two
   osmodel: 1
   osdupla: 1
   email: MyString

@@ -17,7 +17,9 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
 
   test "should create sorder" do
     assert_difference('Sorder.count') do
-      post sorders_url, params: { sorder: { data: @sorder.data, sobservacoes: @sorder.sobservacoes } }
+      post sorders_url, params: { sorder: { data: @sorder.data, sobservacoes: @sorder.sobservacoes,
+        destination_id: @sorder.destination_id, tourguide_id: @sorder.tourguide_id,
+        driver_id: @sorder.driver_id, vehicle_id: @sorder.vehicle_id, company_id: @sorder.company_id } }
     end
 
     assert_redirected_to sorder_url(Sorder.last)
