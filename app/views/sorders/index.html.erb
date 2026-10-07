@@ -1,17 +1,16 @@
 <p id="notice"><%= notice %> </p>
 
 <style type="text/css">
-      @media print {  
+      @media print {
       .print {
         display: block;
       }
       .no-print {
         display: none;
       }
-  }  
+  }
   </style>
   <div class="no-print">
-    
     <%= search_form_for @q do |f| %>
       <%= f.label :data_gteq, "Data Inicial:" %>
       <%= f.date_field :data_gteq %>
@@ -20,7 +19,7 @@
 
       <%= f.label :destination_id_eq, "Roteiro" %>
       <%= f.collection_select :destination_id_eq, Destination.all, :id, :description, include_blank: true %>
-  
+
       <%= f.submit %>
     <% end %>
   </div>
@@ -42,16 +41,15 @@
     <% @sorders.each do |sorder| %>
       <tr>
         <td><%= sorder.id %></td>
-        <td><%= sorder.data.strftime("%d/%m/%Y") %></td>
+        <td><%= sorder.data&.strftime("%d/%m/%Y") %></td>
         <td><%= sorder.destination.description%></td>
         <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.tourguide.sname%></td>
-        
-        <td><%= link_to 'Show', sorder, class:"no-print"  %></td>
-        <div class="no-print">
-          <td><%= link_to 'Edit', edit_sorder_path(sorder), class:"no-print"  %></td>
-          <td><%= link_to 'Destroy', sorder, method: :delete, data: { confirm: 'Are you sure?' }, class:"no-print"  %></td>
-        </div>
+
+        <td class="no-print"><%= link_to 'Show', sorder %></td>
+        <td class="no-print"><%= link_to 'Edit', edit_sorder_path(sorder) %></td>
+        <td class="no-print"><%= link_to 'Destroy', sorder, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
     <% end %>
   </tbody>
 </table>
@@ -59,7 +57,7 @@
 <br>
 <div class="no-print">
   <%= link_to 'Nova Ordem', new_sorder_path %> <br>
-  
-  <td><%= link_to '[Inicio]', site_welcome_index_path %></td>
+  <%= link_to 'Arq.PDF', sorders_path(request.query_parameters.merge(format: 'pdf')) %> <br>
+  <%= link_to '[Inicio]', site_welcome_index_path %>
 </div>
-  <button onclick="print()" class="no-print">imprimir </button>
+<button onclick="print()" class="no-print">imprimir</button>

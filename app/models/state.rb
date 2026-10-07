@@ -1,4 +1,4 @@
 class State < ApplicationRecord
     has_many :customers
-    belongs_to :company
+    has_many :companies
 end

@@ -1,16 +1,12 @@
 class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy, :export]
 
-   # Nós incluimos aqui a lib que vamos criar chamada generate_pdf.rb
-  
   # GET /hotels
   # GET /hotels.json
   def index
     #@hotels = Hotel.order("id.Desc").all
-    #@hotels = Hotel.all
     @q = Hotel.ransack(params[:q])
     @hotels = @q.result
- 
     respond_to do |format|
       format.html
       format.pdf do

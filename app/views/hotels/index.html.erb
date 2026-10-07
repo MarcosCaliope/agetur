@@ -1,19 +1,15 @@
 <p id="notice"><%= notice %></p>
 <style type="text/css">
-      @media print {  
+      @media print {
       .print {
         display: block;
       }
       .no-print {
         display: none;
       }
-    }  
-  tt {
-    color: yellow;
-    font-family: verdana;
     }
   </style>
-  
+
   <div class="no-print">
     Pesquisar por Nome
     <%= search_form_for @q do |f| %>
@@ -33,7 +29,7 @@
       <th>Endereço</th>
       <th>Fone</th>
       <th>Obs.</th>
-      <th class="no-print"> Valor diaria</th>
+      <th class="no-print">Valor diaria</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -46,19 +42,19 @@
         <td><%= hotel.address %></td>
         <td><%= hotel.phone %></td>
         <td><%= hotel.comments %></td>
-        <td class="no-print"> <%= hotel.Valordiaria %></td>
-        <div class="no-print">
-          <td><%= link_to 'Show', hotel, class:"no-print" %></td>
-          <td><%= link_to 'Edit', edit_hotel_path(hotel), class:"no-print" %></td>
-          <td><%= link_to 'Destroy', hotel, class:"no-print", method: :delete, data: { confirm: 'Are you sure?' } %></td>
-        </div>
+        <td class="no-print"><%= hotel.Valordiaria %></td>
+        <td class="no-print"><%= link_to 'Show', hotel %></td>
+        <td class="no-print"><%= link_to 'Edit', edit_hotel_path(hotel) %></td>
+        <td class="no-print"><%= link_to 'Destroy', hotel, method: :delete, data: { confirm: 'Are you sure?' } %></td>
         </tr>
     <% end %>
   </tbody>
 </table>
+
 <div class="no-print">
   <br>
   <%= link_to 'New Hotel', new_hotel_path %>
   <br>
- </div>
-<button onclick="print()" class="no-print">imprimir </button>
+  <%= link_to 'Lista em PDF', hotels_path(request.query_parameters.merge(format: 'pdf')) %>
+</div>
+<button onclick="print()" class="no-print">imprimir</button>

@@ -12,12 +12,13 @@
   <% end %>
 
   <div class="jumbotron">
+    <td><%= company_logo_tag sorder.company&.logoform, 50 %>
     <p>
-    <%= form.select( "company_id", @company_options) %>
     <%= form.label :ordem %>
     <%= form.text_field :id, disabled: true , size:2 %>
 
-
+    <%= form.label :Empresa %>
+    <%= form.select( "company_id", @company_options, { include_blank: "Selecione" }) %>
     <%= form.label :data %>
     <%= form.date_field :data %>
     <%= form.label :Destino %>
@@ -80,10 +81,12 @@
       <%= form.fields_for :sorder_items do |sorder_item| %>
       <%= render partial: "sorder_item_fields", locals: { f: sorder_item } %>
       <% end %>
-    
     </div>
 
     <div class="actions">
     <%= form.submit %>
+    <% if sorder.persisted? %>
+      <%= link_to 'Exportar PDF', export_sorder_path(sorder), target: "_blank" %>
+    <% end %>
   </div>
 <% end %>

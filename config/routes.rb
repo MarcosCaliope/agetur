@@ -1,26 +1,18 @@
 Rails.application.routes.draw do
   
   resources :companies
-  resources :sorder_items do
-    # get '/sorder_items_export' => 'sorder_items#export'
-    # get 'showcomis', to: 'sorder_items#showcomis'
-   # get 'conta/meu_perfil'
-  end
-
+  resources :sorder_items
   get 'showcomis', to: 'sorder_items#showcomis'
-
   resources :sorders do
-    get 'export'
-    
+    member do
+      get 'export'
+    end
   end
   
   resources :agencies
   resources :hotels
   resources :vendors
-  
-  resources :service_orders  do  #, :has_many => :service_order_items
-    end
-  
+
   resources :vehicles
   resources :drivers
   resources :tourguides

@@ -1,42 +1,22 @@
-class SorderItemsController < SordersController
+class SorderItemsController < ApplicationController
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
-  before_action :set_vendor_options, only: [:show, :new, :create, :edit, :update]
-# Incluimos a Lib que vamos criar para podermos chama-la no nosso método
-#require './lib/generate_pdf'
   # GET /sorder_items
   # GET /sorder_items.json
   def index
-#    @sorder_items = SorderItem.all
-    #@q = SorderItem.ransack(params[:q])
-    if params[:q].blank?
-      @q = SorderItem.none.search # so you have a ransack search
-    else
-      @q = SorderItem.search params[:q]
-      @sorder_items = @q.result
-      render 'showcomis', sorder_item: @q.result
-    end
-      @sorder_items = @q.result
-    end
+    @sorder_items = SorderItem.all
+  end
 
   # GET /sorder_items/1
   # GET /sorder_items/1.json
   def show
-    respond_to do |format|
-      format.html
-      format.pdf do
-        #pdf = Prawn::Document.new
-        pdf = SorderitensPdf.new (@sorders)
-        #send_data pdf.render, filename: 'sorder.pdf', type: 'application/pdf', disposition: "inline"
-        # quando não aciona o index.pdf.prawn
-      end
-    end
-end
+  end
 
-def showcomis
-#  @sorder_items = SorderItem.all
-  @q = SorderItem.ransack(params[:q])
-  @sorder_items = @q.result
-end
+  # GET /showcomis
+  def showcomis
+    @q = SorderItem.ransack(comissoes_query)
+    @sorder_items = @q.result.includes(:vendor, :hotel, :customer).order(:created_at)
+  end
+
   # GET /sorder_items/new
   def new
     @sorder_item = SorderItem.new
@@ -85,12 +65,6 @@ end
       format.json { head :no_content }
     end
   end
- # Criamos o método export para chamar a lib que gera o PDF e depois redirecionar o usuário para baixo o PDF
-  def export
-   # GeneratePdf::sorder_item(@SorderItem.all.map {|s| [s.comments, s.id]})
-    #GeneratePdf::sorder_item(@SorderItem.id, @SorderItem.destination_id)
-    redirect_to '/sorder_item.pdf'
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -98,8 +72,11 @@ end
       @sorder_item = SorderItem.find(params[:id])
     end
 
-    def set_vendor_options
-      @vendor_options = Vendor.all.pluck(:sname, :id)
+    # The date fields send plain dates, so make "Data Final" include that whole day.
+    def comissoes_query
+      q = params.fetch(:q, {}).permit(:created_at_gteq, :created_at_lteq, :vendor_id_eq).to_h
+      q[:created_at_lteq] = Time.zone.parse(q[:created_at_lteq])&.end_of_day if q[:created_at_lteq].present?
+      q
     end
 
     # Only allow a list of trusted parameters through.

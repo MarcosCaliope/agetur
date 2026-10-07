@@ -10,31 +10,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_01_142936) do
+ActiveRecord::Schema[7.2].define(version: 2022_03_16_152642) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
-  create_table "admins", charset: "utf8mb3", force: :cascade do |t|
+  create_table "admins", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["email"], name: "index_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
   end
 
-  create_table "agencies", charset: "utf8mb3", force: :cascade do |t|
+  create_table "agencies", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
     t.string "phone"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "companies", charset: "utf8mb3", force: :cascade do |t|
+  create_table "companies", force: :cascade do |t|
     t.string "name"
     t.string "cnpj"
     t.string "address"
@@ -53,25 +55,25 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.integer "osshowrep"
     t.string "osincludechdcalc"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["state_id"], name: "index_companies_on_state_id"
   end
 
-  create_table "customers", charset: "utf8mb3", force: :cascade do |t|
+  create_table "customers", force: :cascade do |t|
     t.string "nome"
     t.string "email"
     t.string "phone"
     t.string "document"
     t.string "comments"
     t.string "city"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.bigint "state_id"
     t.index ["state_id"], name: "index_customers_on_state_id"
   end
 
-  create_table "destinations", charset: "utf8mb3", force: :cascade do |t|
+  create_table "destinations", force: :cascade do |t|
     t.string "description"
     t.integer "distance"
     t.float "valuenormal"
@@ -81,94 +83,38 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.float "valuecard"
     t.float "valuecardchd"
     t.bigint "state_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["state_id"], name: "index_destinations_on_state_id"
   end
 
-  create_table "drivers", charset: "utf8mb3", force: :cascade do |t|
+  create_table "drivers", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
     t.string "phone"
     t.string "city"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "hotels", charset: "utf8mb3", force: :cascade do |t|
+  create_table "hotels", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
     t.string "phone"
     t.string "comments"
     t.float "Valordiaria"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "service_order_items", charset: "utf8mb3", force: :cascade do |t|
-    t.bigint "service_order_id"
-    t.string "nomepax"
-    t.string "documenttype"
-    t.string "document"
-    t.bigint "hotel_id"
-    t.string "apto"
-    t.integer "qtdepax"
-    t.string "hour"
-    t.string "phone"
-    t.bigint "vendor_id"
-    t.bigint "agency_id"
-    t.float "amount"
-    t.float "amountpay"
-    t.float "amountcomission"
-    t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "customer_id"
-    t.index ["agency_id"], name: "index_service_order_items_on_agency_id"
-    t.index ["customer_id"], name: "index_service_order_items_on_customer_id"
-    t.index ["hotel_id"], name: "index_service_order_items_on_hotel_id"
-    t.index ["service_order_id"], name: "index_service_order_items_on_service_order_id"
-    t.index ["vendor_id"], name: "index_service_order_items_on_vendor_id"
-  end
-
-  create_table "service_orders", charset: "utf8mb3", force: :cascade do |t|
-    t.datetime "data"
-    t.bigint "destination_id"
-    t.bigint "tourguide_id"
-    t.bigint "driver_id"
-    t.bigint "vehicle_id"
-    t.float "valorguia"
-    t.float "valormotorista"
-    t.float "valorpedagio"
-    t.float "valordespesas"
-    t.float "valorcombustivel"
-    t.float "valoros"
-    t.float "valorfinalos"
-    t.boolean "bpagto"
-    t.boolean "bcancelado"
-    t.integer "icapacidade"
-    t.integer "ibloqueio"
-    t.integer "iflgaberto"
-    t.integer "ilitros"
-    t.string "sobservacoes"
-    t.string "sodometroinicio"
-    t.string "sodometrofim"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["destination_id"], name: "index_service_orders_on_destination_id"
-    t.index ["driver_id"], name: "index_service_orders_on_driver_id"
-    t.index ["tourguide_id"], name: "index_service_orders_on_tourguide_id"
-    t.index ["vehicle_id"], name: "index_service_orders_on_vehicle_id"
-  end
-
-  create_table "sorder_items", charset: "utf8mb3", force: :cascade do |t|
+  create_table "sorder_items", force: :cascade do |t|
     t.bigint "sorder_id"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.bigint "customer_id"
     t.string "documenttype"
     t.string "document"
@@ -195,11 +141,11 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.index ["vendor_id"], name: "index_sorder_items_on_vendor_id"
   end
 
-  create_table "sorders", charset: "utf8mb3", force: :cascade do |t|
-    t.datetime "data"
+  create_table "sorders", force: :cascade do |t|
+    t.datetime "data", precision: nil
     t.string "sobservacoes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.bigint "destination_id"
     t.bigint "tourguide_id"
     t.bigint "driver_id"
@@ -212,7 +158,6 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.float "valoros"
     t.float "valorfinalos"
     t.bigint "company_id"
-    t.datetime "dataos"
     t.index ["company_id"], name: "index_sorders_on_company_id"
     t.index ["destination_id"], name: "index_sorders_on_destination_id"
     t.index ["driver_id"], name: "index_sorders_on_driver_id"
@@ -220,36 +165,36 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.index ["vehicle_id"], name: "index_sorders_on_vehicle_id"
   end
 
-  create_table "states", charset: "utf8mb3", force: :cascade do |t|
+  create_table "states", force: :cascade do |t|
     t.string "uf"
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "tourguides", charset: "utf8mb3", force: :cascade do |t|
+  create_table "tourguides", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
     t.string "phone"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "users", charset: "utf8mb3", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "vehicles", charset: "utf8mb3", force: :cascade do |t|
+  create_table "vehicles", force: :cascade do |t|
     t.string "license"
     t.string "brand"
     t.string "smodel"
@@ -258,34 +203,25 @@ ActiveRecord::Schema.define(version: 2022_04_01_142936) do
     t.string "city"
     t.bigint "state_id"
     t.string "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
 
-  create_table "vendors", charset: "utf8mb3", force: :cascade do |t|
+  create_table "vendors", force: :cascade do |t|
     t.string "sname"
     t.string "email"
     t.string "address"
     t.string "phone"
     t.string "comments"
     t.float "commission"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   add_foreign_key "companies", "states"
   add_foreign_key "customers", "states"
   add_foreign_key "destinations", "states"
-  add_foreign_key "service_order_items", "agencies"
-  add_foreign_key "service_order_items", "customers"
-  add_foreign_key "service_order_items", "hotels"
-  add_foreign_key "service_order_items", "service_orders"
-  add_foreign_key "service_order_items", "vendors"
-  add_foreign_key "service_orders", "destinations"
-  add_foreign_key "service_orders", "drivers"
-  add_foreign_key "service_orders", "tourguides"
-  add_foreign_key "service_orders", "vehicles"
   add_foreign_key "sorder_items", "agencies"
   add_foreign_key "sorder_items", "customers"
   add_foreign_key "sorder_items", "hotels"

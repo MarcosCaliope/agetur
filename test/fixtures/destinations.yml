@@ -9,7 +9,7 @@ one:
   valuenetchd: 1.5
   valuecard: 1.5
   valuecardchd: 1.5
-  state: one
+  state: two
 
 two:
   description: MyString

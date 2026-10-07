@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<h1>Site::Welcome#index</h1>
 <% if user_signed_in? %>
   <p> User Login: <%= current_user.email %> </p>
   <% else %>
@@ -13,7 +11,7 @@
 <p>
 <%= link_to "Ordem de Serviço", sorders_path %>
 <p>
-<%= link_to "Ordem de Serviço_itens", showcomis_path %>
+<%= link_to "Comissões", showcomis_path %>
 <p>
 <%= link_to "Clientes", customers_path %>
 <p>

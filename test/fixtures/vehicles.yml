@@ -7,7 +7,7 @@ one:
   year: MyString
   color: MyString
   city: MyString
-  state: one
+  state: two
   comments: MyString
 
 two:

@@ -1,4 +1,4 @@
 class Customer < ApplicationRecord
     belongs_to :state, optional: true
-    has_many :sorder_item
+    has_many :sorder_items
 end

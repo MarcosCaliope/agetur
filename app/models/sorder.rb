@@ -6,16 +6,16 @@ class Sorder < ApplicationRecord
     belongs_to :company
     belongs_to :driver
     belongs_to :vehicle
-    
+
     def total_pax
-       #User.includes(:posts).where('posts.name = ?', 'example')
-        #Sorder.includes(:sorder_items).where('sorder_items.scancelado = ?', 'N').references(:sorder_items)
-        sorder_items.where('sorder_items.scancelado = ?', 'N').sum("qtdepax")
+        sorder_items.ativos.sum(:qtdepax)
     end
 
     def total_chd
-       #Sorder.includes(:sorder_items)
-       sorder_items.where('sorder_items.scancelado = ?', 'N').sum("qtdechd")
+        sorder_items.ativos.sum(:qtdechd)
     end
-    
+
+    def self.ransackable_attributes(auth_object = nil)
+      ["company_id", "created_at", "data", "destination_id", "driver_id", "id", "id_value", "sobservacoes", "tourguide_id", "updated_at", "valorcombustivel", "valordespesas", "valorfinalos", "valorguia", "valormotorista", "valoros", "valorpedagio", "vehicle_id"]
+    end
 end
