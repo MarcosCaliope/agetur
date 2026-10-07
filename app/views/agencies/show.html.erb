@@ -1,28 +1,6 @@
+<h1><%= @agency.sname %></h1>
 
-<p>
-  <strong>Nome:</strong>
-  <%= @agency.sname %>
-</p>
-
-<p>
-  <strong>E-mail:</strong>
-  <%= @agency.email %>
-</p>
-
-<p>
-  <strong>Endereço:</strong>
-  <%= @agency.address %>
-</p>
-
-<p>
-  <strong>Telefone:</strong>
-  <%= @agency.phone %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @agency.comments %>
-</p>
+<%= render "shared/detalhes", registro: @agency, campos: [:short_name, :document, :address, :neighborhood, :city, :state, :zipcode, :phone, :phone2, :fax, :contact, :email, :commission, :vendor, :comments, :sistger_id] %>
 
 <%= link_to 'Editar', edit_agency_path(@agency) %> |
 <%= link_to 'Voltar', agencies_path %>

@@ -11,47 +11,95 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= form.label :Placas %>
-    <%= form.text_field :license %>
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <%= form.label :license %>
+      <%= form.text_field :license, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :vehicle_type %>
+      <%= form.text_field :vehicle_type, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :brand %>
+      <%= form.text_field :brand, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :smodel %>
+      <%= form.text_field :smodel, class: "form-control" %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :Marca %>
-    <%= form.text_field :brand %>
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <%= form.label :manufacture_year %>
+      <%= form.text_field :manufacture_year, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :year %>
+      <%= form.text_field :year, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :color %>
+      <%= form.text_field :color, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :capacity %>
+      <%= form.text_field :capacity, class: "form-control" %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :Modelo %>
-    <%= form.text_field :smodel %>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <%= form.label :renavam %>
+      <%= form.text_field :renavam, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-4">
+      <%= form.label :chassis %>
+      <%= form.text_field :chassis, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-2">
+      <%= form.label :tank %>
+      <%= form.text_field :tank, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-2">
+      <%= form.label :odometer %>
+      <%= form.text_field :odometer, class: "form-control" %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :Ano %>
-    <%= form.text_field :year %>
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <%= form.label :licensing_year %>
+      <%= form.number_field :licensing_year, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :acquired_on %>
+      <%= form.date_field :acquired_on, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= form.label :insurance_kit %>
+      <%= form.text_field :insurance_kit, class: "form-control" %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :cor %>
-    <%= form.text_field :color %>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <%= form.label :city %>
+      <%= form.text_field :city, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-2">
+      <%= form.label :state_id %>
+      <%= form.select :state_id, @state_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :Cidade %>
-    <%= form.text_field :city %>
-  </div>
-
-  <div class="field">
-  <%= form.label :State %>
-  <%= form.select( "state_id", @state_options, { include_blank: "Selecione" }) %>
-  </div>
-
-  <div class="field">
-    <%= form.label :Observações %>
-    <%= form.text_field :comments %>
+  <div class="form-group">
+    <%= form.label :comments %>
+    <%= form.text_area :comments, class: "form-control", rows: 3 %>
   </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 <% end %>

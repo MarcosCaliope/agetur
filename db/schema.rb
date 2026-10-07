@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_07_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -62,6 +62,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.string "comments"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.string "short_name"
+    t.string "neighborhood"
+    t.string "city"
+    t.bigint "state_id"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "document"
+    t.float "commission"
+    t.bigint "vendor_id"
+    t.index ["sistger_id"], name: "index_agencies_on_sistger_id", unique: true
+    t.index ["state_id"], name: "index_agencies_on_state_id"
+    t.index ["vendor_id"], name: "index_agencies_on_vendor_id"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -85,6 +100,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.string "comments"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.string "short_name"
+    t.string "state_registration"
+    t.index ["sistger_id"], name: "index_companies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_companies_on_state_id"
   end
 
@@ -98,6 +117,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.bigint "state_id"
+    t.integer "sistger_id"
+    t.string "state_registration"
+    t.string "address"
+    t.string "neighborhood"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "website"
+    t.string "billing_address"
+    t.string "billing_neighborhood"
+    t.string "billing_city"
+    t.bigint "billing_state_id"
+    t.string "billing_zipcode"
+    t.string "billing_phone"
+    t.string "billing_phone2"
+    t.string "billing_fax"
+    t.index ["billing_state_id"], name: "index_customers_on_billing_state_id"
+    t.index ["sistger_id"], name: "index_customers_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_customers_on_state_id"
   end
 
@@ -113,6 +151,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.bigint "state_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.float "value_combo"
+    t.float "value_combo_chd"
+    t.float "value_net_combo"
+    t.float "value_net_combo_chd"
+    t.index ["sistger_id"], name: "index_destinations_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_destinations_on_state_id"
   end
 
@@ -125,6 +169,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.string "comments"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.string "short_name"
+    t.string "neighborhood"
+    t.bigint "state_id"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "document"
+    t.integer "sistger_id"
+    t.index ["sistger_id"], name: "index_drivers_on_sistger_id", unique: true
+    t.index ["state_id"], name: "index_drivers_on_state_id"
   end
 
   create_table "hotels", force: :cascade do |t|
@@ -136,6 +191,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.float "Valordiaria"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.string "short_name"
+    t.string "neighborhood"
+    t.string "city"
+    t.bigint "state_id"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "document"
+    t.index ["sistger_id"], name: "index_hotels_on_sistger_id", unique: true
+    t.index ["state_id"], name: "index_hotels_on_state_id"
   end
 
   create_table "sorder_items", force: :cascade do |t|
@@ -162,9 +229,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.float "amountcomissionreppay"
     t.string "snomepax"
     t.string "scancelado"
+    t.integer "sistger_numero"
+    t.integer "sistger_sequencial"
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"
     t.index ["hotel_id"], name: "index_sorder_items_on_hotel_id"
+    t.index ["sistger_numero", "sistger_sequencial"], name: "index_sorder_items_on_sistger_numero_and_sistger_sequencial", unique: true
     t.index ["sorder_id"], name: "index_sorder_items_on_sorder_id"
     t.index ["vendor_id"], name: "index_sorder_items_on_vendor_id"
   end
@@ -186,9 +256,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.float "valoros"
     t.float "valorfinalos"
     t.bigint "company_id"
+    t.integer "sistger_id"
     t.index ["company_id"], name: "index_sorders_on_company_id"
     t.index ["destination_id"], name: "index_sorders_on_destination_id"
     t.index ["driver_id"], name: "index_sorders_on_driver_id"
+    t.index ["sistger_id"], name: "index_sorders_on_sistger_id", unique: true
     t.index ["tourguide_id"], name: "index_sorders_on_tourguide_id"
     t.index ["vehicle_id"], name: "index_sorders_on_vehicle_id"
   end
@@ -208,6 +280,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.string "comments"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.string "short_name"
+    t.string "neighborhood"
+    t.string "city"
+    t.bigint "state_id"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "document"
+    t.integer "sistger_id"
+    t.index ["sistger_id"], name: "index_tourguides_on_sistger_id", unique: true
+    t.index ["state_id"], name: "index_tourguides_on_state_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -233,6 +317,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.string "comments"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.string "vehicle_type"
+    t.string "manufacture_year"
+    t.string "capacity"
+    t.string "tank"
+    t.string "chassis"
+    t.string "odometer"
+    t.string "renavam"
+    t.integer "licensing_year"
+    t.date "acquired_on"
+    t.string "insurance_kit"
+    t.index ["sistger_id"], name: "index_vehicles_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
 
@@ -245,13 +341,33 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
     t.float "commission"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "sistger_id"
+    t.string "short_name"
+    t.string "neighborhood"
+    t.string "city"
+    t.bigint "state_id"
+    t.string "zipcode"
+    t.string "phone2"
+    t.string "fax"
+    t.string "contact"
+    t.string "document"
+    t.string "classification"
+    t.boolean "active", default: true, null: false
+    t.boolean "no_commission", default: false, null: false
+    t.index ["sistger_id"], name: "index_vendors_on_sistger_id", unique: true
+    t.index ["state_id"], name: "index_vendors_on_state_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agencies", "states"
+  add_foreign_key "agencies", "vendors"
   add_foreign_key "companies", "states"
   add_foreign_key "customers", "states"
+  add_foreign_key "customers", "states", column: "billing_state_id"
   add_foreign_key "destinations", "states"
+  add_foreign_key "drivers", "states"
+  add_foreign_key "hotels", "states"
   add_foreign_key "sorder_items", "agencies"
   add_foreign_key "sorder_items", "customers"
   add_foreign_key "sorder_items", "hotels"
@@ -262,5 +378,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_171755) do
   add_foreign_key "sorders", "drivers"
   add_foreign_key "sorders", "tourguides"
   add_foreign_key "sorders", "vehicles"
+  add_foreign_key "tourguides", "states"
   add_foreign_key "vehicles", "states"
+  add_foreign_key "vendors", "states"
 end

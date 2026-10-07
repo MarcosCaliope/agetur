@@ -1,0 +1,17 @@
+<%# Definition list of a record's fields with their Portuguese names.
+    locals: registro, campos (attribute names; associations show their name/UF). %>
+<dl class="row">
+  <% campos.each do |campo| %>
+    <% valor = registro.public_send(campo) %>
+    <% valor = case valor
+               when State then valor.uf
+               when ActiveRecord::Base then valor.try(:sname) || valor.try(:name) || valor.id
+               when true then "Sim"
+               when false then "Não"
+               when Date, Time then l(valor.to_date)
+               else valor
+               end %>
+    <dt class="col-sm-3"><%= registro.class.human_attribute_name(campo) %></dt>
+    <dd class="col-sm-9"><%= valor.presence || "—" %></dd>
+  <% end %>
+</dl>

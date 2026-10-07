@@ -1,28 +1,6 @@
+<h1><%= @tourguide.sname %></h1>
 
-<p>
-  <strong>Nome:</strong>
-  <%= @tourguide.sname %>
-</p>
-
-<p>
-  <strong>E-mail:</strong>
-  <%= @tourguide.email %>
-</p>
-
-<p>
-  <strong>Endereço:</strong>
-  <%= @tourguide.address %>
-</p>
-
-<p>
-  <strong>Telefone:</strong>
-  <%= @tourguide.phone %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @tourguide.comments %>
-</p>
+<%= render "shared/detalhes", registro: @tourguide, campos: [:short_name, :document, :address, :neighborhood, :city, :state, :zipcode, :phone, :phone2, :fax, :contact, :email, :comments, :sistger_id] %>
 
 <%= link_to 'Editar', edit_tourguide_path(@tourguide) %> |
 <%= link_to 'Voltar', tourguides_path %>

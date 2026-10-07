@@ -1,0 +1,88 @@
+<h1>Importar do SISTGER</h1>
+
+<% if !@configurada %>
+  <div class="alert alert-warning">
+    A conexão com o SISTGER não está configurada. Ela é lida do registro do Windows usado pelo SISTGER
+    (<code>oServico\BANCO_DE_DADOS</code>) ou das variáveis <code>SISTGER_DB_*</code> (veja o arquivo
+    <code>.env.example</code>).
+  </div>
+<% elsif @erro %>
+  <div class="alert alert-danger"><%= @erro %></div>
+<% else %>
+  <p class="text-muted">
+    Origem: <%= fonte.descricao %>. Marque as tabelas e escolha o filtro de cada uma. Importar de novo
+    atualiza o que já foi importado, sem duplicar; registros criados diretamente neste sistema não são alterados.
+  </p>
+  <p class="text-muted small">
+    As tabelas são importadas nesta ordem. Ordens de serviço dependem da empresa e dos roteiros; passageiros
+    dependem das ordens, então use o mesmo filtro nas duas. Nas ordens e passageiros, o código é o número da
+    ordem e o período é pela data da ordem; "últimos" nos passageiros são os das últimas ordens. Para trazer só o
+    que falta, use a faixa de código a partir do "último importado".
+  </p>
+
+  <%= form_with url: sistger_imports_path, method: :post, local: true, id: "sistger-import" do |form| %>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="sistger-todas" aria-label="Marcar todas"></th>
+            <th>Tabela</th>
+            <th class="text-right">No SISTGER</th>
+            <th class="text-right">Último no SISTGER</th>
+            <th class="text-right">Já importados</th>
+            <th class="text-right">Último importado</th>
+            <th>Filtro</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% SistgerImport::ETAPAS.each do |etapa| %>
+            <% contagem = @contagens[etapa.chave] %>
+            <% campo = ->(nome) { "filtros[#{etapa.chave}][#{nome}]" } %>
+            <tr class="sistger-etapa" data-etapa="<%= etapa.chave %>">
+              <td><%= check_box_tag "etapas[]", etapa.chave, false, id: "etapa_#{etapa.chave}", class: "sistger-marcar" %></td>
+              <td>
+                <label for="etapa_<%= etapa.chave %>" class="mb-0"><%= etapa.nome %></label><br>
+                <code class="small"><%= etapa.tabela %></code>
+              </td>
+              <td class="text-right"><%= number_with_delimiter(contagem[:sistger]) %></td>
+              <td class="text-right sistger-ultimo"><%= contagem[:ultimo_sistger] ? number_with_delimiter(contagem[:ultimo_sistger]) : "—" %></td>
+              <td class="text-right"><%= number_with_delimiter(contagem[:importados]) %></td>
+              <td class="text-right sistger-ultimo-importado"><%= contagem[:ultimo_importado] ? number_with_delimiter(contagem[:ultimo_importado]) : "—" %></td>
+              <td class="sistger-filtro">
+                <% modos = SistgerImport::Filtro::MODOS.reject { |modo, _| modo == "periodo" && !etapa.periodo } %>
+                <%= select_tag campo["modo"], options_for_select(modos.invert), class: "form-control form-control-sm sistger-modo mb-1",
+                      aria: { label: "Filtro de #{etapa.nome}" } %>
+                <% if etapa.periodo %>
+                  <div class="form-inline sistger-campos" data-modo="periodo">
+                    <%= date_field_tag campo["inicio"], nil, class: "form-control form-control-sm mr-1", aria: { label: "Data inicial" } %>
+                    a
+                    <%= date_field_tag campo["fim"], nil, class: "form-control form-control-sm ml-1", aria: { label: "Data final" } %>
+                  </div>
+                <% end %>
+                <div class="form-inline sistger-campos" data-modo="faixa">
+                  <%= number_field_tag campo["de"], nil, class: "form-control form-control-sm mr-1", placeholder: "de", min: 0, aria: { label: "Código inicial" } %>
+                  a
+                  <%= number_field_tag campo["ate"], nil, class: "form-control form-control-sm ml-1", placeholder: "até", min: 0, aria: { label: "Código final" } %>
+                </div>
+                <div class="form-inline sistger-campos" data-modo="ultimos">
+                  <%= number_field_tag campo["quantidade"], 100, class: "form-control form-control-sm mr-1", min: 1,
+                        max: SistgerImport::Filtro::MAX_ULTIMOS, aria: { label: "Quantidade" } %>
+                  registros
+                </div>
+              </td>
+              <td class="text-right">
+                <button type="button" class="btn btn-outline-secondary btn-sm sistger-previa"
+                        data-url="<%= sistger_import_path(etapa.chave) %>">Prévia</button>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= form.submit "Importar selecionadas", class: "btn btn-primary",
+          data: { confirm: "Importar as tabelas selecionadas do SISTGER? Pode levar alguns minutos.",
+                  disable_with: "Importando… aguarde" } %>
+  <% end %>
+<% end %>

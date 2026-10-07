@@ -29,6 +29,17 @@ class SorderItemTest < ActiveSupport::TestCase
     assert cancelado.cancelado?
   end
 
+  test "an inactive vendor can't be chosen, but items already using one stay editable" do
+    inativo = vendors(:one).tap { |v| v.update!(active: false) }
+    novo = @sorder.sorder_items.build(vendor: inativo)
+    assert_not novo.valid?
+    assert_includes novo.errors[:vendor], "está inativo"
+
+    SorderItem.where(id: (antigo = @sorder.sorder_items.create!).id).update_all(vendor_id: inativo.id)
+    antigo.reload.comments = "editado"
+    assert antigo.valid?
+  end
+
   test "nome_passageiro prefers the typed name and falls back to the customer" do
     assert_equal "Maria", SorderItem.new(snomepax: "Maria", customer: customers(:one)).nome_passageiro
     assert_equal customers(:one).nome, SorderItem.new(customer: customers(:one)).nome_passageiro

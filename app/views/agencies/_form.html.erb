@@ -11,32 +11,29 @@
     </div>
   <% end %>
 
-  <div class="field">
+  <div class="form-group">
     <%= form.label :sname %>
-    <%= form.text_field :sname %>
+    <%= form.text_field :sname, class: "form-control" %>
   </div>
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
-  </div>
+  <%= render "shared/campos_contato", form: form %>
 
-  <div class="field">
-    <%= form.label :address %>
-    <%= form.text_field :address %>
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <%= form.label :commission %>
+      <%= form.number_field :commission, class: "form-control", step: "0.01", min: 0 %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= form.label :vendor_id %>
+      <%= form.select :vendor_id, @vendor_options, { include_blank: "Nenhum" }, class: "form-control" %>
+    </div>
   </div>
-
-  <div class="field">
-    <%= form.label :phone %>
-    <%= form.text_field :phone %>
-  </div>
-
-  <div class="field">
+  <div class="form-group">
     <%= form.label :comments %>
-    <%= form.text_field :comments %>
+    <%= form.text_area :comments, class: "form-control", rows: 3 %>
   </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 <% end %>

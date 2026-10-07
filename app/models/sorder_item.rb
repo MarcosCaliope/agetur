@@ -8,6 +8,8 @@ class SorderItem < ApplicationRecord
   # and count as not cancelled.
   scope :ativos, -> { where(scancelado: [nil, "", "N"]) }
 
+  validate :vendedor_ativo, if: -> { vendor_id.present? && vendor_id_changed? }
+
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "scancelado", "sorder_id", "vendor_id"]
   end
@@ -29,5 +31,13 @@ class SorderItem < ApplicationRecord
   # Tour value still to be paid by the passenger.
   def total_passeio
     amount.to_f - amountpay.to_f
+  end
+
+  private
+
+  # Like SISTGER's order entry: inactive vendors can't be chosen. Items
+  # that already point at one (e.g. imported history) can still be edited.
+  def vendedor_ativo
+    errors.add(:vendor, "está inativo") if vendor && !vendor.active?
   end
 end

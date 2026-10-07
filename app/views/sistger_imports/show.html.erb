@@ -1,0 +1,33 @@
+<h1>Prévia: <%= @etapa.nome %></h1>
+<p class="text-muted">
+  Primeiras linhas de <code><%= @etapa.tabela %></code> (<%= @filtro.descricao %>) como serão gravadas.
+  Nada foi importado ainda.
+</p>
+
+<% if @linhas.empty? %>
+  <p>Nenhum registro com esse filtro.</p>
+<% else %>
+  <% modelo = @etapa.modelo.constantize %>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <% @linhas.first.keys.each do |campo| %>
+            <th class="text-nowrap"><%= SistgerImport::ROTULOS[campo] || modelo.human_attribute_name(campo) %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @linhas.each do |linha| %>
+          <tr>
+            <% linha.each_value do |valor| %>
+              <td><%= valor.respond_to?(:strftime) ? l(valor, format: :short) : valor %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<%= link_to 'Voltar', sistger_imports_path %>

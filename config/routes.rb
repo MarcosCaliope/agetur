@@ -33,6 +33,12 @@ Rails.application.routes.draw do
  
   get 'inicio', to: 'site/welcome#index'
 
+  scope 'manutencao' do
+    get 'sistger', to: 'sistger_imports#index', as: :sistger_imports
+    post 'sistger', to: 'sistger_imports#create'
+    get 'sistger/:etapa', to: 'sistger_imports#show', as: :sistger_import
+  end
+
   get '/txt', to: 'txt#index'
   post '/txt/importar',  to: 'txt#importar'
 

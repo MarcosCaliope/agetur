@@ -142,7 +142,8 @@ class SordersController < ApplicationController
     end
 
     def set_vendor_options
-      @vendor_options = Vendor.all.pluck(:sname, :id)
+      em_uso = @sorder ? @sorder.sorder_items.filter_map(&:vendor_id) : []
+      @vendor_options = Vendor.ativos.or(Vendor.where(id: em_uso)).order(:sname).pluck(:sname, :id)
     end
 
     def set_agency_options

@@ -1,10 +1,11 @@
 class VendorsController < ApplicationController
   before_action :set_vendor, only: [:show, :edit, :update, :destroy]
+  before_action :set_state_options, only: [:new, :create, :edit, :update]
 
   # GET /vendors
   # GET /vendors.json
   def index
-    @vendors = Vendor.all
+    @vendors = Vendor.includes(:state)
   end
 
   # GET /vendors/1
@@ -67,8 +68,15 @@ class VendorsController < ApplicationController
       @vendor = Vendor.find(params[:id])
     end
 
+    def set_state_options
+      @state_options = State.order(:uf).pluck(:uf, :id)
+      @classificacoes = Vendor.where.not(classification: [nil, ""]).distinct.order(:classification).pluck(:classification)
+    end
+
     # Only allow a list of trusted parameters through.
     def vendor_params
-      params.require(:vendor).permit(:sname, :email, :address, :phone, :comments, :commission)
+      params.require(:vendor).permit(:sname, :short_name, :email, :address, :neighborhood, :city, :state_id, :zipcode,
+                                     :phone, :phone2, :fax, :contact, :document, :classification, :active, :no_commission,
+                                     :comments, :commission)
     end
 end

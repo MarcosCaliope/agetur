@@ -25,6 +25,9 @@
     <li class="nav-item">
       <a class="nav-link" id="relatorios-tab" data-toggle="tab" href="#relatorios" role="tab" aria-controls="relatorios" aria-selected="false">Relatórios</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" id="manutencao-tab" data-toggle="tab" href="#manutencao" role="tab" aria-controls="manutencao" aria-selected="false">Manutenção</a>
+    </li>
   </ul>
 
   <div class="tab-content pt-4">
@@ -101,6 +104,25 @@
             </div>
             <div class="card-footer bg-transparent border-top-0">
               <%= link_to 'Abrir relatório', showcomis_path, class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-pane fade" id="manutencao" role="tabpanel" aria-labelledby="manutencao-tab">
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Importar do SISTGER</h2>
+              <p class="text-muted small mb-0">
+                Traz empresa, clientes, agências, hotéis, vendedores, veículos, roteiros, ordens de serviço e
+                passageiros do banco SQL Server do sistema antigo.
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', sistger_imports_path, class: "btn btn-primary btn-sm" %>
             </div>
           </div>
         </div>

@@ -1,10 +1,11 @@
 class DriversController < ApplicationController
   before_action :set_driver, only: [:show, :edit, :update, :destroy]
+  before_action :set_state_options, only: [:new, :create, :edit, :update]
 
   # GET /drivers
   # GET /drivers.json
   def index
-    @drivers = Driver.all
+    @drivers = Driver.includes(:state)
   end
 
   # GET /drivers/1
@@ -67,8 +68,13 @@ class DriversController < ApplicationController
       @driver = Driver.find(params[:id])
     end
 
+    def set_state_options
+      @state_options = State.order(:uf).pluck(:uf, :id)
+    end
+
     # Only allow a list of trusted parameters through.
     def driver_params
-      params.require(:driver).permit(:sname, :email, :address, :phone, :city, :comments)
+      params.require(:driver).permit(:sname, :short_name, :document, :email, :address, :neighborhood, :city, :state_id,
+                                     :zipcode, :phone, :phone2, :fax, :contact, :comments)
     end
 end

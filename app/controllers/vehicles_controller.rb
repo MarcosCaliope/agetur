@@ -68,11 +68,13 @@ class VehiclesController < ApplicationController
       @vehicle = Vehicle.find(params[:id])
     end
 def set_state_options
-      @state_options = State.all.pluck(:uf, :id)
+      @state_options = State.order(:uf).pluck(:uf, :id)
 end
 
     # Only allow a list of trusted parameters through.
     def vehicle_params
-      params.require(:vehicle).permit(:license, :brand, :smodel, :year, :color, :city, :state_id, :comments)
+      params.require(:vehicle).permit(:license, :vehicle_type, :brand, :smodel, :manufacture_year, :year, :color, :capacity,
+                                      :renavam, :chassis, :tank, :odometer, :licensing_year, :acquired_on, :insurance_kit,
+                                      :city, :state_id, :comments)
     end
 end

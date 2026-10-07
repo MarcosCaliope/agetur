@@ -46,4 +46,16 @@ class DriversControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to drivers_url
   end
+
+  test "form has the SISTGER fields and saves them" do
+    get new_driver_url
+    (%w[sname short_name document email address neighborhood city state_id zipcode phone phone2 fax contact comments]).each { |campo| assert_select "[name=?]", "driver[#{campo}]" }
+    assert_select "label", text: "Bairro"
+
+    assert_difference("Driver.count") { post drivers_url, params: { driver: { sname: "ELIAS", short_name: "ELIAS", phone2: "8598", neighborhood: "CENTRO", state_id: states(:two).id } } }
+    registro = Driver.order(:id).last
+    assert_equal ["ELIAS", "8598", "CENTRO", states(:two).id], registro.values_at(*[:short_name, :phone2, :neighborhood, :state_id])
+    get driver_url(registro)
+    assert_response :success
+  end
 end

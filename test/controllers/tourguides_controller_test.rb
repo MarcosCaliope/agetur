@@ -46,4 +46,16 @@ class TourguidesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to tourguides_url
   end
+
+  test "form has the SISTGER fields and saves them" do
+    get new_tourguide_url
+    (%w[sname short_name document email address neighborhood city state_id zipcode phone phone2 fax contact comments]).each { |campo| assert_select "[name=?]", "tourguide[#{campo}]" }
+    assert_select "label", text: "Contato"
+
+    assert_difference("Tourguide.count") { post tourguides_url, params: { tourguide: { sname: "SANDRA", short_name: "GUIA", city: "FORTALEZA", contact: "8599", document: "000" } } }
+    registro = Tourguide.order(:id).last
+    assert_equal ["GUIA", "FORTALEZA", "8599", "000"], registro.values_at(*[:short_name, :city, :contact, :document])
+    get tourguide_url(registro)
+    assert_response :success
+  end
 end

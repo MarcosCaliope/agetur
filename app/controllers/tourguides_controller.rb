@@ -1,10 +1,11 @@
 class TourguidesController < ApplicationController
   before_action :set_tourguide, only: [:show, :edit, :update, :destroy]
+  before_action :set_state_options, only: [:new, :create, :edit, :update]
 
   # GET /tourguides
   # GET /tourguides.json
   def index
-    @tourguides = Tourguide.all
+    @tourguides = Tourguide.includes(:state)
   end
 
   # GET /tourguides/1
@@ -67,8 +68,13 @@ class TourguidesController < ApplicationController
       @tourguide = Tourguide.find(params[:id])
     end
 
+    def set_state_options
+      @state_options = State.order(:uf).pluck(:uf, :id)
+    end
+
     # Only allow a list of trusted parameters through.
     def tourguide_params
-      params.require(:tourguide).permit(:sname, :email, :address, :phone, :comments)
+      params.require(:tourguide).permit(:sname, :short_name, :document, :email, :address, :neighborhood, :city, :state_id,
+                                     :zipcode, :phone, :phone2, :fax, :contact, :comments)
     end
 end

@@ -54,4 +54,16 @@ class HotelsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to hotels_url
   end
+
+  test "form has the SISTGER fields and saves them" do
+    get new_hotel_url
+    (%w[sname short_name document email address neighborhood city state_id zipcode phone phone2 fax contact comments] + %w[Valordiaria]).each { |campo| assert_select "[name=?]", "hotel[#{campo}]" }
+    assert_select "label", text: "Nome reduzido"
+
+    assert_difference("Hotel.count") { post hotels_url, params: { hotel: { sname: "HOTEL NOVO", short_name: "NOVO", neighborhood: "MEIRELES", city: "FORTALEZA", state_id: states(:two).id, zipcode: "60000", phone2: "8599", fax: "8533", contact: "Ana", document: "12.345", Valordiaria: 150.5 } } }
+    registro = Hotel.order(:id).last
+    assert_equal ["NOVO", "MEIRELES", "60000", "Ana", 150.5], registro.values_at(*[:short_name, :neighborhood, :zipcode, :contact, :Valordiaria])
+    get hotel_url(registro)
+    assert_response :success
+  end
 end

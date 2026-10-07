@@ -1,12 +1,13 @@
 class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy, :export]
+  before_action :set_state_options, only: [:new, :create, :edit, :update]
 
   # GET /hotels
   # GET /hotels.json
   def index
     #@hotels = Hotel.order("id.Desc").all
     @q = Hotel.ransack(params[:q])
-    @hotels = @q.result
+    @hotels = @q.result.includes(:state)
     respond_to do |format|
       format.html
       format.pdf do
@@ -78,8 +79,13 @@ class HotelsController < ApplicationController
       @hotel = Hotel.find(params[:id])
     end
 
+    def set_state_options
+      @state_options = State.order(:uf).pluck(:uf, :id)
+    end
+
     # Only allow a list of trusted parameters through.
     def hotel_params
-      params.require(:hotel).permit(:sname, :email, :address, :phone, :comments, :Valordiaria)
+      params.require(:hotel).permit(:sname, :short_name, :document, :email, :address, :neighborhood, :city, :state_id,
+                                     :zipcode, :phone, :phone2, :fax, :contact, :comments, :Valordiaria)
     end
 end

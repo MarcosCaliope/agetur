@@ -68,11 +68,12 @@ class DestinationsController < ApplicationController
     end
     
     def set_state_options
-      @state_options = State.all.pluck(:uf, :id)
+      @state_options = State.order(:uf).pluck(:uf, :id)
     end
 
     # Only allow a list of trusted parameters through.
     def destination_params
-      params.require(:destination).permit(:description, :distance, :valuenormal, :valuenormalchd, :valuenet, :valuenetchd, :valuecard, :valuecardchd, :state_id)
+      params.require(:destination).permit(:description, :distance, :valuenormal, :valuenormalchd, :valuenet, :valuenetchd, :valuecard, :valuecardchd, :value_combo, :value_combo_chd,
+                                          :value_net_combo, :value_net_combo_chd, :state_id)
     end
 end

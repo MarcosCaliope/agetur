@@ -1,10 +1,11 @@
 class AgenciesController < ApplicationController
   before_action :set_agency, only: [:show, :edit, :update, :destroy]
+  before_action :set_state_options, only: [:new, :create, :edit, :update]
 
   # GET /agencies
   # GET /agencies.json
   def index
-    @agencies = Agency.all
+    @agencies = Agency.includes(:state)
   end
 
   # GET /agencies/1
@@ -67,8 +68,14 @@ class AgenciesController < ApplicationController
       @agency = Agency.find(params[:id])
     end
 
+    def set_state_options
+      @state_options = State.order(:uf).pluck(:uf, :id)
+      @vendor_options = Vendor.order(:sname).pluck(:sname, :id)
+    end
+
     # Only allow a list of trusted parameters through.
     def agency_params
-      params.require(:agency).permit(:sname, :email, :address, :phone, :comments)
+      params.require(:agency).permit(:sname, :short_name, :document, :email, :address, :neighborhood, :city, :state_id,
+                                     :zipcode, :phone, :phone2, :fax, :contact, :comments, :commission, :vendor_id)
     end
 end

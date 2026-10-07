@@ -50,8 +50,12 @@ gem 'pdfkit'
 gem 'wkhtmltopdf-binary'
 gem 'wicked_pdf'
 gem 'ransack'
+# Reads the legacy SISTGER SQL Server database for the import screen
+gem 'tiny_tds'
 
 group :development, :test do
+  # Loads local settings (database, SISTGER connection) from .env
+  gem 'dotenv-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rails_db'

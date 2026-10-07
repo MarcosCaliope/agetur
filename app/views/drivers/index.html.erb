@@ -1,15 +1,16 @@
 
 <h1>Motoristas</h1>
+<%= ultimo_registro(Driver) %>
 
 <table class="table table-hover">
   <thead>
     <tr>
       <th>Nome</th>
-      <th>E-mail</th>
-      <th>Endereço</th>
+      <th>Nome reduzido</th>
       <th>Telefone</th>
+      <th>Contato</th>
       <th>Cidade</th>
-      <th>Observações</th>
+      
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -18,11 +19,10 @@
     <% @drivers.each do |driver| %>
       <tr>
         <td><%= driver.sname %></td>
-        <td><%= driver.email %></td>
-        <td><%= driver.address %></td>
+        <td><%= driver.short_name %></td>
         <td><%= driver.phone %></td>
-        <td><%= driver.city %></td>
-        <td><%= driver.comments %></td>
+        <td><%= driver.contact %></td>
+        <td><%= [driver.city, driver.state&.uf].compact_blank.join(" / ") %></td>
         <td><%= link_to 'Exibir', driver %></td>
         <td><%= link_to 'Editar', edit_driver_path(driver) %></td>
         <td><%= link_to 'Excluir', driver, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
@@ -33,4 +33,4 @@
 
 <br>
 
-<%= link_to 'Novo', new_driver_path %>
+<%= link_to 'Novo Motorista', new_driver_path %>

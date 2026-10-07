@@ -30,7 +30,7 @@ No linter (rubocop etc.) is configured.
 
 ## Database
 
-PostgreSQL via `pg`. `config/database.yml` reads `AGETUR_DATABASE_HOST` (default `localhost`), `AGETUR_DATABASE_USERNAME` (default `agetur`) and `AGETUR_DATABASE_PASSWORD` from the environment. Databases are `agetur_{development,test,production}`. `db/schema.rb` is `ActiveRecord::Schema[7.2]` and was regenerated natively against Postgres. The legacy `service_orders`/`service_order_items` tables are gone.
+Local settings live in `.env` (gitignored, loaded by `dotenv-rails` in development/test; template in `.env.example`), so `bin/rails server`/`test` need no exported variables. PostgreSQL via `pg`. `config/database.yml` reads `AGETUR_DATABASE_HOST` (default `localhost`), `AGETUR_DATABASE_USERNAME` (default `agetur`) and `AGETUR_DATABASE_PASSWORD` from the environment. Databases are `agetur_{development,test,production}`. `db/schema.rb` is `ActiveRecord::Schema[7.2]` and was regenerated natively against Postgres. The legacy `service_orders`/`service_order_items` tables are gone.
 
 `bin/rails db:seed` creates the 27 Brazilian states (idempotent). Companies, vehicles and destinations require a state, so a fresh database needs the seed before those can be created.
 
@@ -49,6 +49,8 @@ Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views pl
 The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`SorderItem`, and don't resurrect `service_order*` code.
 
 - `Sorder` has_many `sorder_items` (`accepts_nested_attributes_for`, `allow_destroy: true`; the nested form in `sorders/_form.html.erb` uses `cocoon` with `_sorder_item_fields.html.erb`). It belongs_to `destination`, `tourguide`, `driver`, `vehicle` and `company`, all required.
+- Vendors, hotels, agencies, guides and drivers share SISTGER's generic cadastro screen (`frmCadGenerico`): short name, CPF/CNPJ, address/neighborhood/city/state/CEP, two phones, fax and contact. Forms render it with `shared/_campos_contato` (needs `@state_options`), and show pages use `shared/_detalhes`. Customers (`CAR-fontes/frmCadClientes`) add state registration, website and a billing block. Re-imports never overwrite `comments`.
+- Vendors mirror SISTGER's vendor screen (`frmCadGenerico` with `tblVendedor`, sources in `D:\SISTGER\OS-Fontes`). `active` (bAtivo): inactive vendors are left out of the order form's vendor select and refused by `SorderItem#vendedor_ativo`, but only when the vendor is newly chosen, so imported/old items stay editable. `no_commission` (bComissao) is the "Não pagar comissão" checkbox.
 - `SorderItem` belongs_to `sorder`. Its `customer`, `hotel` and `vendor` associations are `optional: true` because they are filled in per passenger.
 - FKs live on `sorders`/`companies`. `Destination`, `Vehicle` and `State` therefore use `has_many` (`:sorders`/`:companies`), not `belongs_to`.
 - `SordersController` populates select options through many `set_*_options` before_actions. Each one plucks `[name, id]` pairs.
@@ -56,6 +58,22 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - `GET /showcomis` (`SorderItemsController#showcomis`) is the commission report, filtered by item `created_at` range and vendor. `comissoes_query` stretches "Data Final" to the end of that day.
 - Ransack (4.x) powers search/filtering on sorders, hotels and the commission report. Ransack 4 raises unless the model allowlists searchable fields via `self.ransackable_attributes`, so add new filter fields there.
 - `_forma.html.erb` / `_sordera_item_fields.html.erb` are alternate/unused partials alongside the real `_form` / `_sorder_item_fields`.
+
+### SISTGER import (Manutenção tab)
+
+`SistgerImport` (`app/importers/sistger_import.rb`) reads the legacy SISTGER SQL Server through `SistgerImport::Fonte` (`tiny_tds`) and upserts one step per table: empresa → clientes, vendedores, agências (after vendors, for their "vendedor correspondente"), hotéis, guias (`tblAgenteViagem`), motoristas (`tblFuncionarios`), veículos, roteiros → ordens → passageiros. The UI is `SistgerImportsController` at `/manutencao/sistger`. The user ticks steps and gives each a `SistgerImport::Filtro`:
+- all;
+- a period (orders and passengers only, by order date);
+- a code range (order number for orders and passengers);
+- the last N.
+
+Previews honor the filter. Chosen steps always run in dependency order.
+- Connection settings (`SistgerImport::Configuracao`): each `SISTGER_DB_*` env var wins, and anything unset falls back to the Windows registry key the old SISTGER client uses (`HKCU\SOFTWARE\VB and VBA Program Settings\oServico\BANCO_DE_DADOS`), read with `reg.exe` under WSL. In dev, `.env` sets only host/port: the registry's named instance `mynt\sqlexpress` needs the SQL Browser, which WSL can't reach. Database, user and password come from the registry. `SISTGER_DB_REGISTRO=off` disables the registry lookup.
+- Records carry the legacy key (`sistger_id`; `sistger_numero`+`sistger_sequencial` on `sorder_items`), so re-importing updates instead of duplicating. Records created in this app have NULL and are never touched.
+- Legacy orders keep guide, driver, plate, hotel and repasse agency mostly as free text (code columns are 0). Guides and drivers are matched to the imported register by name, or by a short name that only one of them has (`ids_por_nome(..., tambem: :short_name)`). When no code matches, the importer finds or creates a record named after the text (`ids_por_nome`). That is why the import creates thousands of hotel names. Blank values become `"Não informado"`.
+- The legacy server is SQL Server 2014 RTM and only offers TLS 1.0, which tiny_tds/FreeTDS refuse. `SISTGER_DB_ENCRYPTION=off` points `FREETDSCONF` at `config/freetds-sem-criptografia.conf` (no TLS). tiny_tds 3.x also refuses TDS < 7.3, so don't try the `tsql`-only 7.0 workaround.
+- Tests never hit SQL Server: they stub `SistgerImport::Fonte` with `test/support/sistger_fonte_falsa.rb`, canned rows keyed by table name.
+- A full import is about 30 s, run synchronously in the request (there's no job system).
 
 ### PDF generation
 
@@ -74,5 +92,6 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 
 - Default locale is `pt-BR` (fallback `en`). `rails-i18n` and `devise-i18n` provide the framework/Devise translations, `config/locales/devise.pt-BR.yml` overrides Devise messages, and `config/locales/models.pt-BR.yml` holds Portuguese model/attribute names, used in validation errors, form error headers and submit buttons. Flash messages render once, from `layouts/_flash.html.erb` in every layout; don't add per-view `notice` markup. Controller notices are hardcoded Portuguese strings.
 - The scoped Devise views (`app/views/users/`, `app/views/admins/`) were generated with `rails g devise:i18n:views` and then had their lazy keys (`t(".sign_in")`) rewritten to absolute `devise.*` keys. Lazy keys there would resolve to `users.sessions.new.*`, which has no translation. Keep that if you regenerate them, and re-delete the `registrations/` views, since sign-up is closed.
+- Cadastro index pages (and the sorders list) show `ultimo_registro(Model)` (`ApplicationHelper`): the highest-id record with its name and SISTGER code. Add it to new cadastro lists. Teach `descricao_registro` the model's name column if it isn't `sname`.
 - `TxtController#importar` (`POST /txt/importar`) bulk-imports `Customer` records from an uploaded comma-separated `.txt`. It does no header validation and skips CSRF verification. 
 - `Company` logos are Active Storage uploads (`has_one_attached :logo_entrada` for the home page, `:logo_formulario` for service orders). They're validated as PNG/JPG/GIF/WebP up to 2 MB and removable via the `remover_logo_*` form checkboxes. The legacy string columns `logoentrada`/`logoform` are only a fallback when they name a file that exists under `public/`. Old records hold Windows paths like `D:\\SISTGER\\...`, which are ignored. Always render logos with `company_logo_tag(company, :entrada | :formulario, height:)`. Files live on the `:local` disk service (`storage/`, gitignored), so production needs that directory persisted.

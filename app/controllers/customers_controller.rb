@@ -64,7 +64,7 @@ class CustomersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_state_options
-      @state_options = State.all.pluck(:uf, :id)
+      @state_options = State.order(:uf).pluck(:uf, :id)
     end
         
     
@@ -74,6 +74,9 @@ class CustomersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def customer_params
-      params.require(:customer).permit(:nome, :email, :phone, :document, :comments, :city, :state_id)
+      params.require(:customer).permit(:nome, :document, :state_registration, :email, :website, :address, :neighborhood,
+                                       :city, :state_id, :zipcode, :phone, :phone2, :fax, :contact, :comments,
+                                       :billing_address, :billing_neighborhood, :billing_city, :billing_state_id,
+                                       :billing_zipcode, :billing_phone, :billing_phone2, :billing_fax)
     end
 end

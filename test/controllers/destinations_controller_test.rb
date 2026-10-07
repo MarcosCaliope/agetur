@@ -46,4 +46,13 @@ class DestinationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to destinations_url
   end
+
+  test "form has the combo values and saves them" do
+    get new_destination_url
+    %w[value_combo value_combo_chd value_net_combo value_net_combo_chd].each { |campo| assert_select "[name=?]", "destination[#{campo}]" }
+    patch destination_url(@destination), params: { destination: { value_combo: 150, value_net_combo: 120 } }
+    assert_equal [150.0, 120.0], @destination.reload.values_at(:value_combo, :value_net_combo)
+    get destination_url(@destination)
+    assert_select "strong", text: "Net combo:"
+  end
 end

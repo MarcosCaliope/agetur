@@ -46,4 +46,16 @@ class VehiclesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to vehicles_url
   end
+
+  test "form has the SISTGER fields and saves them" do
+    get new_vehicle_url
+    (%w[license vehicle_type brand smodel manufacture_year year color capacity renavam chassis tank odometer licensing_year acquired_on insurance_kit city state_id comments]).each { |campo| assert_select "[name=?]", "vehicle[#{campo}]" }
+    assert_select "label", text: "Ano de licenciamento"
+
+    assert_difference("Vehicle.count") { post vehicles_url, params: { vehicle: { license: "ABC1234", vehicle_type: "VAN", capacity: "16", renavam: "123", licensing_year: 2024, acquired_on: "2014-05-02", insurance_kit: "S", state_id: states(:two).id } } }
+    registro = Vehicle.order(:id).last
+    assert_equal ["VAN", "16", "123", 2024, Date.new(2014, 5, 2), "S"], registro.values_at(*[:vehicle_type, :capacity, :renavam, :licensing_year, :acquired_on, :insurance_kit])
+    get vehicle_url(registro)
+    assert_response :success
+  end
 end

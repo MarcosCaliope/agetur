@@ -1,34 +1,11 @@
+<h1><%= @customer.nome %></h1>
 
-<p>
-  <strong>Nome:</strong>
-  <%= @customer.nome %>
-</p>
+<%= render "shared/detalhes", registro: @customer, campos: %i[document state_registration email website address neighborhood city state zipcode
+                                                              phone phone2 fax contact comments sistger_id] %>
 
-<p>
-  <strong>E-mail:</strong>
-  <%= @customer.email %>
-</p>
-
-<p>
-  <strong>Telefone:</strong>
-  <%= @customer.phone %>
-</p>
-
-<p>
-  <strong>Documento:</strong>
-  <%= @customer.document %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @customer.comments %>
-</p>
-
-<p>
-  <strong>Cidade:</strong>
-  <%= @customer.city %>
-</p>
-
+<h5>Cobrança</h5>
+<%= render "shared/detalhes", registro: @customer, campos: %i[billing_address billing_neighborhood billing_city billing_state
+                                                              billing_zipcode billing_phone billing_phone2 billing_fax] %>
 
 <%= link_to 'Editar', edit_customer_path(@customer) %> |
 <%= link_to 'Voltar', customers_path %>

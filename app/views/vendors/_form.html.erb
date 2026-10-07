@@ -11,37 +11,44 @@
     </div>
   <% end %>
 
-  <div class="field">
+  <div class="form-group">
     <%= form.label :sname %>
-    <%= form.text_field :sname %>
+    <%= form.text_field :sname, class: "form-control" %>
   </div>
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
+  <%= render "shared/campos_contato", form: form %>
+
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <%= form.label :classification %>
+      <%= form.text_field :classification, class: "form-control", list: "classificacoes" %>
+      <datalist id="classificacoes">
+        <% @classificacoes.each do |classificacao| %><option value="<%= classificacao %>"><% end %>
+      </datalist>
+    </div>
+    <div class="form-group col-md-3">
+      <%= form.label :commission %>
+      <%= form.number_field :commission, class: "form-control", step: "0.01", min: 0 %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :address %>
-    <%= form.text_field :address %>
-  </div>
-
-  <div class="field">
-    <%= form.label :phone %>
-    <%= form.text_field :phone %>
-  </div>
-
-  <div class="field">
+  <div class="form-group">
     <%= form.label :comments %>
-    <%= form.text_field :comments %>
+    <%= form.text_area :comments, class: "form-control", rows: 3 %>
   </div>
 
-  <div class="field">
-    <%= form.label :commission %>
-    <%= form.text_field :commission %>
+  <div class="form-group form-check">
+    <%= form.check_box :active, class: "form-check-input" %>
+    <%= form.label :active, class: "form-check-label" %>
+    <small class="form-text text-muted mt-0">Vendedor inativo não pode ser escolhido em novas ordens de serviço.</small>
+  </div>
+
+  <div class="form-group form-check">
+    <%= form.check_box :no_commission, class: "form-check-input" %>
+    <%= form.label :no_commission, class: "form-check-label" %>
   </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 <% end %>

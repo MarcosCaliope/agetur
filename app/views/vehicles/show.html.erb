@@ -1,43 +1,7 @@
+<h1><%= @vehicle.license %></h1>
 
-<p>
-  <strong>Placa:</strong>
-  <%= @vehicle.license %>
-</p>
-
-<p>
-  <strong>Marca:</strong>
-  <%= @vehicle.brand %>
-</p>
-
-<p>
-  <strong>Modelo:</strong>
-  <%= @vehicle.smodel %>
-</p>
-
-<p>
-  <strong>Ano:</strong>
-  <%= @vehicle.year %>
-</p>
-
-<p>
-  <strong>Cor:</strong>
-  <%= @vehicle.color %>
-</p>
-
-<p>
-  <strong>Cidade:</strong>
-  <%= @vehicle.city %>
-</p>
-
-<p>
-  <strong>UF:</strong>
-  <%= @vehicle.state.uf %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @vehicle.comments %>
-</p>
+<%= render "shared/detalhes", registro: @vehicle, campos: %i[vehicle_type brand smodel manufacture_year year color capacity renavam chassis
+                                                             tank odometer licensing_year acquired_on insurance_kit city state comments sistger_id] %>
 
 <%= link_to 'Editar', edit_vehicle_path(@vehicle) %> |
 <%= link_to 'Voltar', vehicles_path %>

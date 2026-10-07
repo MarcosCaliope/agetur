@@ -82,4 +82,14 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to companies_url
   end
+
+  test "form has short name and state registration" do
+    get new_company_url
+    assert_select "[name=?]", "company[short_name]"
+    assert_select "label", text: "Inscrição estadual (CGF)"
+    patch company_url(@company), params: { company: { short_name: "ISATURISMO", state_registration: "06.123" } }
+    assert_equal ["ISATURISMO", "06.123"], @company.reload.values_at(:short_name, :state_registration)
+    get company_url(@company)
+    assert_match "06.123", response.body
+  end
 end

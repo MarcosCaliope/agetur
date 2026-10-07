@@ -1,14 +1,16 @@
 
 <h1>Agências</h1>
+<%= ultimo_registro(Agency) %>
 
 <table>
   <thead>
     <tr>
       <th>Nome</th>
-      <th>E-mail</th>
-      <th>Endereço</th>
+      <th>Nome reduzido</th>
       <th>Telefone</th>
-      <th>Observações</th>
+      <th>Contato</th>
+      <th>Cidade</th>
+      <th>Comissão (%)</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -17,10 +19,11 @@
     <% @agencies.each do |agency| %>
       <tr>
         <td><%= agency.sname %></td>
-        <td><%= agency.email %></td>
-        <td><%= agency.address %></td>
+        <td><%= agency.short_name %></td>
         <td><%= agency.phone %></td>
-        <td><%= agency.comments %></td>
+        <td><%= agency.contact %></td>
+        <td><%= [agency.city, agency.state&.uf].compact_blank.join(" / ") %></td>
+        <td><%= agency.commission %></td>
         <td><%= link_to 'Exibir', agency %></td>
         <td><%= link_to 'Editar', edit_agency_path(agency) %></td>
         <td><%= link_to 'Excluir', agency, method: :delete, data: { confirm: 'Tem certeza?' } %></td>

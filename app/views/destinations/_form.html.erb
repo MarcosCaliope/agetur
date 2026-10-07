@@ -52,6 +52,26 @@
   </div>
 
   <div class="field">
+    <%= form.label :value_combo %>
+    <%= form.text_field :value_combo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :value_combo_chd %>
+    <%= form.text_field :value_combo_chd %>
+  </div>
+
+  <div class="field">
+    <%= form.label :value_net_combo %>
+    <%= form.text_field :value_net_combo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :value_net_combo_chd %>
+    <%= form.text_field :value_net_combo_chd %>
+  </div>
+
+  <div class="field">
     <%= form.label :State %>
     <%= form.select( "state_id", @state_options, { include_blank: "Selecione" }) %>
     </div>

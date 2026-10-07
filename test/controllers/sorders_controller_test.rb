@@ -72,6 +72,32 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert response.body.start_with?("%PDF")
   end
 
+  test "order form offers only active vendors, plus inactive ones already on the order" do
+    ativo, inativo, usado = vendors(:one), vendors(:two), Vendor.create!(sname: "USADO", active: false)
+    ativo.update!(sname: "ATIVO")
+    inativo.update!(sname: "INATIVO", active: false)
+    item = @sorder.sorder_items.create!
+    item.update_column(:vendor_id, usado.id)
+
+    get edit_sorder_url(@sorder)
+    vendedores = css_select("select[name$='[vendor_id]']").first.css("option").map(&:text)
+    assert_includes vendedores, "ATIVO"
+    assert_includes vendedores, "USADO"
+    assert_not_includes vendedores, "INATIVO"
+  end
+
+  test "should refuse an inactive vendor on a new passenger" do
+    assert_no_difference("Sorder.count") { refuse_inactive_vendor }
+  end
+
+  def refuse_inactive_vendor
+    inativo = vendors(:two).tap { |v| v.update!(active: false) }
+    post sorders_url, params: { sorder: { data: @sorder.data, destination_id: @sorder.destination_id, tourguide_id: @sorder.tourguide_id,
+      driver_id: @sorder.driver_id, vehicle_id: @sorder.vehicle_id, company_id: @sorder.company_id,
+      sorder_items_attributes: { "0" => { snomepax: "X", vendor_id: inativo.id } } } }
+    assert_select "#error_explanation li", text: "Vendedor do passageiro está inativo"
+  end
+
   test "should get edit" do
     get edit_sorder_url(@sorder)
     assert_response :success

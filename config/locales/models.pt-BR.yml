@@ -6,15 +6,25 @@ pt-BR:
     address: "Endereço"
     city: "Cidade"
     comments: "Observações"
+    contact: "Contato"
+    document: "CPF/CNPJ"
     created_at: "Criado em"
     email: "E-mail"
+    fax: "Fax"
     name: "Nome"
+    neighborhood: "Bairro"
     nome: "Nome"
     phone: "Telefone"
+    phone2: "Telefone 2"
+    short_name: "Nome reduzido"
+    sistger_id: "Código SISTGER"
     sname: "Nome"
     state: "Estado"
     state_id: "Estado"
+    state_registration: "Inscrição estadual"
     updated_at: "Atualizado em"
+    website: "Site"
+    zipcode: "CEP"
   activerecord:
     models:
       agency: { one: "Agência", other: "Agências" }
@@ -32,8 +42,14 @@ pt-BR:
       vehicle: { one: "Veículo", other: "Veículos" }
       vendor: { one: "Vendedor", other: "Vendedores" }
     attributes:
+      agency:
+        commission: "Comissão (%)"
+        vendor: "Vendedor correspondente"
+        vendor_id: "Vendedor correspondente"
       company:
         cnpj: "CNPJ"
+        short_name: "Nome reduzido"
+        state_registration: "Inscrição estadual (CGF)"
         iretorno: "Retorno"
         logo_entrada: "Logo de entrada"
         logo_formulario: "Logo do formulário"
@@ -50,7 +66,15 @@ pt-BR:
         site: "Site"
         state: "Estado"
       customer:
-        document: "Documento"
+        billing_address: "Endereço de cobrança"
+        billing_city: "Cidade de cobrança"
+        billing_fax: "Fax de cobrança"
+        billing_neighborhood: "Bairro de cobrança"
+        billing_phone: "Telefone de cobrança"
+        billing_phone2: "Telefone 2 de cobrança"
+        billing_state: "Estado de cobrança"
+        billing_state_id: "Estado de cobrança"
+        billing_zipcode: "CEP de cobrança"
       destination:
         description: "Descrição"
         distance: "Distância"
@@ -61,8 +85,14 @@ pt-BR:
         valuenetchd: "Valor net CHD"
         valuenormal: "Valor normal"
         valuenormalchd: "Valor normal CHD"
+        value_combo: "Valor combo"
+        value_combo_chd: "Valor combo CHD"
+        value_net_combo: "Net combo"
+        value_net_combo_chd: "Net combo CHD"
       hotel:
         Valordiaria: "Valor da diária"
+      sorder/sorder_items:
+        vendor: "Vendedor do passageiro"
       sorder:
         company: "Empresa"
         data: "Data"
@@ -72,19 +102,33 @@ pt-BR:
         tourguide: "Guia"
         vehicle: "Veículo"
       sorder_item:
+        vendor: "Vendedor"
         sorder: "Ordem de serviço"
         sorder_id: "Ordem de serviço"
       state:
         uf: "UF"
       vehicle:
+        acquired_on: "Data de aquisição"
+        capacity: "Capacidade"
+        chassis: "Chassi"
+        insurance_kit: "Kit seguro"
+        licensing_year: "Ano de licenciamento"
+        manufacture_year: "Ano de fabricação"
+        odometer: "Odômetro"
+        renavam: "Renavam"
+        tank: "Tanque"
+        vehicle_type: "Tipo"
         brand: "Marca"
         color: "Cor"
         license: "Placa"
         smodel: "Modelo"
         state: "Estado"
-        year: "Ano"
+        year: "Ano do modelo"
       vendor:
-        commission: "Comissão"
+        active: "Ativo"
+        classification: "Classificação"
+        commission: "Comissão (%)"
+        no_commission: "Não pagar comissão"
       user:
         password: "Senha"
         password_confirmation: "Confirmação da senha"

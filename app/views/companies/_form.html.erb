@@ -17,8 +17,18 @@
   </div>
 
   <div class="field">
+    <%= form.label :short_name %>
+    <%= form.text_field :short_name, maxlength: 20 %>
+  </div>
+
+  <div class="field">
     <%= form.label :cnpj %>
     <%= form.text_field :cnpj %>
+  </div>
+
+  <div class="field">
+    <%= form.label :state_registration %>
+    <%= form.text_field :state_registration %>
   </div>
 
   <div class="field">

@@ -1,33 +1,6 @@
+<h1><%= @driver.sname %></h1>
 
-<p>
-  <strong>Nome:</strong>
-  <%= @driver.sname %>
-</p>
-
-<p>
-  <strong>E-mail:</strong>
-  <%= @driver.email %>
-</p>
-
-<p>
-  <strong>Endereço:</strong>
-  <%= @driver.address %>
-</p>
-
-<p>
-  <strong>one:</strong>
-  <%= @driver.phone %>
-</p>
-
-<p>
-  <strong>Cidade:</strong>
-  <%= @driver.city %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @driver.comments %>
-</p>
+<%= render "shared/detalhes", registro: @driver, campos: [:short_name, :document, :address, :neighborhood, :city, :state, :zipcode, :phone, :phone2, :fax, :contact, :email, :comments, :sistger_id] %>
 
 <%= link_to 'Editar', edit_driver_path(@driver) %> |
 <%= link_to 'Voltar', drivers_path %>

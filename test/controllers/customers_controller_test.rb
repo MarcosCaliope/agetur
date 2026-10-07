@@ -9,6 +9,7 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get customers_url
     assert_response :success
+    assert_select "p.ultimo-registro", text: /Último registro: nº/
   end
 
   test "should get new" do
@@ -45,5 +46,17 @@ class CustomersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to customers_url
+  end
+
+  test "form has the SISTGER fields and saves them" do
+    get new_customer_url
+    (%w[nome document state_registration email website address neighborhood city state_id zipcode phone phone2 fax contact comments billing_address billing_neighborhood billing_city billing_state_id billing_zipcode billing_phone billing_phone2 billing_fax]).each { |campo| assert_select "[name=?]", "customer[#{campo}]" }
+    assert_select "label", text: "Endereço de cobrança"
+
+    assert_difference("Customer.count") { post customers_url, params: { customer: { nome: "MARIA", state_registration: "ISENTO", address: "RUA B", website: "maria.com", billing_address: "RUA C", billing_city: "SOBRAL", billing_state_id: states(:two).id } } }
+    registro = Customer.order(:id).last
+    assert_equal ["ISENTO", "RUA B", "maria.com", "RUA C", "SOBRAL", states(:two).id], registro.values_at(*[:state_registration, :address, :website, :billing_address, :billing_city, :billing_state_id])
+    get customer_url(registro)
+    assert_response :success
   end
 end

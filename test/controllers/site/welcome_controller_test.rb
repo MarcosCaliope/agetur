@@ -29,13 +29,14 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "img.dashboard-logo", count: 0
   end
 
-  test "dashboard has the three tabs" do
+  test "dashboard has the four tabs" do
     sign_in users(:one)
     get root_url
-    assert_select ".dashboard-tabs a[data-toggle=tab]", 3
+    assert_select ".dashboard-tabs a[data-toggle=tab]", 4
     assert_select ".dashboard-tabs a[href='#cadastros']", text: "Cadastros"
     assert_select ".dashboard-tabs a[href='#processos']", text: "Processos"
     assert_select ".dashboard-tabs a[href='#relatorios']", text: "Relatórios"
+    assert_select ".dashboard-tabs a[href='#manutencao']", text: "Manutenção"
   end
 
   test "cadastros tab links to every cadastro with its count" do

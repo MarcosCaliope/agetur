@@ -1,33 +1,6 @@
+<h1><%= @hotel.sname %></h1>
 
-<p>
-  <strong>Nome:</strong>
-  <%= @hotel.sname %>
-</p>
-
-<p>
-  <strong>E-mail:</strong>
-  <%= @hotel.email %>
-</p>
-
-<p>
-  <strong>Endereço:</strong>
-  <%= @hotel.address %>
-</p>
-
-<p>
-  <strong>Telefone:</strong>
-  <%= @hotel.phone %>
-</p>
-
-<p>
-  <strong>Observações:</strong>
-  <%= @hotel.comments %>
-</p>
-
-<p>
-  <strong>Valor da diária:</strong>
-  <%= @hotel.Valordiaria %>
-</p>
+<%= render "shared/detalhes", registro: @hotel, campos: [:short_name, :document, :address, :neighborhood, :city, :state, :zipcode, :phone, :phone2, :fax, :contact, :email, :Valordiaria, :comments, :sistger_id] %>
 
 <%= link_to 'Editar', edit_hotel_path(@hotel) %> |
 <%= link_to 'Voltar', hotels_path %>

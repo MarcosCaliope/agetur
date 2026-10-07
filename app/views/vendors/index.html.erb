@@ -1,28 +1,31 @@
 
 <h1>Vendedores</h1>
+<%= ultimo_registro(Vendor) %>
 
-<table>
+<table class="table table-hover">
   <thead>
     <tr>
       <th>Nome</th>
-      <th>E-mail</th>
-      <th>Endereço</th>
+      <th>Nome reduzido</th>
       <th>Telefone</th>
-      <th>Observações</th>
-      <th>Comissão</th>
+      <th>Contato</th>
+      <th>Cidade</th>
+      <th>Comissão (%)</th>
+      <th>Situação</th>
       <th colspan="3"></th>
     </tr>
   </thead>
 
   <tbody>
     <% @vendors.each do |vendor| %>
-      <tr>
+      <tr class="<%= 'text-muted' unless vendor.active %>">
         <td><%= vendor.sname %></td>
-        <td><%= vendor.email %></td>
-        <td><%= vendor.address %></td>
+        <td><%= vendor.short_name %></td>
         <td><%= vendor.phone %></td>
-        <td><%= vendor.comments %></td>
-        <td><%= vendor.commission %></td>
+        <td><%= vendor.contact %></td>
+        <td><%= [vendor.city, vendor.state&.uf].compact_blank.join(" / ") %></td>
+        <td><%= vendor.no_commission ? "Não paga" : vendor.commission %></td>
+        <td><%= vendor.active ? "Ativo" : "Inativo" %></td>
         <td><%= link_to 'Exibir', vendor %></td>
         <td><%= link_to 'Editar', edit_vendor_path(vendor) %></td>
         <td><%= link_to 'Excluir', vendor, method: :delete, data: { confirm: 'Tem certeza?' } %></td>

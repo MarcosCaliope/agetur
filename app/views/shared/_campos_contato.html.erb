@@ -1,0 +1,61 @@
+<%# Contact block of SISTGER's generic cadastro screen (frmCadGenerico),
+    shared by vendors, hotels, agencies, guides and drivers. Needs @state_options. %>
+<div class="form-row">
+  <div class="form-group col-md-3">
+    <%= form.label :short_name %>
+    <%= form.text_field :short_name, class: "form-control", maxlength: 20 %>
+  </div>
+  <div class="form-group col-md-3">
+    <%= form.label :document %>
+    <%= form.text_field :document, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-6">
+    <%= form.label :email %>
+    <%= form.email_field :email, class: "form-control" %>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-group col-md-6">
+    <%= form.label :address %>
+    <%= form.text_field :address, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-6">
+    <%= form.label :neighborhood %>
+    <%= form.text_field :neighborhood, class: "form-control" %>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-group col-md-6">
+    <%= form.label :city %>
+    <%= form.text_field :city, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-2">
+    <%= form.label :state_id %>
+    <%= form.select :state_id, @state_options, { include_blank: "Selecione" }, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-4">
+    <%= form.label :zipcode %>
+    <%= form.text_field :zipcode, class: "form-control" %>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-group col-md-3">
+    <%= form.label :phone %>
+    <%= form.telephone_field :phone, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-3">
+    <%= form.label :phone2 %>
+    <%= form.telephone_field :phone2, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-3">
+    <%= form.label :fax %>
+    <%= form.telephone_field :fax, class: "form-control" %>
+  </div>
+  <div class="form-group col-md-3">
+    <%= form.label :contact %>
+    <%= form.text_field :contact, class: "form-control" %>
+  </div>
+</div>
