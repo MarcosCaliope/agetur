@@ -51,8 +51,8 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 
 ### PDF generation
 
-1. **Preferred:** `app/pdfs/*.rb` (`HotelPdf`, `SorderPdf`, `OsrelPdf`). These are `Prawn::Document` subclasses (with `prawn-table`) that build the document in `initialize`. Controllers render them from a `format.pdf { send_data pdf.render, ... }` branch, as in `HotelsController#index` and `SordersController#index`. Follow this pattern for new exportable lists.
-2. `lib/generate_pdf.rb` (`GeneratePdf.sorder`) is legacy. It writes `public/agreement.pdf`, uses lorem ipsum and references undefined locals. `SordersController#export` and `SorderItemsController#export` call it, but both are broken: `SordersController#export` uses `@sorders`/`@SorderItem`, calls a nonexistent `GeneratePdf.sorder_item` and redirects twice. Don't build on it.
+1. **Preferred:** `app/pdfs/*.rb` (`HotelPdf`, `SorderPdf`, `OsrelPdf`, `SorderExportPdf`). These are `Prawn::Document` subclasses (with `prawn-table`) that build the document in `initialize`. Controllers render them with `send_data pdf.render, ...`, either from a `format.pdf` branch (`HotelsController#index`, `SordersController#index`) or from a dedicated action (`SordersController#export`, the single-order PDF at `/sorders/:id/export`). Follow this pattern for new PDFs.
+2. `SorderItemsController#export` (`/sorder_items_export`) is a leftover stub that redirects to a nonexistent `/sorder_item.pdf`.
 3. `app/views/sorders/index.pdf.prawn` is an older `prawn-rails` template. The `pdfkit`, `wicked_pdf` and `wkhtmltopdf-binary` gems and the `layouts/pdf.html.*` files are present but effectively unused.
 
 ### Auth / namespacing
@@ -64,5 +64,5 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 
 ### Misc
 
-- `TxtController#importar` (`POST /txt/importar`) bulk-imports `Customer` records from an uploaded comma-separated `.txt`. It does no header validation and skips CSRF verification.
-- `Company` logos (`logoform`, `logoentrada`) are plain filenames under `public/`, rendered with `image_tag ..., skip_pipeline: true`.
+- `TxtController#importar` (`POST /txt/importar`) bulk-imports `Customer` records from an uploaded comma-separated `.txt`. It does no header validation and skips CSRF verification. Its messages are shown only in `txt/index`; the layouts render no `flash`.
+- `Company` logos (`logoform`, `logoentrada`) are optional plain filenames under `public/`. Render them with `company_logo_tag` (`CompaniesHelper`), which skips blank values.

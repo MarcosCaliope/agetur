@@ -5,6 +5,11 @@ class TxtController < ApplicationController
     end
 
     def importar
+        unless params['txt'].respond_to?(:tempfile)
+            flash[:error] = "Selecione um arquivo para importar."
+            return redirect_to "/txt"
+        end
+
         errors = []
         file = params['txt'].tempfile.path
 #        file = params['file']

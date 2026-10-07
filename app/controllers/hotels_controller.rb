@@ -1,8 +1,6 @@
 class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy, :export]
 
-   # Nós incluimos aqui a lib que vamos criar chamada generate_pdf.rb
-   require './lib/generate_pdf'
   # GET /hotels
   # GET /hotels.json
   def index

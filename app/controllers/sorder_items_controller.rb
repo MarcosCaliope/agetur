@@ -1,7 +1,5 @@
 class SorderItemsController < ApplicationController
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
-# Incluimos a Lib que vamos criar para podermos chama-la no nosso método
-require './lib/generate_pdf'
   # GET /sorder_items
   # GET /sorder_items.json
   def index

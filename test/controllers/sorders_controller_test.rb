@@ -30,6 +30,19 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should show sorder when its company has no logo" do
+    @sorder.company.update!(logoform: nil)
+    get sorder_url(@sorder)
+    assert_response :success
+  end
+
+  test "should export sorder as pdf" do
+    get export_sorder_url(sorders(:two))
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF")
+  end
+
   test "should get edit" do
     get edit_sorder_url(@sorder)
     assert_response :success

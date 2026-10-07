@@ -12,9 +12,7 @@
   <% end %>
 
   <div class="jumbotron">
-    <% if sorder.company&.logoform.present? %>
-      <td><%= image_tag sorder.company.logoform, midth:50, height:50, skip_pipeline: true%>
-    <% end %>
+    <td><%= company_logo_tag sorder.company&.logoform, 50 %>
     <p>
     <%= form.label :ordem %>
     <%= form.text_field :id, disabled: true , size:2 %>

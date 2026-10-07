@@ -2,7 +2,7 @@
 <%= form_with(model: @sorder, local: true) do |form| %>
   <p id="notice"><%= notice %></p>
   <div class="container">
-  <td><%= image_tag @sorder.company.logoform, midth:50, height:50, skip_pipeline: true%>
+  <td><%= company_logo_tag @sorder.company.logoform, 50 %>
   <%= @sorder.company.name %>
     <p> 
     Endereço:
@@ -71,5 +71,5 @@
       </div>
       </table>
     <% end %>
-    <%= link_to 'Download Report', sorder_path(format: 'pdf') %>
+    <%= link_to 'Download Report', export_sorder_path(@sorder), target: "_blank" %>
 <% end %>

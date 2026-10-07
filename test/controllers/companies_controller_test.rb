@@ -10,6 +10,12 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should get index when a company has no logos" do
+    @company.update!(logoform: nil, logoentrada: "")
+    get companies_url
+    assert_response :success
+  end
+
   test "should get new" do
     get new_company_url
     assert_response :success

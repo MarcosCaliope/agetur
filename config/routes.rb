@@ -4,7 +4,9 @@ Rails.application.routes.draw do
   resources :sorder_items
   get '/sorder_items_export' => 'sorder_items#export'
   resources :sorders do
-    get 'export'
+    member do
+      get 'export'
+    end
   end
   
   resources :agencies

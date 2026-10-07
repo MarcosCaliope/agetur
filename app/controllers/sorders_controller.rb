@@ -15,8 +15,6 @@ class SordersController < ApplicationController
 
   #before_action :sorder_params, only: [:show, :edit, :update, :destroy]
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
-# Nós incluimos aqui a lib que vamos criar chamada generate_pdf.rb
-require './lib/generate_pdf'
   # GET /sorders
   # GET /sorders.json
   def index
@@ -37,14 +35,12 @@ require './lib/generate_pdf'
 
 
 
-  # Criamos este método que vai chamar nossa lib para gerar o PDF e depois redirecionar o user para o arquivo PDF
+  # GET /sorders/1/export
   def export
-    GeneratePdf::sorder(@sorders.id, @sorders.data, @sorders.destination_id)
-    redirect_to '/sorder.pdf'
-    GeneratePdf::sorder_item(@SorderItem.all.map {|s| [s.comments, s.id]})
-    redirect_to '/SorderItem.pdf'
+    pdf = SorderExportPdf.new(@sorder)
+    send_data pdf.render, filename: "sorder_#{@sorder.id}.pdf", type: 'application/pdf', disposition: "inline"
   end
- 
+
   # GET /sorders/1
   # GET /sorders/1.json
   def show

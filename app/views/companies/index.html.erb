@@ -40,8 +40,8 @@
         <td><%= company.osdupla %></td>
         <td><%= company.email %></td>
         <td><%= company.site %></td>
-        <td><%= image_tag company.logoform, midth:25, height:25, skip_pipeline: true%></td>
-        <td><%= image_tag company.logoentrada, midth:25, height:25, skip_pipeline: true%></td>
+        <td><%= company_logo_tag company.logoform, 25 %></td>
+        <td><%= company_logo_tag company.logoentrada, 25 %></td>
 
         <td><%= company.iretorno %></td>
         <td><%= company.osshowcan %></td>
