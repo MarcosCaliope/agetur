@@ -5,7 +5,8 @@ class HotelsController < ApplicationController
   # GET /hotels.json
   def index
     #@hotels = Hotel.order("id.Desc").all
-    @hotels = Hotel.all
+    @q = Hotel.ransack(params[:q])
+    @hotels = @q.result
     respond_to do |format|
       format.html
       format.pdf do

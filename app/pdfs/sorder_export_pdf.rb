@@ -17,6 +17,7 @@ class SorderExportPdf < Prawn::Document
         text "Data: #{@sorder.data&.strftime('%d/%m/%Y')}   Destino: #{@sorder.destination.description}"
         text "Guia: #{@sorder.tourguide.sname}   Motorista: #{@sorder.driver.sname}   Veículo: #{@sorder.vehicle.license}"
         text "Observações: #{@sorder.sobservacoes}" if @sorder.sobservacoes.present?
+        text "Total de PAX: #{@sorder.total_pax}   Total de CHD: #{@sorder.total_chd}"
     end
 
     def items
@@ -28,10 +29,10 @@ class SorderExportPdf < Prawn::Document
     end
 
     def items_rows
-    [["Hotel", "Apto", "Passageiro/Titular", "Documento", "Telefone", "PAX", "CHD", "Valor", "Solicitante", "Observações"]] +
-        @sorder.sorder_items.map do |item|
-            [item.hotel&.sname, item.apto, item.customer&.nome, [item.documenttype, item.document].compact_blank.join(" "),
-             item.phone, item.qtdepax, item.qtdechd, item.amount, item.vendor&.sname, item.comments].map(&:to_s)
+    [["Hotel", "Apto", "Passageiro/Titular", "Documento", "Telefone", "PAX", "CHD", "A Receber", "Solicitante", "Observações"]] +
+        @sorder.sorder_items.ativos.map do |item|
+            [item.hotel&.sname, item.apto, item.nome_passageiro, [item.documenttype, item.document].compact_blank.join(" "),
+             item.phone, item.qtdepax, item.qtdechd, item.total_passeio, item.vendor&.sname, item.comments].map(&:to_s)
         end
     end
 end

@@ -77,11 +77,10 @@
 
   </div>
     <div id='sorder_items'>
+    <%= link_to_add_association '[Adicionar PAX]', form, :sorder_items %>
       <%= form.fields_for :sorder_items do |sorder_item| %>
       <%= render partial: "sorder_item_fields", locals: { f: sorder_item } %>
       <% end %>
-    
-    <%= link_to_add_association '[+ PAX]', form, :sorder_items %>
     </div>
 
     <div class="actions">

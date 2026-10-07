@@ -11,6 +11,12 @@ class SorderItemsController < ApplicationController
   def show
   end
 
+  # GET /showcomis
+  def showcomis
+    @q = SorderItem.ransack(comissoes_query)
+    @sorder_items = @q.result.includes(:vendor, :hotel, :customer).order(:created_at)
+  end
+
   # GET /sorder_items/new
   def new
     @sorder_item = SorderItem.new
@@ -64,6 +70,13 @@ class SorderItemsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_sorder_item
       @sorder_item = SorderItem.find(params[:id])
+    end
+
+    # The date fields send plain dates, so make "Data Final" include that whole day.
+    def comissoes_query
+      q = params.fetch(:q, {}).permit(:created_at_gteq, :created_at_lteq, :vendor_id_eq).to_h
+      q[:created_at_lteq] = Time.zone.parse(q[:created_at_lteq])&.end_of_day if q[:created_at_lteq].present?
+      q
     end
 
     # Only allow a list of trusted parameters through.

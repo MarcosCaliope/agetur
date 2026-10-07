@@ -7,6 +7,14 @@ class Sorder < ApplicationRecord
     belongs_to :driver
     belongs_to :vehicle
 
+    def total_pax
+        sorder_items.ativos.sum(:qtdepax)
+    end
+
+    def total_chd
+        sorder_items.ativos.sum(:qtdechd)
+    end
+
     def self.ransackable_attributes(auth_object = nil)
       ["company_id", "created_at", "data", "destination_id", "driver_id", "id", "id_value", "sobservacoes", "tourguide_id", "updated_at", "valorcombustivel", "valordespesas", "valorfinalos", "valorguia", "valormotorista", "valoros", "valorpedagio", "vehicle_id"]
     end

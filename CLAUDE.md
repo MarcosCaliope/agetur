@@ -34,6 +34,10 @@ PostgreSQL via `pg`. `config/database.yml` reads `AGETUR_DATABASE_HOST` (default
 
 Test fixtures are interdependent. Controller tests destroy the `:one` fixture of a resource, so fixtures that reference another resource (state, destination, sorder, ...) point at its `:two` fixture so the FK does not block the delete. Keep that convention when adding fixtures.
 
+## Git history
+
+`origin/main` on GitHub is a separate, unrelated history (2022, Rails 6.1/MySQL) that shares no commits with this one. This history (Rails 7.2 upgrade + fixes) is pushed as `origin/rails7-upgrade`, and local `main` tracks it. The 2022 commission work from `origin/main` has been ported here. Never force-push over `origin/main`.
+
 ## Architecture
 
 Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views plus jbuilder JSON views. There is no API layer, no background jobs and no service objects; the only extra layer is `app/pdfs/`. Frontend is Sprockets (CoffeeScript + SCSS per controller under `app/assets/`), Turbolinks, Bootstrap 4/jQuery from `package.json` via yarn, and a vendored `public/templates/gentelella/` admin theme. There is no `app/javascript`/importmap.
@@ -46,7 +50,9 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - `SorderItem` belongs_to `sorder`. Its `customer`, `hotel` and `vendor` associations are `optional: true` because they are filled in per passenger.
 - FKs live on `sorders`/`companies`. `Destination`, `Vehicle` and `State` therefore use `has_many` (`:sorders`/`:companies`), not `belongs_to`.
 - `SordersController` populates select options through many `set_*_options` before_actions. Each one plucks `[name, id]` pairs.
-- Ransack powers search/filtering (`Sorder.ransack(params[:q])` in `SordersController#index`).
+- Passenger items carry commission data: `amountcomission`/`amountcomissionpay` (vendor commission and the part received), `amountcomissionrep`/`amountcomissionreppay` (the same for the agency it was passed to), `snomepax` (typed passenger name, which replaced the customer select; use `SorderItem#nome_passageiro`, which falls back to `customer`) and `scancelado` (`"S"`/`"N"`). Blank `scancelado` means *not* cancelled, so filter with the `SorderItem.ativos` scope, not `scancelado == "N"`. `Sorder#total_pax`/`total_chd` and the show page/PDF only count active items.
+- `GET /showcomis` (`SorderItemsController#showcomis`) is the commission report, filtered by item `created_at` range and vendor. `comissoes_query` stretches "Data Final" to the end of that day.
+- Ransack (4.x) powers search/filtering on sorders, hotels and the commission report. Ransack 4 raises unless the model allowlists searchable fields via `self.ransackable_attributes`, so add new filter fields there.
 - `_forma.html.erb` / `_sordera_item_fields.html.erb` are alternate/unused partials alongside the real `_form` / `_sorder_item_fields`.
 
 ### PDF generation

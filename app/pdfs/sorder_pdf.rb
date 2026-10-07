@@ -1,7 +1,7 @@
 class SorderPdf < Prawn::Document
     def initialize(sorders)
         super()
-        @sorders = sorders.order("id Desc").all
+        @sorders = sorders.order("data Desc").all
         #text "Hello there"
         sorder_id
     end
@@ -9,7 +9,6 @@ class SorderPdf < Prawn::Document
         table sorder_id_all do
             #row(0).font_style = :bold
             #columns(1..3).align = :right
-            columns(1..6).width = 100
             #columns(4).width = 150
             self.row_colors = ["DDDDDD", "FFFFFF"]
             self.header = true
@@ -17,9 +16,9 @@ class SorderPdf < Prawn::Document
     end
     
     def sorder_id_all
-    [["id", "Destino", "Guia", "Motorista", "Veículo"]] +
-        @sorders.map do |sorders|
-            [sorders.id, sorders.destination.description, sorders.tourguide.sname, sorders.driver.sname, sorders.vehicle.license]
+    [["id", "Destino", "Guia", "Motorista", "Veículo", "Data"]] +
+        @sorders.map do |s|
+            [s.id, s.destination.description, s.tourguide.sname, s.driver.sname, s.vehicle.license, s.data&.strftime('%d/%m/%Y')]
         end
 
     end

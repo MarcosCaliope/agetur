@@ -1,6 +1,18 @@
 
 <%= form_with(model: @sorder, local: true) do |form| %>
   <p id="notice"><%= notice %></p>
+
+  <style type="text/css">
+      @media print {
+      .print {
+        display: block;
+      }
+      .no-print {
+        display: none;
+      }
+  }
+  </style>
+
   <div class="container">
   <td><%= company_logo_tag @sorder.company.logoform, 50 %>
   <%= @sorder.company.name %>
@@ -34,42 +46,50 @@
           <strong>observacoes:</strong>
           <%= @sorder.sobservacoes %>
         </p>
-        </div>
-     
-  <table>
-    <strong>Hotel:</strong>  
-    <strong>Apto:</strong>  
-    <strong>Passageiro/Titular:</strong>  
-    <strong>Telefone:</strong>  
-    <strong>PAX:</strong>  
-    <strong>CHD:</strong>  
-    <strong>Valor:</strong>  
-    <strong>Solicitante:</strong>  
-    <strong>Observações:</strong>  
+        <p>
+          <strong>Total de PAX:</strong> <%= @sorder.total_pax %>
+          <strong>Total de CHD:</strong> <%= @sorder.total_chd %>
+        </p>
+    </div>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Hotel</th>
+        <th>Apto</th>
+        <th>Passageiro</th>
+        <th>Tipo Doc</th>
+        <th>Documento</th>
+        <th>Telefone</th>
+        <th>PAX</th>
+        <th>CHD</th>
+        <th>A Receber</th>
+        <th>Solicitante</th>
+        <th>Observações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @sorder_item.ativos.each do |sorder_item| %>
+        <tr>
+          <td><%= sorder_item.hotel&.sname %></td>
+          <td><%= sorder_item.apto %></td>
+          <td><%= sorder_item.nome_passageiro %></td>
+          <td><%= sorder_item.documenttype %></td>
+          <td><%= sorder_item.document %></td>
+          <td><%= sorder_item.phone %></td>
+          <td><%= sorder_item.qtdepax %></td>
+          <td><%= sorder_item.qtdechd %></td>
+          <td><%= sorder_item.total_passeio %></td>
+          <td><%= sorder_item.vendor&.sname %></td>
+          <td><%= sorder_item.comments %></td>
+        </tr>
+      <% end %>
+    </tbody>
   </table>
 
-    <% @sorder_item.each do |sorder_item| %>
-      <table class="table table-hover">
-        <div>
-        <td><%= sorder_item.hotel&.sname %></td>
-        <td><%= sorder_item.apto %></td>
-
-        <td><%= sorder_item.customer&.nome %></td>
-        <td><%= sorder_item.documenttype %></td>
-        <td><%= sorder_item.document %></td>
-
-        <td><%= sorder_item.phone %></td>
-        <td><%= sorder_item.qtdepax %></td>
-        <td><%= sorder_item.qtdechd %></td>
-
-        <td><%= sorder_item.amount %></td>
-        <td><%= sorder_item.vendor&.sname %></td>
-      
-      </div>
-      <div>
-        <td><%= sorder_item.comments %></td>
-      </div>
-      </table>
-    <% end %>
+  <div class="no-print">
+    <%= link_to '[Voltar]', sorders_path %>
     <%= link_to 'Download Report', export_sorder_path(@sorder), target: "_blank" %>
+    <button type="button" onclick="print()">imprimir</button>
+  </div>
 <% end %>
