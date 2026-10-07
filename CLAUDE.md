@@ -36,7 +36,7 @@ Test fixtures are interdependent. Controller tests destroy the `:one` fixture of
 
 ## Git history
 
-`origin/main` on GitHub is a separate, unrelated history (2022, Rails 6.1/MySQL) that shares no commits with this one. This history (Rails 7.2 upgrade + fixes) is pushed as `origin/rails7-upgrade`, and local `main` tracks it. The 2022 commission work from `origin/main` has been ported here. Never force-push over `origin/main`.
+`origin/main` on GitHub is a separate, unrelated history (2022, Rails 6.1/MySQL) that shares no commits with this one. This history (Rails 7.2 upgrade + fixes) lives on the `rails7-upgrade` branch (tracking `origin/rails7-upgrade`); there is no local `main`. The 2022 commission work from `origin/main` has been ported here. Never force-push over `origin/main`.
 
 ## Architecture
 
