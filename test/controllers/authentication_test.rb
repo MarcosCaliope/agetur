@@ -53,6 +53,15 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "user self sign-up is closed" do
+    get "/users/sign_up"
+    assert_response :not_found
+    assert_no_difference('User.count') do
+      post "/users", params: { user: { email: "intruso@example.com", password: "senha123", password_confirmation: "senha123" } }
+    end
+    assert_response :not_found
+  end
+
   test "admin self sign-up is closed" do
     get "/admins/sign_up"
     assert_response :not_found
