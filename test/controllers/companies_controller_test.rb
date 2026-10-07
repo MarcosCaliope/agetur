@@ -20,6 +20,13 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
   test "should get new" do
     get new_company_url
     assert_response :success
+    assert_select "select[name=?] option", "company[state_id]", text: states(:two).uf
+  end
+
+  test "should show the company's state abbreviation" do
+    get company_url(@company)
+    assert_match @company.state.uf, response.body
+    assert_no_match "#<State", response.body
   end
 
   test "should create company" do

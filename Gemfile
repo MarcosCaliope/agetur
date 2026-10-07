@@ -16,6 +16,9 @@ gem 'terser'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'mini_racer', platforms: :ruby
 gem 'devise'
+# pt-BR translations for Devise messages and for Rails itself (validation errors, dates)
+gem 'devise-i18n'
+gem 'rails-i18n', '~> 7.0'
 gem 'cocoon'
 gem 'tty-spinner'
 # Use CoffeeScript for .coffee assets and views

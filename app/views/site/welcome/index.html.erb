@@ -1,12 +1,14 @@
-<h1>Site::Welcome#index</h1>
+<h1>Agetur</h1>
 <% if user_signed_in? %>
-  <p> User Login: <%= current_user.email %> </p>
-  <% else %>
+  <p>Conectado como <%= current_user.email %> | <%= link_to 'Sair', destroy_user_session_path, method: :delete %></p>
 <% end %>
 
 <% if admin_signed_in? %>
-  <p> User Login: <%= current_admin.email %> </p>
-  <% else %>
+  <p>Conectado como administrador <%= current_admin.email %> | <%= link_to 'Sair', destroy_admin_session_path, method: :delete %></p>
+<% end %>
+
+<% unless user_signed_in? || admin_signed_in? %>
+  <p><%= link_to 'Entrar', new_user_session_path %></p>
 <% end %>
 <p>
 <%= link_to "Ordem de Serviço", sorders_path %>
@@ -15,9 +17,9 @@
 <p>
 <%= link_to "Clientes", customers_path %>
 <p>
-<%= link_to "Agencias", agencies_path %>
+<%= link_to "Agências", agencies_path %>
 <p>
-<%= link_to "Hoteis", hotels_path %>
+<%= link_to "Hotéis", hotels_path %>
 <p>
 <%= link_to "Vendedores", vendors_path %>
 <p>
@@ -33,4 +35,3 @@
 <p>
 <%= link_to "TXT", txt_path, class: "btn btn-primary btn-lg", role:"button" %>
 
-<p>Find me in app/views/site/welcome/index.html.erb</p>

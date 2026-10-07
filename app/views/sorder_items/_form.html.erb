@@ -1,7 +1,7 @@
 <%= form_with(model: sorder_item, local: true) do |form| %>
   <% if sorder_item.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(sorder_item.errors.count, "error") %> prohibited this sorder_item from being saved:</h2>
+      <h2><%= t("errors.template.header", model: sorder_item.model_name.human.downcase, count: sorder_item.errors.count) %></h2>
 
       <ul>
       <% sorder_item.errors.full_messages.each do |message| %>

@@ -1,7 +1,7 @@
 <%= form_with(model: tourguide, local: true) do |form| %>
   <% if tourguide.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(tourguide.errors.count, "error") %> prohibited this tourguide from being saved:</h2>
+      <h2><%= t("errors.template.header", model: tourguide.model_name.human.downcase, count: tourguide.errors.count) %></h2>
 
       <ul>
       <% tourguide.errors.full_messages.each do |message| %>

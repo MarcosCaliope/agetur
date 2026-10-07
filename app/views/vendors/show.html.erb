@@ -1,34 +1,33 @@
-<p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Sname:</strong>
+  <strong>Nome:</strong>
   <%= @vendor.sname %>
 </p>
 
 <p>
-  <strong>Email:</strong>
+  <strong>E-mail:</strong>
   <%= @vendor.email %>
 </p>
 
 <p>
-  <strong>Address:</strong>
+  <strong>Endereço:</strong>
   <%= @vendor.address %>
 </p>
 
 <p>
-  <strong>Phone:</strong>
+  <strong>Telefone:</strong>
   <%= @vendor.phone %>
 </p>
 
 <p>
-  <strong>Comments:</strong>
+  <strong>Observações:</strong>
   <%= @vendor.comments %>
 </p>
 
 <p>
-  <strong>Commission:</strong>
+  <strong>Comissão:</strong>
   <%= @vendor.commission %>
 </p>
 
-<%= link_to 'Edit', edit_vendor_path(@vendor) %> |
-<%= link_to 'Back', vendors_path %>
+<%= link_to 'Editar', edit_vendor_path(@vendor) %> |
+<%= link_to 'Voltar', vendors_path %>

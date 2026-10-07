@@ -33,7 +33,7 @@ class SorderItemsController < ApplicationController
 
     respond_to do |format|
       if @sorder_item.save
-        format.html { redirect_to @sorder_item, notice: 'Sorder item was successfully created.' }
+        format.html { redirect_to @sorder_item, notice: 'Passageiro criado com sucesso.' }
         format.json { render :show, status: :created, location: @sorder_item }
       else
         format.html { render :new }
@@ -47,7 +47,7 @@ class SorderItemsController < ApplicationController
   def update
     respond_to do |format|
       if @sorder_item.update(sorder_item_params)
-        format.html { redirect_to @sorder_item, notice: 'Sorder item was successfully updated.' }
+        format.html { redirect_to @sorder_item, notice: 'Passageiro atualizado com sucesso.' }
         format.json { render :show, status: :ok, location: @sorder_item }
       else
         format.html { render :edit }
@@ -61,7 +61,7 @@ class SorderItemsController < ApplicationController
   def destroy
     @sorder_item.destroy
     respond_to do |format|
-      format.html { redirect_to sorder_items_url, notice: 'Sorder item was successfully destroyed.' }
+      format.html { redirect_to sorder_items_url, notice: 'Passageiro excluído com sucesso.' }
       format.json { head :no_content }
     end
   end

@@ -28,7 +28,7 @@ class DestinationsController < ApplicationController
 
     respond_to do |format|
       if @destination.save
-        format.html { redirect_to @destination, notice: 'Destination was successfully created.' }
+        format.html { redirect_to @destination, notice: 'Roteiro criado com sucesso.' }
         format.json { render :show, status: :created, location: @destination }
       else
         format.html { render :new }
@@ -42,7 +42,7 @@ class DestinationsController < ApplicationController
   def update
     respond_to do |format|
       if @destination.update(destination_params)
-        format.html { redirect_to @destination, notice: 'Destination was successfully updated.' }
+        format.html { redirect_to @destination, notice: 'Roteiro atualizado com sucesso.' }
         format.json { render :show, status: :ok, location: @destination }
       else
         format.html { render :edit }
@@ -56,7 +56,7 @@ class DestinationsController < ApplicationController
   def destroy
     @destination.destroy
     respond_to do |format|
-      format.html { redirect_to destinations_url, notice: 'Destination was successfully destroyed.' }
+      format.html { redirect_to destinations_url, notice: 'Roteiro excluído com sucesso.' }
       format.json { head :no_content }
     end
   end

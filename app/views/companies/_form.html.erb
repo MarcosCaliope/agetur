@@ -1,7 +1,7 @@
 <%= form_with(model: company, local: true) do |form| %>
   <% if company.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(company.errors.count, "error") %> prohibited this company from being saved:</h2>
+      <h2><%= t("errors.template.header", model: company.model_name.human.downcase, count: company.errors.count) %></h2>
 
       <ul>
       <% company.errors.full_messages.each do |message| %>
@@ -38,7 +38,7 @@
 
   <div class="field">
     <%= form.label :state_id %>
-    <%= form.text_field :state_id %>
+    <%= form.select :state_id, @state_options, { include_blank: "Selecione" } %>
   </div>
 
   <div class="field">

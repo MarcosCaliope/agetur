@@ -9,6 +9,18 @@ class AgenciesControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get agencies_url
     assert_response :success
+    assert_select "h1", text: "Agências"
+    assert_select "th", text: "Nome"
+    assert_select "a", text: "Editar"
+    assert_select "a[data-confirm=?]", "Tem certeza?"
+    assert_select "a", text: "Nova Agência"
+  end
+
+  test "form labels and buttons are in Portuguese" do
+    get new_agency_url
+    assert_select "h1", text: "Nova Agência"
+    assert_select "label", text: "Endereço"
+    assert_select "input[type=submit][value=?]", "Criar Agência"
   end
 
   test "should get new" do

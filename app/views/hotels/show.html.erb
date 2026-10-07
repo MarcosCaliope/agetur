@@ -1,34 +1,33 @@
-<p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Sname:</strong>
+  <strong>Nome:</strong>
   <%= @hotel.sname %>
 </p>
 
 <p>
-  <strong>Email:</strong>
+  <strong>E-mail:</strong>
   <%= @hotel.email %>
 </p>
 
 <p>
-  <strong>Address:</strong>
+  <strong>Endereço:</strong>
   <%= @hotel.address %>
 </p>
 
 <p>
-  <strong>Phone:</strong>
+  <strong>Telefone:</strong>
   <%= @hotel.phone %>
 </p>
 
 <p>
-  <strong>Comments:</strong>
+  <strong>Observações:</strong>
   <%= @hotel.comments %>
 </p>
 
 <p>
-  <strong>Valordiaria:</strong>
+  <strong>Valor da diária:</strong>
   <%= @hotel.Valordiaria %>
 </p>
 
-<%= link_to 'Edit', edit_hotel_path(@hotel) %> |
-<%= link_to 'Back', hotels_path %>
+<%= link_to 'Editar', edit_hotel_path(@hotel) %> |
+<%= link_to 'Voltar', hotels_path %>

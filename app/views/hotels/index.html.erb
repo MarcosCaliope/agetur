@@ -1,4 +1,3 @@
-<p id="notice"><%= notice %></p>
 <style type="text/css">
       @media print {
       .print {
@@ -19,15 +18,15 @@
     <% end %>
   </div>
 
-<h1>Hoteis</h1>
+<h1>Hotéis</h1>
 
 <table class="table table-hover">
   <thead>
     <tr>
       <th>Nome</th>
-      <th>Email</th>
+      <th>E-mail</th>
       <th>Endereço</th>
-      <th>Fone</th>
+      <th>Telefone</th>
       <th>Obs.</th>
       <th class="no-print">Valor diaria</th>
       <th colspan="3"></th>
@@ -43,9 +42,9 @@
         <td><%= hotel.phone %></td>
         <td><%= hotel.comments %></td>
         <td class="no-print"><%= hotel.Valordiaria %></td>
-        <td class="no-print"><%= link_to 'Show', hotel %></td>
-        <td class="no-print"><%= link_to 'Edit', edit_hotel_path(hotel) %></td>
-        <td class="no-print"><%= link_to 'Destroy', hotel, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td class="no-print"><%= link_to 'Exibir', hotel %></td>
+        <td class="no-print"><%= link_to 'Editar', edit_hotel_path(hotel) %></td>
+        <td class="no-print"><%= link_to 'Excluir', hotel, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
         </tr>
     <% end %>
   </tbody>
@@ -53,7 +52,7 @@
 
 <div class="no-print">
   <br>
-  <%= link_to 'New Hotel', new_hotel_path %>
+  <%= link_to 'Novo Hotel', new_hotel_path %>
   <br>
   <%= link_to 'Lista em PDF', hotels_path(request.query_parameters.merge(format: 'pdf')) %>
 </div>

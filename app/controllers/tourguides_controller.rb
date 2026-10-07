@@ -28,7 +28,7 @@ class TourguidesController < ApplicationController
 
     respond_to do |format|
       if @tourguide.save
-        format.html { redirect_to @tourguide, notice: 'Tourguide was successfully created.' }
+        format.html { redirect_to @tourguide, notice: 'Guia criado com sucesso.' }
         format.json { render :show, status: :created, location: @tourguide }
       else
         format.html { render :new }
@@ -42,7 +42,7 @@ class TourguidesController < ApplicationController
   def update
     respond_to do |format|
       if @tourguide.update(tourguide_params)
-        format.html { redirect_to @tourguide, notice: 'Tourguide was successfully updated.' }
+        format.html { redirect_to @tourguide, notice: 'Guia atualizado com sucesso.' }
         format.json { render :show, status: :ok, location: @tourguide }
       else
         format.html { render :edit }
@@ -56,7 +56,7 @@ class TourguidesController < ApplicationController
   def destroy
     @tourguide.destroy
     respond_to do |format|
-      format.html { redirect_to tourguides_url, notice: 'Tourguide was successfully destroyed.' }
+      format.html { redirect_to tourguides_url, notice: 'Guia excluído com sucesso.' }
       format.json { head :no_content }
     end
   end

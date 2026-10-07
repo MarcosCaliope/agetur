@@ -1,14 +1,13 @@
-<p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Sorder:</strong>
+  <strong>Ordem de serviço:</strong>
   <%= @sorder_item.sorder %>
 </p>
 
 <p>
-  <strong>Comments:</strong>
+  <strong>Observações:</strong>
   <%= @sorder_item.comments %>
 </p>
 
-<%= link_to 'Edit', edit_sorder_item_path(@sorder_item) %> |
-<%= link_to 'Back', sorder_items_path %>
+<%= link_to 'Editar', edit_sorder_item_path(@sorder_item) %> |
+<%= link_to 'Voltar', sorder_items_path %>

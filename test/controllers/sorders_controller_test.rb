@@ -88,6 +88,19 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to sorder_url(@sorder)
   end
 
+  test "should confirm actions with Portuguese messages" do
+    patch sorder_url(@sorder), params: { sorder: { sobservacoes: "editado" } }
+    follow_redirect!
+    assert_select ".alert-success", text: "Ordem de serviço atualizada com sucesso."
+  end
+
+  test "should show validation errors in Portuguese" do
+    post sorders_url, params: { sorder: { sobservacoes: "sem dados" } }
+    assert_select "#error_explanation h2", text: "Não foi possível gravar ordem de serviço: 5 erros"
+    assert_select "#error_explanation li", text: "Roteiro é obrigatório(a)"
+    assert_select "input[type=submit][value=?]", "Criar Ordem de serviço"
+  end
+
   test "should destroy sorder" do
     assert_difference('Sorder.count', -1) do
       delete sorder_url(@sorder)

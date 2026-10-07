@@ -1,6 +1,5 @@
 
 <%= form_with(model: @sorder, local: true) do |form| %>
-  <p id="notice"><%= notice %></p>
 
   <style type="text/css">
       @media print {
@@ -89,7 +88,7 @@
 
   <div class="no-print">
     <%= link_to '[Voltar]', sorders_path %>
-    <%= link_to 'Download Report', export_sorder_path(@sorder), target: "_blank" %>
+    <%= link_to 'Baixar PDF', export_sorder_path(@sorder), target: "_blank" %>
     <button type="button" onclick="print()">imprimir</button>
   </div>
 <% end %>

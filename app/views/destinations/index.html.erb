@@ -1,6 +1,5 @@
-<p id="notice"><%= notice %></p>
 
-<h1>Destinations</h1>
+<h1>Roteiros</h1>
 
 <table class="table table-hover">
   <thead>
@@ -30,9 +29,9 @@
         <td><%= destination.valuecard %></td>
         <td><%= destination.valuecardchd %></td>
         <td><%= destination.state.uf %></td>
-        <td><%= link_to 'Show', destination %></td>
-        <td><%= link_to 'Edit', edit_destination_path(destination) %></td>
-        <td><%= link_to 'Destroy', destination, method: :delete, data: { confirm: 'Tem Certeza ?' } %></td>
+        <td><%= link_to 'Exibir', destination %></td>
+        <td><%= link_to 'Editar', edit_destination_path(destination) %></td>
+        <td><%= link_to 'Excluir', destination, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -40,4 +39,4 @@
 
 <br>
 
-<%= link_to 'New Destination', new_destination_path %>
+<%= link_to 'Novo Roteiro', new_destination_path %>

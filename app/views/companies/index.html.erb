@@ -1,4 +1,3 @@
-<p id="notice"><%= notice %></p>
 
 <h1>Empresa</h1>
 
@@ -6,23 +5,23 @@
   <thead>
     <tr>
       <th>Nome</th>
-      <th>Cnpj</th>
-      <th>Address</th>
-      <th>Phone</th>
-      <th>City</th>
-      <th>State</th>
-      <th>Osmodel</th>
-      <th>Osdupla</th>
-      <th>Email</th>
+      <th>CNPJ</th>
+      <th>Endereço</th>
+      <th>Telefone</th>
+      <th>Cidade</th>
+      <th>Estado</th>
+      <th>Modelo da OS</th>
+      <th>OS dupla</th>
+      <th>E-mail</th>
       <th>Site</th>
-      <th>Logoform</th>
-      <th>Logoentrada</th>
-      <th>Iretorno</th>
-      <th>Osshowcan</th>
-      <th>Osshowcanrel</th>
-      <th>Osshowrep</th>
-      <th>Osincludechdcalc</th>
-      <th>Comments</th>
+      <th>Logo do formulário</th>
+      <th>Logo de entrada</th>
+      <th>Retorno</th>
+      <th>Exibir cancelados na OS</th>
+      <th>Exibir cancelados no relatório</th>
+      <th>Exibir repasse na OS</th>
+      <th>Incluir CHD no cálculo</th>
+      <th>Observações</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -49,9 +48,9 @@
         <td><%= company.osshowrep %></td>
         <td><%= company.osincludechdcalc %></td>
         <td><%= company.comments %></td>
-        <td><%= link_to 'Show', company %></td>
-        <td><%= link_to 'Edit', edit_company_path(company) %></td>
-        <td><%= link_to 'Destroy', company, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Exibir', company %></td>
+        <td><%= link_to 'Editar', edit_company_path(company) %></td>
+        <td><%= link_to 'Excluir', company, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -59,4 +58,4 @@
 
 <br>
 
-<%= link_to 'New Company', new_company_path %>
+<%= link_to 'Nova Empresa', new_company_path %>

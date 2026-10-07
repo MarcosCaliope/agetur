@@ -10,7 +10,7 @@ class TxtControllerTest < ActionDispatch::IntegrationTest
       post '/txt/importar', params: { txt: fixture_file_upload('customers.txt', 'text/plain') }
     end
     assert_redirected_to '/txt'
-    assert_equal "Imported with successful", flash[:success]
+    assert_equal "Importação concluída com sucesso.", flash[:success]
   end
 
   test "should redirect with an error when no file is sent" do
@@ -19,5 +19,7 @@ class TxtControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to '/txt'
     assert_equal "Selecione um arquivo para importar.", flash[:error]
+    follow_redirect!
+    assert_select ".alert-danger", text: "Selecione um arquivo para importar."
   end
 end

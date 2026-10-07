@@ -1,7 +1,7 @@
 <%= form_with(model: sorder, local: true) do |form| %>
   <% if sorder.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(sorder.errors.count, "error") %> prohibited this sorder from being saved:</h2>
+      <h2><%= t("errors.template.header", model: sorder.model_name.human.downcase, count: sorder.errors.count) %></h2>
 
       <ul>
       <% sorder.errors.full_messages.each do |message| %>
@@ -41,8 +41,8 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">detalhes das Despesas</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <h5 class="modal-title" id="exampleModalLabel">Detalhes das despesas</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -68,7 +68,7 @@
       
                     <div>                  </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
           </div>
         </div>
       </div>

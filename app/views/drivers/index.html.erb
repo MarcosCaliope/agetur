@@ -1,4 +1,3 @@
-<p id="notice"><%= notice %></p>
 
 <h1>Motoristas</h1>
 
@@ -6,9 +5,9 @@
   <thead>
     <tr>
       <th>Nome</th>
-      <th>Email</th>
+      <th>E-mail</th>
       <th>Endereço</th>
-      <th>Fone</th>
+      <th>Telefone</th>
       <th>Cidade</th>
       <th>Observações</th>
       <th colspan="3"></th>
@@ -24,9 +23,9 @@
         <td><%= driver.phone %></td>
         <td><%= driver.city %></td>
         <td><%= driver.comments %></td>
-        <td><%= link_to 'Mostra', driver %></td>
-        <td><%= link_to 'Edita', edit_driver_path(driver) %></td>
-        <td><%= link_to 'Exclui', driver, method: :delete, data: { confirm: 'Tem Certeza?' } %></td>
+        <td><%= link_to 'Exibir', driver %></td>
+        <td><%= link_to 'Editar', edit_driver_path(driver) %></td>
+        <td><%= link_to 'Excluir', driver, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

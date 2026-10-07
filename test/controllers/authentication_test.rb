@@ -78,6 +78,37 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "sign in page shows why the user was sent there" do
+    get sorders_url
+    follow_redirect!
+    assert_select ".alert-danger", text: "Para continuar, faça login."
+  end
+
+  test "a wrong password shows an error message" do
+    post user_session_url, params: { user: { email: users(:one).email, password: "errada" } }
+    assert_select ".alert-danger", text: "E-mail ou senha inválidos."
+  end
+
+  test "sign in pages are in Portuguese" do
+    get new_user_session_url
+    assert_select "h2", text: "Login — Usuários"
+    assert_select "label", text: "Senha"
+    assert_select "input[type=submit][value=?]", "Login"
+    assert_select "a", text: "Esqueceu sua senha?"
+    assert_select "a", text: /cadastr|Sign up/i, count: 0
+    get new_admin_session_url
+    assert_select "h2", text: "Login — Administrativo"
+  end
+
+  test "home page offers sign in or sign out" do
+    get root_url
+    assert_select "a[href=?]", new_user_session_path, text: "Entrar"
+    sign_in users(:one)
+    get root_url
+    assert_select "a", text: "Sair"
+    assert_select "a", text: "Entrar", count: 0
+  end
+
   test "after signing in the user returns to the page they asked for" do
     get hotels_url
     post user_session_url, params: { user: { email: users(:one).email, password: "password" } }

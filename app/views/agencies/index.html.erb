@@ -1,15 +1,14 @@
-<p id="notice"><%= notice %></p>
 
-<h1>Agencies</h1>
+<h1>Agências</h1>
 
 <table>
   <thead>
     <tr>
-      <th>Sname</th>
-      <th>Email</th>
-      <th>Address</th>
-      <th>Phone</th>
-      <th>Comments</th>
+      <th>Nome</th>
+      <th>E-mail</th>
+      <th>Endereço</th>
+      <th>Telefone</th>
+      <th>Observações</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -22,9 +21,9 @@
         <td><%= agency.address %></td>
         <td><%= agency.phone %></td>
         <td><%= agency.comments %></td>
-        <td><%= link_to 'Show', agency %></td>
-        <td><%= link_to 'Edit', edit_agency_path(agency) %></td>
-        <td><%= link_to 'Destroy', agency, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Exibir', agency %></td>
+        <td><%= link_to 'Editar', edit_agency_path(agency) %></td>
+        <td><%= link_to 'Excluir', agency, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -32,4 +31,4 @@
 
 <br>
 
-<%= link_to 'New Agency', new_agency_path %>
+<%= link_to 'Nova Agência', new_agency_path %>

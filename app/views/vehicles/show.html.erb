@@ -1,7 +1,6 @@
-<p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Placas:</strong>
+  <strong>Placa:</strong>
   <%= @vehicle.license %>
 </p>
 
@@ -40,5 +39,5 @@
   <%= @vehicle.comments %>
 </p>
 
-<%= link_to 'Edit', edit_vehicle_path(@vehicle) %> |
-<%= link_to 'Back', vehicles_path %>
+<%= link_to 'Editar', edit_vehicle_path(@vehicle) %> |
+<%= link_to 'Voltar', vehicles_path %>

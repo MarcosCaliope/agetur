@@ -1,0 +1,7 @@
+<%# Devise sets :notice/:alert; the TXT import sets :success/:error. %>
+<% flash.each do |type, message| %>
+  <% next if message.blank? %>
+  <div class="alert alert-<%= { "notice" => "success", "success" => "success", "alert" => "danger", "error" => "danger" }.fetch(type.to_s, "info") %>" role="alert">
+    <%= message %>
+  </div>
+<% end %>

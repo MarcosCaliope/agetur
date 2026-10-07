@@ -115,6 +115,9 @@ GEM
       railties (>= 7.0)
       responders
       warden (~> 1.2.3)
+    devise-i18n (1.16.1)
+      devise (>= 5.0.0)
+      rails-i18n
     drb (2.2.3)
     erb (6.0.5)
     erubi (1.13.1)
@@ -255,6 +258,9 @@ GEM
     rails-html-sanitizer (1.7.1)
       loofah (~> 2.25, >= 2.25.2)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
+    rails-i18n (7.0.10)
+      i18n (>= 0.7, < 2)
+      railties (>= 6.0.0, < 8)
     rails_db (2.5.0)
       activerecord
       csv
@@ -383,6 +389,7 @@ DEPENDENCIES
   cocoon
   coffee-rails (~> 4.2)
   devise
+  devise-i18n
   jbuilder (~> 2.5)
   listen (>= 3.0.5)
   pdfkit
@@ -391,6 +398,7 @@ DEPENDENCIES
   prawn-table
   puma (>= 5.0)
   rails (~> 7.1)
+  rails-i18n (~> 7.0)
   rails_db
   ransack
   sassc-rails

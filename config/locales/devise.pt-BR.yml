@@ -1,0 +1,6 @@
+# Overrides for devise-i18n's pt-BR messages. Self sign-up is closed, so
+# don't tell people to register.
+pt-BR:
+  devise:
+    failure:
+      unauthenticated: "Para continuar, faça login."

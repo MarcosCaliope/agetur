@@ -1,4 +1,3 @@
-<p id="notice"><%= notice %></p>
 
 <h1>Guias</h1>
 
@@ -6,9 +5,9 @@
   <thead>
     <tr>
       <th>Nome</th>
-      <th>Email</th>
+      <th>E-mail</th>
       <th>Endereço</th>
-      <th>Fone</th>
+      <th>Telefone</th>
       <th>Observações</th>
       <th colspan="3"></th>
     </tr>
@@ -22,9 +21,9 @@
         <td><%= tourguide.address %></td>
         <td><%= tourguide.phone %></td>
         <td><%= tourguide.comments %></td>
-        <td><%= link_to 'Exibe', tourguide %></td>
-        <td><%= link_to 'Edita', edit_tourguide_path(tourguide) %></td>
-        <td><%= link_to 'Exclui', tourguide, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= link_to 'Exibir', tourguide %></td>
+        <td><%= link_to 'Editar', edit_tourguide_path(tourguide) %></td>
+        <td><%= link_to 'Excluir', tourguide, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

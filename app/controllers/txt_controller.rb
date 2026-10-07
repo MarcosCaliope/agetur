@@ -35,7 +35,7 @@ class TxtController < ApplicationController
       end
       
       if errors.blank?
-        flash[:success] = "Imported with successful"
+        flash[:success] = "Importação concluída com sucesso."
       else
         flash[:error] = errors.join(", ")
       end        

@@ -77,7 +77,7 @@ class SordersController < ApplicationController
 
     respond_to do |format|
       if @sorder.save
-        format.html { redirect_to @sorder, notice: 'Sorder was successfully created.' }
+        format.html { redirect_to @sorder, notice: 'Ordem de serviço criada com sucesso.' }
         format.json { render :show, status: :created, location: @sorder }
       else
         format.html { render :new }
@@ -91,7 +91,7 @@ class SordersController < ApplicationController
   def update
     respond_to do |format|
       if @sorder.update(sorder_params)
-        format.html { redirect_to @sorder, notice: 'Ordem Atualzada!!.' }
+        format.html { redirect_to @sorder, notice: 'Ordem de serviço atualizada com sucesso.' }
         format.json { render :show, status: :ok, location: @sorder }
       else
         format.html { render :edit }
@@ -105,7 +105,7 @@ class SordersController < ApplicationController
   def destroy
     @sorder.destroy
     respond_to do |format|
-      format.html { redirect_to sorders_url, notice: 'Sorder was successfully destroyed.' }
+      format.html { redirect_to sorders_url, notice: 'Ordem de serviço excluída com sucesso.' }
       format.json { head :no_content }
     end
   end

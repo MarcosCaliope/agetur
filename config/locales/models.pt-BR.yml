@@ -1,0 +1,91 @@
+# Portuguese names for models and fields. Used by form labels, validation
+# messages, error headers and submit buttons. Fields shared by several
+# models live under the global `attributes`; model-specific ones below.
+pt-BR:
+  attributes:
+    address: "Endereço"
+    city: "Cidade"
+    comments: "Observações"
+    created_at: "Criado em"
+    email: "E-mail"
+    name: "Nome"
+    nome: "Nome"
+    phone: "Telefone"
+    sname: "Nome"
+    state: "Estado"
+    state_id: "Estado"
+    updated_at: "Atualizado em"
+  activerecord:
+    models:
+      agency: { one: "Agência", other: "Agências" }
+      company: { one: "Empresa", other: "Empresas" }
+      customer: { one: "Cliente", other: "Clientes" }
+      destination: { one: "Roteiro", other: "Roteiros" }
+      driver: { one: "Motorista", other: "Motoristas" }
+      hotel: { one: "Hotel", other: "Hotéis" }
+      sorder: { one: "Ordem de serviço", other: "Ordens de serviço" }
+      sorder_item: { one: "Passageiro", other: "Passageiros" }
+      state: { one: "Estado", other: "Estados" }
+      tourguide: { one: "Guia", other: "Guias" }
+      user: { one: "Usuário", other: "Usuários" }
+      admin: { one: "Administrador", other: "Administradores" }
+      vehicle: { one: "Veículo", other: "Veículos" }
+      vendor: { one: "Vendedor", other: "Vendedores" }
+    attributes:
+      company:
+        cnpj: "CNPJ"
+        iretorno: "Retorno"
+        logoentrada: "Logo de entrada"
+        logoform: "Logo do formulário"
+        osdupla: "OS dupla"
+        osincludechdcalc: "Incluir CHD no cálculo"
+        osmodel: "Modelo da OS"
+        osshowcan: "Exibir cancelados na OS"
+        osshowcanrel: "Exibir cancelados no relatório"
+        osshowrep: "Exibir repasse na OS"
+        site: "Site"
+        state: "Estado"
+      customer:
+        document: "Documento"
+      destination:
+        description: "Descrição"
+        distance: "Distância"
+        state: "Estado"
+        valuecard: "Valor cartão"
+        valuecardchd: "Valor cartão CHD"
+        valuenet: "Valor net"
+        valuenetchd: "Valor net CHD"
+        valuenormal: "Valor normal"
+        valuenormalchd: "Valor normal CHD"
+      hotel:
+        Valordiaria: "Valor da diária"
+      sorder:
+        company: "Empresa"
+        data: "Data"
+        destination: "Roteiro"
+        driver: "Motorista"
+        sobservacoes: "Observações"
+        tourguide: "Guia"
+        vehicle: "Veículo"
+      sorder_item:
+        sorder: "Ordem de serviço"
+        sorder_id: "Ordem de serviço"
+      state:
+        uf: "UF"
+      vehicle:
+        brand: "Marca"
+        color: "Cor"
+        license: "Placa"
+        smodel: "Modelo"
+        state: "Estado"
+        year: "Ano"
+      vendor:
+        commission: "Comissão"
+      user:
+        password: "Senha"
+        password_confirmation: "Confirmação da senha"
+        remember_me: "Lembrar de mim"
+      admin:
+        password: "Senha"
+        password_confirmation: "Confirmação da senha"
+        remember_me: "Lembrar de mim"

@@ -1,47 +1,46 @@
-<p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Name:</strong>
+  <strong>Nome:</strong>
   <%= @company.name %>
 </p>
 
 <p>
-  <strong>Cnpj:</strong>
+  <strong>CNPJ:</strong>
   <%= @company.cnpj %>
 </p>
 
 <p>
-  <strong>Address:</strong>
+  <strong>Endereço:</strong>
   <%= @company.address %>
 </p>
 
 <p>
-  <strong>Phone:</strong>
+  <strong>Telefone:</strong>
   <%= @company.phone %>
 </p>
 
 <p>
-  <strong>City:</strong>
+  <strong>Cidade:</strong>
   <%= @company.city %>
 </p>
 
 <p>
-  <strong>State:</strong>
-  <%= @company.state %>
+  <strong>Estado:</strong>
+  <%= @company.state&.uf %>
 </p>
 
 <p>
-  <strong>Osmodel:</strong>
+  <strong>Modelo da OS:</strong>
   <%= @company.osmodel %>
 </p>
 
 <p>
-  <strong>Osdupla:</strong>
+  <strong>OS dupla:</strong>
   <%= @company.osdupla %>
 </p>
 
 <p>
-  <strong>Email:</strong>
+  <strong>E-mail:</strong>
   <%= @company.email %>
 </p>
 
@@ -51,44 +50,44 @@
 </p>
 
 <p>
-  <strong>Logoform:</strong>
+  <strong>Logo do formulário:</strong>
   <%= @company.logoform %>
 </p>
 
 <p>
-  <strong>Logoentrada:</strong>
+  <strong>Logo de entrada:</strong>
   <%= @company.logoentrada %>
 </p>
 
 <p>
-  <strong>Iretorno:</strong>
+  <strong>Retorno:</strong>
   <%= @company.iretorno %>
 </p>
 
 <p>
-  <strong>Osshowcan:</strong>
+  <strong>Exibir cancelados na OS:</strong>
   <%= @company.osshowcan %>
 </p>
 
 <p>
-  <strong>Osshowcanrel:</strong>
+  <strong>Exibir cancelados no relatório:</strong>
   <%= @company.osshowcanrel %>
 </p>
 
 <p>
-  <strong>Osshowrep:</strong>
+  <strong>Exibir repasse na OS:</strong>
   <%= @company.osshowrep %>
 </p>
 
 <p>
-  <strong>Osincludechdcalc:</strong>
+  <strong>Incluir CHD no cálculo:</strong>
   <%= @company.osincludechdcalc %>
 </p>
 
 <p>
-  <strong>Comments:</strong>
+  <strong>Observações:</strong>
   <%= @company.comments %>
 </p>
 
-<%= link_to 'Edit', edit_company_path(@company) %> |
-<%= link_to 'Back', companies_path %>
+<%= link_to 'Editar', edit_company_path(@company) %> |
+<%= link_to 'Voltar', companies_path %>
