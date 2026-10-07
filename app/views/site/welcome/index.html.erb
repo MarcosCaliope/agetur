@@ -1,37 +1,120 @@
-<h1>Agetur</h1>
-<% if user_signed_in? %>
-  <p>Conectado como <%= current_user.email %> | <%= link_to 'Sair', destroy_user_session_path, method: :delete %></p>
-<% end %>
+<% if user_signed_in? || admin_signed_in? %>
+  <header class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Agetur</h1>
+    <div class="text-muted small">
+      <% if admin_signed_in? %>
+        Administrador <%= current_admin.email %> ·
+        <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
+      <% else %>
+        <%= current_user.email %> ·
+        <%= link_to 'Sair', destroy_user_session_path, method: :delete %>
+      <% end %>
+    </div>
+  </header>
 
-<% if admin_signed_in? %>
-  <p>Conectado como administrador <%= current_admin.email %> | <%= link_to 'Sair', destroy_admin_session_path, method: :delete %></p>
-<% end %>
+  <ul class="nav nav-tabs dashboard-tabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="cadastros-tab" data-toggle="tab" href="#cadastros" role="tab" aria-controls="cadastros" aria-selected="true">Cadastros</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="processos-tab" data-toggle="tab" href="#processos" role="tab" aria-controls="processos" aria-selected="false">Processos</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="relatorios-tab" data-toggle="tab" href="#relatorios" role="tab" aria-controls="relatorios" aria-selected="false">Relatórios</a>
+    </li>
+  </ul>
 
-<% unless user_signed_in? || admin_signed_in? %>
-  <p><%= link_to 'Entrar', new_user_session_path %></p>
-<% end %>
-<p>
-<%= link_to "Ordem de Serviço", sorders_path %>
-<p>
-<%= link_to "Comissões", showcomis_path %>
-<p>
-<%= link_to "Clientes", customers_path %>
-<p>
-<%= link_to "Agências", agencies_path %>
-<p>
-<%= link_to "Hotéis", hotels_path %>
-<p>
-<%= link_to "Vendedores", vendors_path %>
-<p>
-<%= link_to "Veículos", vehicles_path %>
-<p>
-<%= link_to "Motoristas", drivers_path %>
-<p>
-<%= link_to "Guias", tourguides_path %>
-<p>
-<%= link_to "Dados da Empresa", companies_path %>
-<p>
-<%= link_to "Roteiros", destinations_path, class: "btn btn-primary btn-lg", role:"button" %>
-<p>
-<%= link_to "TXT", txt_path, class: "btn btn-primary btn-lg", role:"button" %>
+  <div class="tab-content pt-4">
+    <section class="tab-pane fade show active" id="cadastros" role="tabpanel" aria-labelledby="cadastros-tab">
+      <div class="row">
+        <% @cadastros.each do |cadastro| %>
+          <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
+            <div class="card h-100 dashboard-card">
+              <div class="card-body">
+                <h2 class="h5 card-title"><%= cadastro[:nome] %></h2>
+                <p class="dashboard-total mb-0"><%= cadastro[:total] %></p>
+                <p class="text-muted small mb-0"><%= cadastro[:total] == 1 ? "registro" : "registros" %></p>
+              </div>
+              <div class="card-footer bg-transparent border-top-0">
+                <%= link_to 'Abrir', cadastro[:lista], class: "btn btn-primary btn-sm" %>
+                <%= link_to 'Novo', cadastro[:novo], class: "btn btn-outline-secondary btn-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
 
+    <section class="tab-pane fade" id="processos" role="tabpanel" aria-labelledby="processos-tab">
+      <div class="row">
+        <div class="col-md-6 col-lg-5 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Ordem de Serviço</h2>
+              <div class="d-flex text-center mt-3">
+                <div class="flex-fill">
+                  <p class="dashboard-total mb-0"><%= @ordens_hoje %></p>
+                  <p class="text-muted small mb-0">hoje</p>
+                </div>
+                <div class="flex-fill">
+                  <p class="dashboard-total mb-0"><%= @ordens_proximas %></p>
+                  <p class="text-muted small mb-0">próximos 7 dias</p>
+                </div>
+                <div class="flex-fill">
+                  <p class="dashboard-total mb-0"><%= @ordens_total %></p>
+                  <p class="text-muted small mb-0">no total</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', sorders_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to 'Nova ordem', new_sorder_path, class: "btn btn-outline-secondary btn-sm" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Importar clientes</h2>
+              <p class="text-muted small mb-0">Cadastra clientes em lote a partir de um arquivo TXT separado por vírgulas.</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', txt_path, class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-pane fade" id="relatorios" role="tabpanel" aria-labelledby="relatorios-tab">
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Comissões</h2>
+              <p class="dashboard-total mb-0"><%= number_to_currency(@comissoes_a_receber) %></p>
+              <p class="text-muted small mb-0">a receber dos vendedores (passageiros não cancelados)</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir relatório', showcomis_path, class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+<% else %>
+  <div class="row justify-content-center mt-5">
+    <div class="col-sm-10 col-md-6 col-lg-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h1 class="h3 card-title">Agetur</h1>
+          <p class="text-muted">Faça login para acessar o sistema.</p>
+          <%= link_to 'Entrar', new_user_session_path, class: "btn btn-primary btn-block" %>
+          <%= link_to 'Acesso administrativo', new_admin_session_path, class: "d-block mt-3 small" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

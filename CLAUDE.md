@@ -68,7 +68,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - `UsersBackofficeController` / `AdminsBackofficeController` run `authenticate_user!` / `authenticate_admin!` and use their own layouts. Controllers under the `users_backoffice/` and `admins_backoffice/` namespaces inherit from them. Tests for those controllers need `sign_in` (`Devise::Test::IntegrationHelpers` is included in `test_helper.rb`).
 - `ApplicationController` requires a signed-in User **or** Admin (`authenticate_user_or_admin!`) for every controller, so new controllers are protected by default. `SiteController` (public home page) and the two back-office base controllers `skip_before_action` it, and Devise's own controllers are exempt. Controller tests must `sign_in users(:one)` in `setup`. `test/controllers/authentication_test.rb` covers the logged-out behavior.
 - Neither `User` nor `Admin` is `:registerable` (no `/users/sign_up` or `/admins/sign_up`, and no in-app password change). Create accounts from the console, e.g. `User.create!(email:, password:)`.
-- The public site is `site/welcome#index` (root and `/inicio`).
+- The home page is `site/welcome#index` (root and `/inicio`). It's public: logged-out visitors get a sign-in card, and signed-in accounts get a tabbed dashboard (Cadastros / Processos / Relatórios) with record counts built in `Site::WelcomeController`. Add new sections there. Bootstrap tabs; `app/assets/javascripts/dashboard.js` keeps the active tab in the URL hash.
 
 ### Misc
 
