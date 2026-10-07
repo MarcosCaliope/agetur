@@ -61,15 +61,18 @@
     <%= form.text_field :site %>
   </div>
 
-  <div class="field">
-    <%= form.label :logoform %>
-    <%= form.text_field :logoform %>
-  </div>
-
-  <div class="field">
-    <%= form.label :logoentrada %>
-    <%= form.text_field :logoentrada %>
-  </div>
+  <% [[:logo_entrada, :entrada, "Aparece na página inicial."], [:logo_formulario, :formulario, "Aparece na ordem de serviço."]].each do |campo, tipo, dica| %>
+    <div class="field">
+      <%= form.label campo %>
+      <% if company.persisted? && (atual = company_logo_tag(company, tipo, height: 60)) %>
+        <div class="mb-1"><%= atual %></div>
+        <%= form.check_box :"remover_#{campo}" %>
+        <%= form.label :"remover_#{campo}" %><br>
+      <% end %>
+      <%= form.file_field campo, accept: Company::LOGO_TYPES.join(",") %>
+      <small class="form-text text-muted"><%= dica %> PNG, JPG, GIF ou WebP, até 2 MB.</small>
+    </div>
+  <% end %>
 
   <div class="field">
     <%= form.label :iretorno %>

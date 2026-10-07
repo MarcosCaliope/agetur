@@ -39,8 +39,8 @@
         <td><%= company.osdupla %></td>
         <td><%= company.email %></td>
         <td><%= company.site %></td>
-        <td><%= company_logo_tag company.logoform, 25 %></td>
-        <td><%= company_logo_tag company.logoentrada, 25 %></td>
+        <td><%= company_logo_tag company, :formulario, height: 25 %></td>
+        <td><%= company_logo_tag company, :entrada, height: 25 %></td>
 
         <td><%= company.iretorno %></td>
         <td><%= company.osshowcan %></td>

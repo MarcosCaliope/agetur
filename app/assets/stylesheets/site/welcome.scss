@@ -12,3 +12,9 @@
   font-weight: 600;
   line-height: 1.2;
 }
+
+// Logos come in any shape: cap the width so a wide one can't crowd the header.
+.dashboard-logo {
+  max-width: 240px;
+  object-fit: contain;
+}

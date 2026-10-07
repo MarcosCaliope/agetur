@@ -13,6 +13,22 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
     assert_select ".dashboard-total", count: 0
   end
 
+  test "home page shows the company's entrance logo, signed in or not" do
+    company = Company.first
+    company.logo_entrada.attach(io: file_fixture("logo.png").open, filename: "logo.png")
+    get root_url
+    assert_select ".card img.dashboard-logo[src*='/rails/active_storage/blobs/']"
+    sign_in users(:one)
+    get root_url
+    assert_select "header img.dashboard-logo[src*='/rails/active_storage/blobs/']"
+  end
+
+  test "home page has no logo when the company has none" do
+    sign_in users(:one)
+    get root_url
+    assert_select "img.dashboard-logo", count: 0
+  end
+
   test "dashboard has the three tabs" do
     sign_in users(:one)
     get root_url

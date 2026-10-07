@@ -12,7 +12,7 @@
   <% end %>
 
   <div class="jumbotron">
-    <td><%= company_logo_tag sorder.company&.logoform, 50 %>
+    <td><%= company_logo_tag sorder.company, :formulario %>
     <p>
     <%= form.label :ordem %>
     <%= form.text_field :id, disabled: true , size:2 %>

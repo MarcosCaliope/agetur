@@ -51,12 +51,12 @@
 
 <p>
   <strong>Logo do formulário:</strong>
-  <%= @company.logoform %>
+  <%= company_logo_tag(@company, :formulario, height: 80) || "Nenhum" %>
 </p>
 
 <p>
   <strong>Logo de entrada:</strong>
-  <%= @company.logoentrada %>
+  <%= company_logo_tag(@company, :entrada, height: 80) || "Nenhum" %>
 </p>
 
 <p>
