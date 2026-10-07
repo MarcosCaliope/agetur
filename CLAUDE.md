@@ -51,6 +51,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - `Sorder` has_many `sorder_items` (`accepts_nested_attributes_for`, `allow_destroy: true`; the nested form in `sorders/_form.html.erb` uses `cocoon` with `_sorder_item_fields.html.erb`). It belongs_to `destination`, `tourguide`, `driver`, `vehicle` and `company`, all required.
 - Vendors, hotels, agencies, guides and drivers share SISTGER's generic cadastro screen (`frmCadGenerico`): short name, CPF/CNPJ, address/neighborhood/city/state/CEP, two phones, fax and contact. Forms render it with `shared/_campos_contato` (needs `@state_options`), and show pages use `shared/_detalhes`. Customers (`CAR-fontes/frmCadClientes`) add state registration, website and a billing block. Re-imports never overwrite `comments`.
 - Vendors mirror SISTGER's vendor screen (`frmCadGenerico` with `tblVendedor`, sources in `D:\SISTGER\OS-Fontes`). `active` (bAtivo): inactive vendors are left out of the order form's vendor select and refused by `SorderItem#vendedor_ativo`, but only when the vendor is newly chosen, so imported/old items stay editable. `no_commission` (bComissao) is the "Não pagar comissão" checkbox.
+- `VendorDestination` (`/vendors/:id/comissoes-por-roteiro`, SISTGER's `frmVendedorRoteiro`/`tblVendedorRoteiro`) holds a vendor's commission % and net prices (adult/CHD, cash/card) per destination. The screen is one grid of every destination prefilled with the vendor's default %. Only rows that differ from the default are stored, and rows set back to it are deleted. Not yet used by the order form; SISTGER fills commission/net from it on order entry.
 - `SorderItem` belongs_to `sorder`. Its `customer`, `hotel` and `vendor` associations are `optional: true` because they are filled in per passenger.
 - FKs live on `sorders`/`companies`. `Destination`, `Vehicle` and `State` therefore use `has_many` (`:sorders`/`:companies`), not `belongs_to`.
 - `SordersController` populates select options through many `set_*_options` before_actions. Each one plucks `[name, id]` pairs.
@@ -61,7 +62,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 
 ### SISTGER import (Manutenção tab)
 
-`SistgerImport` (`app/importers/sistger_import.rb`) reads the legacy SISTGER SQL Server through `SistgerImport::Fonte` (`tiny_tds`) and upserts one step per table: empresa → clientes, vendedores, agências (after vendors, for their "vendedor correspondente"), hotéis, guias (`tblAgenteViagem`), motoristas (`tblFuncionarios`), veículos, roteiros → ordens → passageiros. The UI is `SistgerImportsController` at `/manutencao/sistger`. The user ticks steps and gives each a `SistgerImport::Filtro`:
+`SistgerImport` (`app/importers/sistger_import.rb`) reads the legacy SISTGER SQL Server through `SistgerImport::Fonte` (`tiny_tds`) and upserts one step per table: empresa → clientes, vendedores, agências (after vendors, for their "vendedor correspondente"), hotéis, guias (`tblAgenteViagem`), motoristas (`tblFuncionarios`), veículos, roteiros → comissões por roteiro → ordens → passageiros. The UI is `SistgerImportsController` at `/manutencao/sistger`. The user ticks steps and gives each a `SistgerImport::Filtro`:
 - all;
 - a period (orders and passengers only, by order date);
 - a code range (order number for orders and passengers);

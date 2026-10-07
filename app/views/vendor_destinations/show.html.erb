@@ -1,0 +1,68 @@
+<h1>Comissão por roteiro</h1>
+<p>
+  <strong><%= @vendor.sname %></strong>
+  — comissão padrão: <%= @vendor.commission ? "#{number_with_precision(@vendor.commission, precision: 2)}%" : "não definida" %>
+  <% if @vendor.no_commission %><span class="badge badge-warning">Não pagar comissão</span><% end %>
+</p>
+<p class="text-muted small">
+  Cada roteiro começa com a comissão padrão do vendedor. Altere o % ou informe os valores net (dinheiro e
+  cartão) só nos roteiros que forem diferentes; os que ficarem iguais ao padrão não são gravados.
+  <%= pluralize(@linhas.values.count(&:persisted?), "roteiro personalizado", plural: "roteiros personalizados") %>.
+</p>
+
+<% if @erros.present? %>
+  <div id="error_explanation" class="alert alert-danger">
+    <ul class="mb-0"><% @erros.each do |erro| %><li><%= erro %></li><% end %></ul>
+  </div>
+<% end %>
+
+<%= form_with url: vendor_comissoes_path(@vendor), method: :patch, local: true, id: "comissoes-roteiro" do |form| %>
+  <div class="form-row align-items-center mb-2 no-print">
+    <div class="col-sm-6">
+      <input type="search" id="filtro-roteiros" class="form-control form-control-sm" placeholder="Buscar roteiro…"
+             aria-label="Buscar roteiro">
+    </div>
+    <div class="col-sm-6 text-sm-right">
+      <label class="mb-0 small"><input type="checkbox" id="so-personalizados"> Só os personalizados</label>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead>
+        <tr>
+          <th>Roteiro</th>
+          <th>% Comissão</th>
+          <th>Net adulto</th>
+          <th>Net CHD</th>
+          <th>Net adulto cartão</th>
+          <th>Net CHD cartão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @destinations.each do |destination| %>
+          <% linha = @linhas[destination.id] %>
+          <% nome = ->(campo) { "comissoes[#{destination.id}][#{campo}]" } %>
+          <tr class="comissao-roteiro <%= 'table-info personalizado' if linha&.persisted? %> <%= 'table-danger' if linha&.errors&.any? %>"
+              data-roteiro="<%= destination.description.to_s.downcase %>">
+            <td><%= destination.description %></td>
+            <td>
+              <%= number_field_tag nome["commission"], linha&.commission || @vendor.commission, step: "0.01", min: 0, max: 100,
+                    class: "form-control form-control-sm", aria: { label: "% comissão de #{destination.description}" } %>
+            </td>
+            <% VendorDestination::VALORES.each do |campo| %>
+              <td>
+                <%= number_field_tag nome[campo], linha&.public_send(campo), step: "0.01", min: 0,
+                      class: "form-control form-control-sm",
+                      aria: { label: "#{VendorDestination.human_attribute_name(campo)} de #{destination.description}" } %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%= form.submit "Gravar", class: "btn btn-primary", data: { disable_with: "Gravando…" } %>
+  <%= link_to 'Voltar ao vendedor', vendor_path(@vendor), class: "ml-2" %>
+<% end %>

@@ -41,6 +41,7 @@ pt-BR:
       admin: { one: "Administrador", other: "Administradores" }
       vehicle: { one: "Veículo", other: "Veículos" }
       vendor: { one: "Vendedor", other: "Vendedores" }
+      vendor_destination: { one: "Comissão por roteiro", other: "Comissões por roteiro" }
     attributes:
       agency:
         commission: "Comissão (%)"
@@ -124,6 +125,13 @@ pt-BR:
         smodel: "Modelo"
         state: "Estado"
         year: "Ano do modelo"
+      vendor_destination:
+        commission: "% Comissão"
+        destination: "Roteiro"
+        net_adult: "Net adulto"
+        net_adult_card: "Net adulto cartão"
+        net_chd: "Net CHD"
+        net_chd_card: "Net CHD cartão"
       vendor:
         active: "Ativo"
         classification: "Classificação"

@@ -46,6 +46,10 @@ class SistgerImport
     Etapa.new(chave: "roteiros", nome: "Roteiros", tabela: "TblDistancias", modelo: "Destination", codigo: "iCodigo",
               colunas: colunas("iCodigo sDescricao sDistancia sEstado nValorIndividual nValorIndividualChd nNetAdulto nNetChd " \
                                "nNetAdultoCartao nNetCHDCartao nIndCombo nIndCHDCombo nNETCombo nNetComboCHD")),
+    Etapa.new(chave: "comissoes_roteiro", nome: "Comissões por roteiro", tabela: "tblVendedorRoteiro",
+              modelo: "VendorDestination", codigo: "iCodVendedor", ordem: "iCodVendedor, iCodRoteiro",
+              depende_de: %w[vendedores roteiros],
+              colunas: colunas("iCodVendedor iCodRoteiro cValorComissao cValorNet cValorNetCHD cValorNetCartao cValorNetCHDCartao")),
     Etapa.new(chave: "ordens", nome: "Ordens de serviço", tabela: "tblOrdemServico", modelo: "Sorder", codigo: "iNumero",
               periodo: true, depende_de: %w[empresa roteiros],
               colunas: "iNumero, Data, iCodDestino, iCodVeiculo, sPlacas, sNomeRedGuia, sNomeRedMotorista, nValorGuia, " \
@@ -89,6 +93,10 @@ class SistgerImport
     ETAPAS.to_h do |etapa|
       coluna = etapa.chave == "passageiros" ? :sistger_numero : :sistger_id
       importados = etapa.modelo.constantize.where.not(coluna => nil)
+      if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
+        coluna = "vendors.sistger_id"
+        importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
+      end
       # A few legacy passengers point at order numbers that don't exist; they
       # can't be imported, so they don't count as the last one.
       onde = "iNumero IN (SELECT iNumero FROM tblOrdemServico)" if etapa.chave == "passageiros"
@@ -180,6 +188,10 @@ class SistgerImport
       generico(l).merge(Valordiaria: numero(l["nValorDiaria"]))
     when "guias", "motoristas"
       generico(l)
+    when "comissoes_roteiro"
+      { vendedor: l["iCodVendedor"], roteiro: l["iCodRoteiro"], commission: numero(l["cValorComissao"]),
+        net_adult: numero(l["cValorNet"]), net_chd: numero(l["cValorNetCHD"]),
+        net_adult_card: numero(l["cValorNetCartao"]), net_chd_card: numero(l["cValorNetCHDCartao"]) }
     when "veiculos"
       { sistger_id: l["iCodigo"], license: texto(l["sPlacas"]), vehicle_type: texto(l["sTipo"]), brand: texto(l["sMarca"]),
         smodel: texto(l["sModelo"]), manufacture_year: texto(l["sAnoFabricacao"]), year: texto(l["sAnoModelo"]),
@@ -234,6 +246,8 @@ class SistgerImport
       gravar_ordens(registros, avisos)
     when "passageiros"
       gravar_passageiros(registros, avisos)
+    when "comissoes_roteiro"
+      gravar_comissoes_roteiro(registros, avisos)
     else
       estados = estados_por_uf
       padrao = estado_padrao(estados)
@@ -284,6 +298,18 @@ class SistgerImport
       )
     end
     upsert("ordens", linhas)
+  end
+
+  def gravar_comissoes_roteiro(registros, avisos)
+    vendedores = Vendor.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
+    roteiros = Destination.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
+    sem_vinculo, validos = registros.partition { |r| vendedores[r[:vendedor]].nil? || roteiros[r[:roteiro]].nil? }
+    avisos << "#{sem_vinculo.size} comissão(ões) ignorada(s) por vendedor ou roteiro não importado." if sem_vinculo.any?
+
+    linhas = validos.map do |r|
+      r.except(:vendedor, :roteiro).merge(vendor_id: vendedores[r[:vendedor]], destination_id: roteiros[r[:roteiro]])
+    end
+    upsert("comissoes_roteiro", linhas, unique_by: %i[vendor_id destination_id])
   end
 
   def gravar_passageiros(registros, avisos)

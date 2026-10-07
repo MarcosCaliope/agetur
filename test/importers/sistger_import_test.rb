@@ -36,6 +36,12 @@ class SistgerImportTest < ActiveSupport::TestCase
                             "nValorIndividual" => BigDecimal("80"), "nValorIndividualChd" => nil, "nNetAdulto" => BigDecimal("60"),
                             "nNetChd" => nil, "nNetAdultoCartao" => nil, "nNetCHDCartao" => nil, "nIndCombo" => BigDecimal("150"),
                             "nIndCHDCombo" => nil, "nNETCombo" => BigDecimal("120"), "nNetComboCHD" => nil }],
+      "tblVendedorRoteiro" => [
+        { "iCodVendedor" => 2348, "iCodRoteiro" => 0, "cValorComissao" => BigDecimal("15"), "cValorNet" => BigDecimal("80"),
+          "cValorNetCHD" => nil, "cValorNetCartao" => BigDecimal("85"), "cValorNetCHDCartao" => nil },
+        { "iCodVendedor" => 9999, "iCodRoteiro" => 0, "cValorComissao" => BigDecimal("5"), "cValorNet" => nil,
+          "cValorNetCHD" => nil, "cValorNetCartao" => nil, "cValorNetCHDCartao" => nil }
+      ],
       "tblOrdemServico" => [
         ordem(1, guia: "SANDRA", motorista: "ELIAS", veiculo: 1, placa: ""),
         ordem(2, guia: "*", motorista: "  ", veiculo: 0, placa: "VAN"),
@@ -124,6 +130,21 @@ class SistgerImportTest < ActiveSupport::TestCase
     roteiro = Destination.find_by!(sistger_id: 0)
     assert_equal ["ITAIÇABA", @ce], [roteiro.description, roteiro.state], "missing UF falls back to the company's state"
     assert_equal [150.0, nil, 120.0, nil], [roteiro.value_combo, roteiro.value_combo_chd, roteiro.value_net_combo, roteiro.value_net_combo_chd]
+  end
+
+  test "imports commissions by destination, keyed by vendor and destination" do
+    erro = assert_raises(SistgerImport::Erro) { @import.importar("comissoes_roteiro") }
+    assert_match "Importe vendedores antes", erro.message
+
+    importar_cadastros
+    resultado = @import.importar("comissoes_roteiro")
+    assert_equal [1, 2], [resultado.gravados, resultado.lidos]
+    assert_match "1 comissão(ões) ignorada(s)", resultado.avisos.join
+
+    registro = Vendor.find_by!(sistger_id: 2348).vendor_destinations.sole
+    assert_equal ["ITAIÇABA", 15.0, 80.0, 85.0], [registro.destination.description, registro.commission, registro.net_adult, registro.net_adult_card]
+    assert_no_difference("VendorDestination.count") { @import.importar("comissoes_roteiro") }
+    assert_equal({ sistger: 2, importados: 1, ultimo_sistger: 9999, ultimo_importado: 2348 }, @import.contagens["comissoes_roteiro"])
   end
 
   test "re-importing vendors keeps observations written here" do

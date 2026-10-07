@@ -7,5 +7,6 @@
 <%= render "shared/detalhes", registro: @vendor, campos: %i[short_name document address neighborhood city state zipcode phone phone2 fax contact
                                                             email classification commission comments sistger_id] %>
 
+<%= link_to 'Comissão por roteiro', vendor_comissoes_path(@vendor), class: "btn btn-outline-primary btn-sm mb-3" %><br>
 <%= link_to 'Editar', edit_vendor_path(@vendor) %> |
 <%= link_to 'Voltar', vendors_path %>

@@ -11,7 +11,9 @@ Rails.application.routes.draw do
   
   resources :agencies
   resources :hotels
-  resources :vendors
+  resources :vendors do
+    resource :comissoes, only: %i[show update], controller: "vendor_destinations", path: "comissoes-por-roteiro"
+  end
 
   resources :vehicles
   resources :drivers

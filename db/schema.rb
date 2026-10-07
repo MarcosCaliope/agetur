@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_200000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -332,6 +332,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_200000) do
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
 
+  create_table "vendor_destinations", force: :cascade do |t|
+    t.bigint "vendor_id", null: false
+    t.bigint "destination_id", null: false
+    t.float "commission"
+    t.float "net_adult"
+    t.float "net_chd"
+    t.float "net_adult_card"
+    t.float "net_chd_card"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["destination_id"], name: "index_vendor_destinations_on_destination_id"
+    t.index ["vendor_id", "destination_id"], name: "index_vendor_destinations_on_vendor_id_and_destination_id", unique: true
+    t.index ["vendor_id"], name: "index_vendor_destinations_on_vendor_id"
+  end
+
   create_table "vendors", force: :cascade do |t|
     t.string "sname"
     t.string "email"
@@ -380,5 +395,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_200000) do
   add_foreign_key "sorders", "vehicles"
   add_foreign_key "tourguides", "states"
   add_foreign_key "vehicles", "states"
+  add_foreign_key "vendor_destinations", "destinations", on_delete: :cascade
+  add_foreign_key "vendor_destinations", "vendors", on_delete: :cascade
   add_foreign_key "vendors", "states"
 end
