@@ -86,5 +86,8 @@
 
     <div class="actions">
     <%= form.submit %>
+    <% if sorder.persisted? %>
+      <%= link_to 'Exportar PDF', export_sorder_path(sorder), target: "_blank" %>
+    <% end %>
   </div>
 <% end %>

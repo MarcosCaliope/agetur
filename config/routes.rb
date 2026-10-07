@@ -2,7 +2,6 @@ Rails.application.routes.draw do
   
   resources :companies
   resources :sorder_items
-  get '/sorder_items_export' => 'sorder_items#export'
   resources :sorders do
     member do
       get 'export'

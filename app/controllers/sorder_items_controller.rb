@@ -59,12 +59,6 @@ class SorderItemsController < ApplicationController
       format.json { head :no_content }
     end
   end
- # Criamos o método export para chamar a lib que gera o PDF e depois redirecionar o usuário para baixo o PDF
-  def export
-   # GeneratePdf::sorder_item(@SorderItem.all.map {|s| [s.comments, s.id]})
-    #GeneratePdf::sorder_item(@SorderItem.id, @SorderItem.destination_id)
-    redirect_to '/sorder_item.pdf'
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

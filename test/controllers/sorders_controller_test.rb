@@ -46,6 +46,12 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
   test "should get edit" do
     get edit_sorder_url(@sorder)
     assert_response :success
+    assert_select "a[href=?]", export_sorder_path(@sorder), text: "Exportar PDF"
+  end
+
+  test "should not link to export on new" do
+    get new_sorder_url
+    assert_select "a", text: "Exportar PDF", count: 0
   end
 
   test "should update sorder" do
