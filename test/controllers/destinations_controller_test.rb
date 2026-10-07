@@ -2,6 +2,7 @@ require 'test_helper'
 
 class DestinationsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @destination = destinations(:one)
   end
 

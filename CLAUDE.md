@@ -64,7 +64,8 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 
 - `devise_for :users` and `devise_for :admins` set up two independent models with no shared base.
 - `UsersBackofficeController` / `AdminsBackofficeController` run `authenticate_user!` / `authenticate_admin!` and use their own layouts. Controllers under the `users_backoffice/` and `admins_backoffice/` namespaces inherit from them. Tests for those controllers need `sign_in` (`Devise::Test::IntegrationHelpers` is included in `test_helper.rb`).
-- The resourceful controllers (`sorders`, `hotels`, `customers`, ...) inherit from `ApplicationController` and are **not** authenticated.
+- `ApplicationController` requires a signed-in User **or** Admin (`authenticate_user_or_admin!`) for every controller, so new controllers are protected by default. `SiteController` (public home page) and the two back-office base controllers `skip_before_action` it, and Devise's own controllers are exempt. Controller tests must `sign_in users(:one)` in `setup`. `test/controllers/authentication_test.rb` covers the logged-out behavior.
+- `Admin` is not `:registerable` (no `/admins/sign_up`); create admins from the console (`Admin.create!(email:, password:)`). `User` is still `:registerable`, so anyone can create a user account at `/users/sign_up` and reach the cadastros.
 - The public site is `site/welcome#index` (root and `/inicio`).
 
 ### Misc

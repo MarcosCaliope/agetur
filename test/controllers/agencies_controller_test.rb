@@ -2,6 +2,7 @@ require 'test_helper'
 
 class AgenciesControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @agency = agencies(:one)
   end
 

@@ -2,6 +2,7 @@ require 'test_helper'
 
 class CustomersControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @customer = customers(:one)
   end
 

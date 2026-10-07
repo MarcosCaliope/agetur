@@ -2,6 +2,7 @@ require 'test_helper'
 
 class HotelsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @hotel = hotels(:one)
   end
 

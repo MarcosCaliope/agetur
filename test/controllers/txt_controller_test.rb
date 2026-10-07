@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class TxtControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    sign_in users(:one)
+  end
+
   test "should import customers from txt" do
     assert_difference('Customer.count', 1) do
       post '/txt/importar', params: { txt: fixture_file_upload('customers.txt', 'text/plain') }

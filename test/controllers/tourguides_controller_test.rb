@@ -2,6 +2,7 @@ require 'test_helper'
 
 class TourguidesControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @tourguide = tourguides(:one)
   end
 

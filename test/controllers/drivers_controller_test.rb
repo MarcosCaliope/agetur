@@ -2,6 +2,7 @@ require 'test_helper'
 
 class DriversControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @driver = drivers(:one)
   end
 

@@ -2,6 +2,7 @@ require 'test_helper'
 
 class StatesControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @state = states(:one)
   end
 

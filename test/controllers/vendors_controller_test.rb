@@ -2,6 +2,7 @@ require 'test_helper'
 
 class VendorsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @vendor = vendors(:one)
   end
 

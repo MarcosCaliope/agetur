@@ -2,6 +2,7 @@ require 'test_helper'
 
 class SorderItemsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    sign_in users(:one)
     @sorder_item = sorder_items(:one)
   end
 
