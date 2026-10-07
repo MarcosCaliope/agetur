@@ -4,62 +4,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Agetur is a Ruby on Rails 5.2 (Ruby 2.7.0) back-office application for a tour/travel agency: it manages customers, destinations, hotels, vehicles, drivers, tour guides, vendors, agencies, states and companies, and issues "sorders" (service orders) that bundle a trip's guide/driver/vehicle/destination with per-passenger `sorder_items`. Two Devise-backed user types (`User` and `Admin`) get separate namespaced back-offices.
+Agetur is a Ruby on Rails 7.2 (Ruby 3.4.5, pinned via `.ruby-version` / `mise.toml`) back-office application for a tour/travel agency: it manages customers, destinations, hotels, vehicles, drivers, tour guides, vendors, agencies, states and companies, and issues "sorders" (service orders) that bundle a trip's guide/driver/vehicle/destination/company with per-passenger `sorder_items`. Two Devise-backed user types (`User` and `Admin`) get separate namespaced back-offices. UI strings and many code comments are in Portuguese.
+
+The app was upgraded from Rails 5.2 / Ruby 2.7 / MySQL. `config.load_defaults 7.2` is active, so `belongs_to` is required by default. Mark an association `optional: true` when the form allows it to be blank.
 
 ## Commands
 
 ```bash
-bundle install                    # install gems
-bin/setup                         # bootstrap (bundle install, db setup)
+bundle install
+bin/setup                         # bundle install + db:setup + log/tmp clear
 
-bin/rails server                  # run the app (default port 3000)
+bin/rails server
 bin/rails console
 
-bin/rails db:create db:migrate    # set up MySQL database (see config/database.yml)
+bin/rails db:create db:migrate    # or db:schema:load
 bin/rails db:seed
 
-bin/rails test                                          # full test suite
-bin/rails test test/models/sorder_test.rb                # single file
-bin/rails test test/models/sorder_test.rb:12              # single test at line 12
-bin/rails test:system                                     # Capybara/Selenium system tests
+bin/rails test                                   # full suite (models + controllers)
+bin/rails test test/models/sorder_test.rb        # single file
+bin/rails test test/models/sorder_test.rb:12     # single test at line 12
+bin/rails test:system                            # Capybara/Selenium (Selenium Manager resolves the driver)
 ```
 
-There is no configured linter/rubocop in the Gemfile — don't assume one exists.
+No linter (rubocop etc.) is configured.
 
 ## Database
 
-MySQL via `mysql2`. Credentials are hardcoded in `config/database.yml` for dev/test (`root` / a literal password), production reads `AGETUR_DATABASE_PASSWORD` from the environment. Schema is managed through migrations in `db/migrate` + `db/schema.rb` (`ActiveRecord::Schema`, currently at version `2021_08_24_141717`).
+PostgreSQL via `pg`. `config/database.yml` reads `AGETUR_DATABASE_HOST` (default `localhost`), `AGETUR_DATABASE_USERNAME` (default `agetur`) and `AGETUR_DATABASE_PASSWORD` from the environment. Databases are `agetur_{development,test,production}`. `db/schema.rb` is `ActiveRecord::Schema[7.2]` and was regenerated natively against Postgres. The legacy `service_orders`/`service_order_items` tables are gone.
+
+Test fixtures are interdependent. Controller tests destroy the `:one` fixture of a resource, so fixtures that reference another resource (state, destination, sorder, ...) point at its `:two` fixture so the FK does not block the delete. Keep that convention when adding fixtures.
 
 ## Architecture
 
-**Standard Rails MVC**, scaffold-generated controllers/views (`resources :x` + jbuilder JSON views alongside HTML). No API/GraphQL layer, no background job system, no service objects beyond `app/pdfs/`.
+Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views plus jbuilder JSON views. There is no API layer, no background jobs and no service objects; the only extra layer is `app/pdfs/`. Frontend is Sprockets (CoffeeScript + SCSS per controller under `app/assets/`), Turbolinks, Bootstrap 4/jQuery from `package.json` via yarn, and a vendored `public/templates/gentelella/` admin theme. There is no `app/javascript`/importmap.
 
-### The `sorder`/`sorder_item` vs. legacy `service_order`/`service_order_item` split
+### Orders: `Sorder` / `SorderItem`
 
-The domain model was renamed mid-project from `ServiceOrder`/`ServiceOrderItem` to `Sorder`/`SorderItem`, but the old MySQL tables (`service_orders`, `service_order_items`) and their FKs are still present in `db/schema.rb` — only the Rails-side model/controller/view/helper/asset files were removed (see working-tree deletions). When working on order-related features, use `Sorder`/`SorderItem`/`sorders_controller.rb`, not the deleted `service_order*` files. Don't resurrect the old files; if you need to drop the legacy tables, do it via a proper migration.
+The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`SorderItem`, and don't resurrect `service_order*` code.
 
-Key relations:
-- `Sorder` has_many `sorder_items` (accepts_nested_attributes_for, `allow_destroy: true`), belongs_to `destination`, `tourguide`, `company`, `driver`, `vehicle`.
-- `SorderItem` belongs_to `sorder`, `customer`, `hotel`, `vendor`.
-- `Customer`, `Vehicle`, `Company`, `Destination` belong_to `state` (optional for `Customer`).
-- Ransack (`gem 'ransack', github: 'activerecord-hackery/ransack'`) powers search/filtering, e.g. `SordersController#index` does `Sorder.ransack(params[:q])`.
+- `Sorder` has_many `sorder_items` (`accepts_nested_attributes_for`, `allow_destroy: true`; the nested form in `sorders/_form.html.erb` uses `cocoon` with `_sorder_item_fields.html.erb`). It belongs_to `destination`, `tourguide`, `driver`, `vehicle` and `company`, all required.
+- `SorderItem` belongs_to `sorder`. Its `customer`, `hotel` and `vendor` associations are `optional: true` because they are filled in per passenger.
+- FKs live on `sorders`/`companies`. `Destination`, `Vehicle` and `State` therefore use `has_many` (`:sorders`/`:companies`), not `belongs_to`.
+- `SordersController` populates select options through many `set_*_options` before_actions. Each one plucks `[name, id]` pairs.
+- Ransack powers search/filtering (`Sorder.ransack(params[:q])` in `SordersController#index`).
+- `_forma.html.erb` / `_sordera_item_fields.html.erb` are alternate/unused partials alongside the real `_form` / `_sorder_item_fields`.
 
-### PDF generation — three different mechanisms coexist
+### PDF generation
 
-1. **`app/pdfs/*.rb`** (`HotelPdf`, `SorderPdf`, `OsrelPdf`) — classes that subclass `Prawn::Document`, build a table in `initialize`, and are rendered via `send_data pdf.render, ...` from `respond_to do |format| format.pdf { ... } end` blocks in controllers (see `HotelsController`, `SordersController#index`). This is the current/preferred pattern for new list-style PDFs.
-2. **`lib/generate_pdf.rb`** (`GeneratePdf` module) — older Prawn + Gruff (chart) based generator used by `SordersController#export`, writes files directly to `public/*.pdf`/`public/*.jpg` and redirects to them. Treat as legacy; several referenced instance variables (`details`, `name`, `price`) are undefined and this path is not fully functional.
-3. **`app/views/sorders/index.pdf.prawn`** — a `prawn-rails` template-based PDF view, an alternate/older approach to the same `sorders#index` PDF format. `app/views/layouts/pdf.html.erb`/`.html.haml` and `wicked_pdf`/`pdfkit` gems are also present in the Gemfile but largely unused/commented out in controllers.
-
-When adding a new exportable PDF list, follow pattern (1): add an `app/pdfs/<name>_pdf.rb` class and a `format.pdf` branch in the controller.
+1. **Preferred:** `app/pdfs/*.rb` (`HotelPdf`, `SorderPdf`, `OsrelPdf`). These are `Prawn::Document` subclasses (with `prawn-table`) that build the document in `initialize`. Controllers render them from a `format.pdf { send_data pdf.render, ... }` branch, as in `HotelsController#index` and `SordersController#index`. Follow this pattern for new exportable lists.
+2. `lib/generate_pdf.rb` (`GeneratePdf.sorder`) is legacy. It writes `public/agreement.pdf`, uses lorem ipsum and references undefined locals. `SordersController#export` and `SorderItemsController#export` call it, but both are broken: `SordersController#export` uses `@sorders`/`@SorderItem`, calls a nonexistent `GeneratePdf.sorder_item` and redirects twice. Don't build on it.
+3. `app/views/sorders/index.pdf.prawn` is an older `prawn-rails` template. The `pdfkit`, `wicked_pdf` and `wkhtmltopdf-binary` gems and the `layouts/pdf.html.*` files are present but effectively unused.
 
 ### Auth / namespacing
 
-- `devise_for :users` and `devise_for :admins` — two independent authenticatable models (`app/models/user.rb`, `app/models/admin.rb`), no shared base.
-- `UsersBackofficeController` / `AdminsBackofficeController` are base controllers with `before_action :authenticate_user!` / `authenticate_admin!` and their own layouts (`users_backoffice`, `admins_backoffice`); controllers under `users_backoffice/` and `admins_backoffice/` namespaces should inherit from these rather than `ApplicationController` directly.
-- Most resourceful controllers (`hotels`, `customers`, `sorders`, etc.) currently have **no** `before_action :authenticate_*!` — they are not gated behind Devise despite the back-office namespaces existing.
+- `devise_for :users` and `devise_for :admins` set up two independent models with no shared base.
+- `UsersBackofficeController` / `AdminsBackofficeController` run `authenticate_user!` / `authenticate_admin!` and use their own layouts. Controllers under the `users_backoffice/` and `admins_backoffice/` namespaces inherit from them. Tests for those controllers need `sign_in` (`Devise::Test::IntegrationHelpers` is included in `test_helper.rb`).
+- The resourceful controllers (`sorders`, `hotels`, `customers`, ...) inherit from `ApplicationController` and are **not** authenticated.
+- The public site is `site/welcome#index` (root and `/inicio`).
 
 ### Misc
 
-- `TxtController#importar` bulk-imports `Customer` records from an uploaded CSV-like `.txt` file (comma-split, no header validation) and skips CSRF verification.
-- Frontend: Sprockets asset pipeline (CoffeeScript + SCSS per-controller files under `app/assets/`), Bootstrap 4/jQuery via `package.json` + `yarn`, plus a vendored `public/templates/gentelella/` admin theme.
-- `config/application.rb` contains two `class Application` definitions in different modules (`Agetur::Application` and a stray `RailsPdf::Application` with commented-out PDFKit middleware) — the latter appears to be leftover/dead code, not the app's actual entry point.
+- `TxtController#importar` (`POST /txt/importar`) bulk-imports `Customer` records from an uploaded comma-separated `.txt`. It does no header validation and skips CSRF verification.
+- `Company` logos (`logoform`, `logoentrada`) are plain filenames under `public/`, rendered with `image_tag ..., skip_pipeline: true`.
