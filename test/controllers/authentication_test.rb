@@ -100,6 +100,14 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Login — Administrativo"
   end
 
+  test "cadastro pages link back to the home page" do
+    sign_in users(:one)
+    [new_agency_path, new_sorder_path, edit_company_path(companies(:one)), customers_path, showcomis_path].each do |path|
+      get path
+      assert_select "nav a[href=?]", root_path, { text: "Início" }, "#{path} should link to Início"
+    end
+  end
+
   test "home page offers sign in or sign out" do
     get root_url
     assert_select "a[href=?]", new_user_session_path, text: "Entrar"

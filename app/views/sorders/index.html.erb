@@ -57,6 +57,5 @@
 <div class="no-print">
   <%= link_to 'Nova Ordem', new_sorder_path %> <br>
   <%= link_to 'Arq.PDF', sorders_path(request.query_parameters.merge(format: 'pdf')) %> <br>
-  <%= link_to '[Inicio]', site_welcome_index_path %>
 </div>
 <button onclick="print()" class="no-print">imprimir</button>
