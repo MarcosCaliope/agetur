@@ -163,6 +163,17 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_not @sorder.reload.encerrada?
   end
 
+  test "saving an order brings in the passengers booked for its destination and date" do
+    @sorder.update!(data: Time.zone.local(2026, 11, 5, 8))
+    booking = Booking.create!(data: Date.current, snome: "Agendada", vendor: vendors(:one))
+    booking.items.create!(destination: @sorder.destination, data_passeio: Date.new(2026, 11, 5), valor: 50)
+
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { snomepax: "Digitado", qtdepax: 1 } } } }
+    follow_redirect!
+    assert_select ".alert-success", text: "Ordem de serviço atualizada com sucesso. Agendados incluídos: Agendada."
+    assert_equal %w[Agendada Digitado], @sorder.sorder_items.order(:snomepax).pluck(:snomepax)
+  end
+
   test "should destroy sorder" do
     assert_difference('Sorder.count', -1) do
       delete sorder_url(@sorder)

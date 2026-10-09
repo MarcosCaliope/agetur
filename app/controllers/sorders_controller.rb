@@ -92,7 +92,7 @@ class SordersController < ApplicationController
 
     respond_to do |format|
       if @sorder.save
-        format.html { redirect_to @sorder, notice: 'Ordem de serviço criada com sucesso.' }
+        format.html { redirect_to @sorder, notice: com_agendamentos('Ordem de serviço criada com sucesso.') }
         format.json { render :show, status: :created, location: @sorder }
       else
         format.html { render :new }
@@ -106,7 +106,7 @@ class SordersController < ApplicationController
   def update
     respond_to do |format|
       if @sorder.update(sorder_params)
-        format.html { redirect_to @sorder, notice: 'Ordem de serviço atualizada com sucesso.' }
+        format.html { redirect_to @sorder, notice: com_agendamentos('Ordem de serviço atualizada com sucesso.') }
         format.json { render :show, status: :ok, location: @sorder }
       else
         format.html { render :edit }
@@ -129,6 +129,17 @@ class SordersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_sorder
       @sorder = Sorder.find(params[:id])
+    end
+
+    # Brings in the booked tours of the order's destination and date, and
+    # says which (Sorder#incluir_agendamentos!).
+    def com_agendamentos(mensagem)
+      resultado = @sorder.incluir_agendamentos!.group_by(&:first)
+      nomes = ->(tipo) { resultado.fetch(tipo, []).map { |_, passeio, erro| [passeio.booking.snome, (" (#{erro})" if erro)].join } }
+      [mensagem,
+       ("Agendados incluídos: #{nomes[:incluido].to_sentence}." if resultado[:incluido]),
+       ("Vinculados ao agendamento: #{nomes[:vinculado].to_sentence}." if resultado[:vinculado]),
+       ("Agendados não incluídos: #{nomes[:erro].to_sentence}." if resultado[:erro])].compact.join(" ")
     end
 
     # A closed order (SISTGER's iFlgAberto) can't be changed until reopened.

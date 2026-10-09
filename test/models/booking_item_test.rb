@@ -76,6 +76,45 @@ class BookingItemTest < ActiveSupport::TestCase
     assert_nil sinal.reload.sorder_item_id
   end
 
+  test "saving an order pulls in its booked tours, tying a passenger typed with the same name" do
+    jose = Booking.create!(data: Date.current, snome: "José Lima", vendor: vendors(:one), telefone: "85 2")
+    passeio_jose = jose.items.create!(destination: @destino, data_passeio: Date.new(2026, 11, 5), valor: 80)
+    jose.items.create!(destination: @destino, data_passeio: Date.new(2026, 11, 5), valor: 80, cancelado: true)
+    jose.items.create!(destination: @destino, data_passeio: Date.new(2026, 11, 6), valor: 80)
+    sinal = @passeio.pagamentos.create!(data: Date.current, valor: 60, forma_pagamento: "D")
+    digitado = @ordem.sorder_items.create!(snomepax: "jose  LIMA", amount: 90)
+
+    resultado = @ordem.incluir_agendamentos!
+
+    assert_equal [[:incluido, @passeio], [:vinculado, passeio_jose]], resultado.sort_by { |r| r.first.to_s }
+    assert_equal "Ana", @passeio.reload.sorder_item.snomepax
+    assert_equal 60.0, @passeio.sorder_item.amountpay
+    assert_equal sinal.reload.sorder_item, @passeio.sorder_item
+    assert_equal digitado, passeio_jose.reload.sorder_item
+    assert_equal ["jose  LIMA", 90.0, "85 2", vendors(:one).id], [digitado.reload.snomepax, digitado.amount, digitado.phone, digitado.vendor_id],
+                 "typed values stay; blanks come from the booking"
+    assert_equal 2, @ordem.sorder_items.count
+    assert_empty @ordem.incluir_agendamentos!, "nothing left to pull in"
+  end
+
+  test "a tour taken out of an order isn't pulled back in by itself, nor into closed orders" do
+    @passeio.lancar_na_os!(@ordem)
+    @passeio.sorder_item.destroy!
+    assert_not @passeio.reload.inclusao_automatica
+    assert_empty @ordem.incluir_agendamentos!
+    @passeio.lancar_na_os!(@ordem) # by hand it still goes
+
+    outro = @booking.items.create!(destination: @destino, data_passeio: Date.new(2026, 11, 5))
+    @ordem.update!(encerrada: true)
+    assert_empty @ordem.incluir_agendamentos!
+    assert_not outro.reload.lancado?
+  end
+
+  test "reports a tour that can't be placed" do
+    vendors(:one).update_columns(active: false)
+    assert_equal [[:erro, @passeio, "Vendedor está inativo"]], @ordem.incluir_agendamentos!
+  end
+
   test "a placed tour or booking can't be deleted" do
     @passeio.lancar_na_os!(@ordem)
     assert_not @passeio.destroy

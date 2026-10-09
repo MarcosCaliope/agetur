@@ -46,6 +46,38 @@ class Sorder < ApplicationRecord
       end
     end
 
+    # Pulls in the pending booked tours of this destination and date
+    # (BookingItem#inclusao_automatica). A passenger typed here with the
+    # booking's name is tied to it instead of being added again. Returns
+    # [[:incluido | :vinculado | :erro, booking item, error message], ...].
+    def incluir_agendamentos!
+      return [] if encerrada? || data.nil? || destination_id.nil?
+
+      pendentes = BookingItem.pendentes.where(destination_id: destination_id, data_passeio: data.to_date, inclusao_automatica: true)
+                             .includes(:booking).order(:hora, :id).to_a
+      return [] if pendentes.empty?
+
+      livres = sorder_items.ativos.where.not(id: BookingItem.where.not(sorder_item_id: nil).select(:sorder_item_id)).to_a
+      pendentes.map do |passeio|
+        nome = Sorder.nome_comparavel(passeio.booking.snome)
+        item = livres.find { |i| Sorder.nome_comparavel(i.nome_passageiro) == nome }
+        if item
+          livres.delete(item)
+          passeio.vincular!(item)
+          [:vinculado, passeio]
+        else
+          passeio.lancar_na_os!(self)
+          [:incluido, passeio]
+        end
+      rescue BookingItem::NaoLancado => e
+        [:erro, passeio, e.message]
+      end
+    end
+
+    def self.nome_comparavel(nome)
+      I18n.transliterate(nome.to_s).downcase.squish
+    end
+
     # Reopens it, dropping the bills its close made that are still unpaid.
     def reabrir!
       transaction do

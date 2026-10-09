@@ -52,6 +52,7 @@ class SorderItem < ApplicationRecord
   private
 
   def devolver_sinais_ao_agendamento
+    BookingItem.where(sorder_item_id: id).update_all(inclusao_automatica: false) # don't pull it back in by itself
     sinais = SorderItemPayment.where(sorder_item_id: id).where.not(booking_item_id: nil)
     CashEntry.where(id: sinais.select(:cash_entry_id)).update_all(sorder_id: nil, sorder_item_id: nil)
     sinais.update_all(sorder_item_id: nil)

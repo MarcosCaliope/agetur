@@ -38,24 +38,19 @@ class BookingItem < ApplicationRecord
   end
 
   def lancar_na_os!(sorder)
-    raise NaoLancado, "Passeio cancelado." if cancelado?
-    raise NaoLancado, "Passeio já lançado na OS nº #{sorder_item.sorder_id}." if lancado?
-    raise NaoLancado, "A OS nº #{sorder.id} está encerrada." if sorder.encerrada?
-    raise NaoLancado, "A OS nº #{sorder.id} é de outro roteiro." if sorder.destination_id != destination_id
+    verificar_lancamento!(sorder)
+    transaction { assumir!(sorder.sorder_items.create!(dados_para_ordem)) }
+  rescue ActiveRecord::RecordInvalid => e
+    raise NaoLancado, e.record.errors.full_messages.to_sentence
+  end
 
+  # Ties a passenger typed in the order to this booked tour instead of
+  # adding it again: the passenger's blank fields come from the booking.
+  def vincular!(item)
+    verificar_lancamento!(item.sorder)
     transaction do
-      b = booking
-      item = sorder.sorder_items.create!(
-        snomepax: b.snome, customer: b.customer, documenttype: b.documenttype, document: b.document, hotel: b.hotel,
-        apto: b.apto, phone: b.telefone, vendor: b.vendor, qtdepax: qtdepax, qtdechd: qtdechd, hour: hora, amount: valor,
-        amountcomission: comissao_prevista, comments: observacao, scancelado: "N"
-      )
-      b.companions.each { |pessoa| item.companions.create!(pessoa.atributos_para_ordem) }
-      CashEntry.where(id: pagamentos.select(:cash_entry_id)).update_all(sorder_id: sorder.id, sorder_item_id: item.id)
-      pagamentos.update_all(sorder_item_id: item.id)
-      item.update_columns(amountpay: pagamentos.sum(:valor).to_f)
-      update!(sorder_item: item)
-      item
+      item.update!(dados_para_ordem.select { |campo, _| item[campo].blank? })
+      assumir!(item)
     end
   rescue ActiveRecord::RecordInvalid => e
     raise NaoLancado, e.record.errors.full_messages.to_sentence
@@ -68,7 +63,7 @@ class BookingItem < ApplicationRecord
 
     transaction do
       item = sorder_item
-      update!(sorder_item: nil)
+      update!(sorder_item: nil, inclusao_automatica: false)
       item.destroy! # SorderItem hands the down payments back first
     end
   end
@@ -84,6 +79,31 @@ class BookingItem < ApplicationRecord
   end
 
   private
+
+  def verificar_lancamento!(sorder)
+    raise NaoLancado, "Passeio cancelado." if cancelado?
+    raise NaoLancado, "Passeio já lançado na OS nº #{sorder_item.sorder_id}." if lancado?
+    raise NaoLancado, "A OS nº #{sorder.id} está encerrada." if sorder.encerrada?
+    raise NaoLancado, "A OS nº #{sorder.id} é de outro roteiro." if sorder.destination_id != destination_id
+  end
+
+  def dados_para_ordem
+    b = booking
+    { snomepax: b.snome, customer_id: b.customer_id, documenttype: b.documenttype, document: b.document, hotel_id: b.hotel_id,
+      apto: b.apto, phone: b.telefone, vendor_id: b.vendor_id, qtdepax: qtdepax, qtdechd: qtdechd, hour: hora, amount: valor,
+      amountcomission: comissao_prevista, comments: observacao, scancelado: "N" }
+  end
+
+  # The order's passenger takes over the booking's pax list (unless it has
+  # one) and down payments, which count as paid unless a paid amount was typed.
+  def assumir!(item)
+    booking.companions.each { |pessoa| item.companions.create!(pessoa.atributos_para_ordem) } if item.companions.none?
+    CashEntry.where(id: pagamentos.select(:cash_entry_id)).update_all(sorder_id: item.sorder_id, sorder_item_id: item.id)
+    pagamentos.update_all(sorder_item_id: item.id)
+    item.update_columns(amountpay: pagamentos.sum(:valor).to_f) if item.amountpay.to_f.zero?
+    update!(sorder_item: item)
+    item
+  end
 
   # SISTGER suggests the pickup time (hotel × destination) and the price
   # (adult price × pax + child price × chd; half the adult price without one).
