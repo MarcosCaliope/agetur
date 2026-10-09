@@ -13,11 +13,26 @@ class CashEntriesController < ApplicationController
     @inicio, @fim = @fim, @inicio if @inicio > @fim
 
     periodo = CashEntry.where(data: @inicio..@fim)
-    @lancamentos = periodo.includes(:pagamento, :payable).order(:data, :id)
+    @lancamentos = periodo.includes(:pagamento, :payables).order(:data, :id)
     @saldo_anterior = CashEntry.where(data: ...@inicio).saldo
     @entradas = periodo.entradas.sum(:valor)
     @saidas = periodo.saidas.sum(:valor)
     @por_forma = periodo.group(:forma_pagamento, :tipo).sum(:valor)
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        send_data ResumoCaixaPdf.new(@inicio, @fim, Company.first).render, filename: "caixa_#{@inicio}_#{@fim}.pdf",
+                                                                           type: "application/pdf", disposition: "inline"
+      end
+    end
+  end
+
+  # GET /caixa/1/recibo.pdf
+  def recibo
+    lancamento = CashEntry.find(params[:id])
+    send_data ReciboCaixaPdf.new(lancamento, Company.first).render, filename: "recibo_#{lancamento.id}.pdf",
+                                                                     type: "application/pdf", disposition: "inline"
   end
 
   def new

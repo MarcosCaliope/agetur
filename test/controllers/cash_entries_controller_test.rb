@@ -15,6 +15,14 @@ class CashEntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#caixa-resumo", text: /R\$ 100,00\s*Saldo anterior.*R\$ 70,00\s*Saldo final/m
   end
 
+  test "prints the period summary and an entry's receipt" do
+    get cash_entries_url(inicio: "2026-10-08", fim: "2026-10-09", format: :pdf)
+    assert_equal "application/pdf", response.media_type
+    get recibo_cash_entry_url(@ontem, format: :pdf)
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+  end
+
   test "creates, edits and deletes a typed-in entry" do
     assert_difference("CashEntry.count") do
       post cash_entries_url, params: { cash_entry: { data: "2026-10-09", tipo: "E", categoria: "Suprimento", forma_pagamento: "D",

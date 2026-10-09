@@ -1,0 +1,92 @@
+<% vendedor = @tipo == "comissao_vendedor" %>
+<h1>Pagamento de comissões</h1>
+
+<%= form_with url: pagamento_comissoes_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= select_tag :tipo, options_for_select([["Vendedores", "comissao_vendedor"], ["Repasse (agências)", "comissao_repasse"]], @tipo),
+        class: "form-control form-control-sm mr-2", aria: { label: "Comissão de" }, onchange: "this.form.credor_id.value = ''; this.form.submit()" %>
+  <%= select_tag :credor_id, options_for_select(@credores, params[:credor_id]), include_blank: vendedor ? "Todos os vendedores" : "Todas as agências",
+        class: "form-control form-control-sm mr-2", aria: { label: vendedor ? "Vendedor" : "Agência" } %>
+  <%= label_tag :inicio, "OS de", class: "mr-1" %>
+  <%= date_field_tag :inicio, @inicio, class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, @fim, class: "form-control form-control-sm mr-2" %>
+  <%= number_field_tag :sorder_id, params[:sorder_id], class: "form-control form-control-sm mr-2", placeholder: "Nº OS", min: 1,
+        style: "width: 7em", aria: { label: "Nº da OS" } %>
+  <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm" %>
+<% end %>
+
+<% if @recibos.any? %>
+  <div class="alert alert-info no-print">
+    Recibos:
+    <% @recibos.each do |saida| %>
+      <%= link_to "nº #{saida.id} – #{saida.requerente} (#{number_to_currency(saida.valor)})", recibo_cash_entry_path(saida, format: :pdf),
+            target: "_blank", class: "mr-3" %>
+    <% end %>
+  </div>
+<% end %>
+
+<%= form_with url: pagamento_comissoes_path, method: :post, local: true, id: "pagamento-comissoes" do |form| %>
+  <% filtros.each do |nome, valor| %>
+    <%= hidden_field_tag nome, valor %>
+  <% end %>
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr>
+        <th><input type="checkbox" aria-label="Marcar todos"
+                   onclick="document.querySelectorAll('.comissao-item').forEach((c) => { c.checked = this.checked })"></th>
+        <th>OS</th>
+        <th>Data</th>
+        <th><%= vendedor ? "Vendedor" : "Agência" %></th>
+        <th>Passageiro</th>
+        <th class="text-right">Valor do passeio</th>
+        <th class="text-right">Comissão</th>
+        <th class="text-right">Já pago</th>
+        <th class="text-right">A pagar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @itens.each do |item| %>
+        <% comissao, pago = vendedor ? [item.amountcomission, item.amountcomissionpay] : [item.amountcomissionrep, item.amountcomissionreppay] %>
+        <tr>
+          <td><%= check_box_tag "itens[]", item.id, false, id: "item_#{item.id}", class: "comissao-item" %></td>
+          <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+          <td><%= item.sorder.data && l(item.sorder.data.to_date) %></td>
+          <td><%= (vendedor ? item.vendor : item.agency)&.sname %></td>
+          <td>
+            <label for="item_<%= item.id %>" class="mb-0"><%= item.nome_passageiro %></label>
+            <% if @abertas[item.id] %><span class="badge badge-light">conta em aberto</span><% end %>
+          </td>
+          <td class="text-right"><%= number_to_currency(item.amount.to_f) %></td>
+          <td class="text-right"><%= number_to_currency(comissao.to_f) %></td>
+          <td class="text-right"><%= number_to_currency(pago.to_f) %></td>
+          <td class="text-right"><strong><%= number_to_currency(vendedor ? item.comissao_a_pagar : item.comissao_repasse_a_pagar) %></strong></td>
+        </tr>
+      <% end %>
+      <% if @itens.empty? %>
+        <tr><td colspan="9" class="text-muted">Nenhuma comissão a pagar com estes filtros.</td></tr>
+      <% end %>
+    </tbody>
+    <% if @itens.any? %>
+      <tfoot>
+        <tr>
+          <th colspan="8" class="text-right"><%= pluralize(@itens.size, "passageiro", plural: "passageiros") %> — total a pagar</th>
+          <th class="text-right"><%= number_to_currency(@itens.sum { |i| vendedor ? i.comissao_a_pagar : i.comissao_repasse_a_pagar }) %></th>
+        </tr>
+      </tfoot>
+    <% end %>
+  </table>
+
+  <% if @itens.any? %>
+    <div class="form-inline no-print">
+      <%= label_tag :data, "Data do pagamento", class: "mr-2" %>
+      <%= date_field_tag :data, @data, class: "form-control form-control-sm mr-3" %>
+      <%= label_tag :forma_pagamento, "Forma", class: "mr-2" %>
+      <%= select_tag :forma_pagamento, options_for_select(CashEntry::FORMAS.invert, "D"), class: "form-control form-control-sm mr-3" %>
+      <%= form.submit "Pagar marcados", class: "btn btn-primary btn-sm",
+            data: { confirm: "Pagar as comissões marcadas? Cada #{vendedor ? 'vendedor' : 'agência'} recebe uma saída no caixa e um recibo." } %>
+    </div>
+    <p class="text-muted small mt-2">
+      Paga-se o saldo de cada passageiro (comissão − já pago). Passageiros com conta em aberto (de OS encerrada) quitam essa conta.
+    </p>
+  <% end %>
+<% end %>

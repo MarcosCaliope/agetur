@@ -9,7 +9,7 @@ class CashEntry < ApplicationRecord
   belongs_to :sorder, optional: true
   belongs_to :sorder_item, optional: true
   has_one :pagamento, class_name: "SorderItemPayment", dependent: :nullify
-  has_one :payable, dependent: :nullify
+  has_many :payables, dependent: :nullify # one, or a batch of commissions
 
   validates :data, :descricao, :categoria, presence: true
   validates :tipo, inclusion: { in: TIPOS.keys }
@@ -34,7 +34,7 @@ class CashEntry < ApplicationRecord
 
   # Made by a passenger payment or a paid bill: undone from there, not here.
   def automatico?
-    pagamento.present? || payable.present?
+    pagamento.present? || payables.any?
   end
 
   def nome_tipo = TIPOS[tipo]

@@ -5,6 +5,8 @@ Rails.application.routes.draw do
     resources :recebimentos, controller: "sorder_item_payments", only: %i[index create destroy]
   end
   get 'showcomis', to: 'sorder_items#showcomis'
+  get 'comissoes/pagamento', to: 'commission_payments#index', as: :pagamento_comissoes
+  post 'comissoes/pagamento', to: 'commission_payments#create'
   resources :sorders do
     member do
       get 'export'
@@ -25,7 +27,9 @@ Rails.application.routes.draw do
   end
   resources :pickup_times, path: "horarios-de-passeio", except: :show
 
-  resources :cash_entries, path: "caixa", except: :show
+  resources :cash_entries, path: "caixa", except: :show do
+    get 'recibo', on: :member
+  end
   resources :payables, path: "contas-a-pagar", except: :show do
     member do
       get 'pagamento'

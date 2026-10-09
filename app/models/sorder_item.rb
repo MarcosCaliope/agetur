@@ -38,6 +38,11 @@ class SorderItem < ApplicationRecord
     amountcomission.to_f - amountcomissionpay.to_f
   end
 
+  # Commission still to be paid to the agency it was passed to.
+  def comissao_repasse_a_pagar
+    amountcomissionrep.to_f - amountcomissionreppay.to_f
+  end
+
   # Tour value still to be paid by the passenger (as SISTGER: value less
   # what was paid and both discounts).
   def total_passeio

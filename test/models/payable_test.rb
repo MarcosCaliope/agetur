@@ -57,6 +57,45 @@ class PayableTest < ActiveSupport::TestCase
     assert_equal %w[guia pedagio vendedor], @ordem.payables.order(:origem).pluck(:origem), "the paid one isn't made again"
   end
 
+  test "pays commissions in a batch with one cash exit per creditor; reversing one undoes its batch" do
+    outro = Vendor.create!(sname: "OUTRO", active: true)
+    item2 = @ordem.sorder_items.create!(snomepax: "Bruno", vendor: vendors(:one), amountcomission: 25)
+    item3 = @ordem.sorder_items.create!(snomepax: "Caio", vendor: outro, amountcomission: 5)
+    contas = [@item, item2, item3].map { |i| Payable.de_comissao(i, "comissao_vendedor", vencimento: Date.current).tap(&:save!) }
+
+    saidas = Payable.pagar_em_lote!(contas, data: Date.new(2026, 10, 9), forma_pagamento: "O", usuario: "a@b.c")
+
+    assert_equal [[vendors(:one).sname, 55], ["OUTRO", 5]], saidas.map { |s| [s.requerente, s.valor] }
+    assert_equal "Pagamento de comissões a #{vendors(:one).sname}: 2 passageiro(s) - OS #{@ordem.id}", saidas.first.descricao
+    assert_equal [40.0, 25.0, 5.0], [@item, item2, item3].map { |i| i.reload.amountcomissionpay }
+    assert_equal 1, contas.first.reload.lote.count
+
+    assert_difference("CashEntry.count", -1) { contas.second.reload.estornar! }
+    assert_equal [false, false, true], contas.map { |c| c.reload.pago? }
+    assert_equal [10.0, 0.0, 5.0], [@item, item2, item3].map { |i| i.reload.amountcomissionpay }
+  end
+
+  test "an open bill is reused, and what's added after a payment gets a new one" do
+    @ordem.encerrar!
+    aberta = @ordem.payables.find_by!(origem: "vendedor")
+    assert_equal aberta, Payable.de_comissao(@item, "comissao_vendedor", vencimento: Date.current)
+
+    aberta.pagar!(data: Date.current, forma_pagamento: "D")
+    assert_nil Payable.de_comissao(@item.reload, "comissao_vendedor", vencimento: Date.current), "nothing left to pay"
+
+    @ordem.reabrir!
+    @item.update!(amountcomission: 50)
+    @ordem.encerrar!
+    assert_equal [[30.0, true], [10.0, false]], @ordem.payables.where(origem: "vendedor").order(:id).map { |c| [c.valor.to_f, c.pago?] }
+  end
+
+  test "closing again brings an open bill up to date" do
+    @ordem.encerrar!
+    @ordem.update_columns(valorguia: 100)
+    @ordem.encerrar!
+    assert_equal [100.0], @ordem.payables.where(origem: "guia").map { |c| c.valor.to_f }
+  end
+
   test "a typed-in bill needs a creditor" do
     conta = Payable.new(tipo: "avulsa", descricao: "Aluguel", valor: 1000, vencimento: Date.current)
     assert_not conta.valid?

@@ -8,7 +8,8 @@
   <%= submit_tag "Mostrar", name: nil, class: "btn btn-primary btn-sm mr-2" %>
   <%= link_to "Hoje", cash_entries_path, class: "btn btn-outline-secondary btn-sm mr-2" %>
   <%= link_to "Novo lançamento", new_cash_entry_path, class: "btn btn-success btn-sm mr-2" %>
-  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="print()">Imprimir</button>
+  <%= link_to "Resumo em PDF", cash_entries_path(inicio: @inicio, fim: @fim, format: :pdf), target: "_blank",
+        class: "btn btn-outline-secondary btn-sm" %>
 <% end %>
 
 <p class="text-muted"><%= @inicio == @fim ? l(@inicio) : "#{l(@inicio)} a #{l(@fim)}" %></p>
@@ -52,10 +53,11 @@
         <td class="text-right text-danger"><%= number_to_currency(lancamento.valor) unless lancamento.entrada? %></td>
         <td><%= lancamento.usuario %></td>
         <td class="no-print text-nowrap">
+          <%= link_to "Recibo", recibo_cash_entry_path(lancamento, format: :pdf), target: "_blank" %>
           <% if lancamento.pagamento %>
             <%= link_to "Recebimento", sorder_item_recebimentos_path(lancamento.pagamento.sorder_item_id) %>
-          <% elsif lancamento.payable %>
-            <%= link_to "Conta", payables_path(situacao: "pagas", busca: lancamento.payable.descricao) %>
+          <% elsif lancamento.payables.any? %>
+            <%= link_to (lancamento.payables.size > 1 ? "Contas" : "Conta"), payables_path(situacao: "pagas", lancamento: lancamento.id) %>
           <% else %>
             <%= link_to "Editar", edit_cash_entry_path(lancamento) %>
             <%= link_to "Excluir", lancamento, method: :delete, data: { confirm: "Tem certeza?" } %>

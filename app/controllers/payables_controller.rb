@@ -10,6 +10,7 @@ class PayablesController < ApplicationController
     contas = Payable.all
     contas = contas.public_send(@situacao) unless @situacao == "todas"
     contas = contas.where(tipo: params[:tipo]) if Payable::TIPOS.key?(params[:tipo])
+    contas = contas.where(cash_entry_id: params[:lancamento]) if params[:lancamento].present?
     contas = contas.where(vencimento: data_param(:inicio)..) if data_param(:inicio)
     contas = contas.where(vencimento: ..data_param(:fim)) if data_param(:fim)
     if params[:busca].present?

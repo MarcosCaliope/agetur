@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_09_150000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_09_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -300,8 +300,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_150000) do
     t.datetime "updated_at", null: false
     t.index ["cash_entry_id"], name: "index_payables_on_cash_entry_id"
     t.index ["credor_type", "credor_id"], name: "index_payables_on_credor"
-    t.index ["sorder_id", "sorder_item_id", "origem"], name: "index_payables_on_origem_da_ordem", unique: true, where: "(origem IS NOT NULL)", nulls_not_distinct: true
     t.index ["sorder_id"], name: "index_payables_on_sorder_id"
+    t.index ["sorder_item_id", "origem"], name: "index_payables_on_sorder_item_id_and_origem"
     t.index ["sorder_item_id"], name: "index_payables_on_sorder_item_id"
     t.index ["vencimento"], name: "index_payables_on_vencimento"
   end
