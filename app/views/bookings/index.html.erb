@@ -1,0 +1,61 @@
+<h1>Agendamentos</h1>
+
+<%= form_with url: bookings_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= label_tag :inicio, "Passeios de", class: "mr-1" %>
+  <%= date_field_tag :inicio, @inicio, class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, @fim, class: "form-control form-control-sm mr-2" %>
+  <%= select_tag :situacao, options_for_select([["Todos", "todos"], ["Pendentes", "pendentes"], ["Lançados em OS", "lancados"],
+                                                ["Cancelados", "cancelados"]], @situacao),
+        class: "form-control form-control-sm mr-2", aria: { label: "Situação" } %>
+  <%= search_field_tag :busca, params[:busca], class: "form-control form-control-sm mr-2", placeholder: "Pax, roteiro, hotel, vendedor",
+        aria: { label: "Pesquisar" } %>
+  <%= submit_tag "Filtrar", name: nil, class: "btn btn-primary btn-sm mr-2" %>
+  <%= link_to "Novo agendamento", new_booking_path, class: "btn btn-success btn-sm mr-2" %>
+  <%= link_to "Pendentes de OS", pendentes_bookings_path, class: "btn btn-outline-secondary btn-sm mr-2" %>
+  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="print()">Imprimir</button>
+<% end %>
+
+<p class="text-muted">Passeios de <%= l(@inicio) %> a <%= l(@fim) %> — <%= pluralize(@passeios.size, "passeio", plural: "passeios") %>,
+  <%= @passeios.reject(&:cancelado?).sum(&:qtdepax) %> PAX e <%= @passeios.reject(&:cancelado?).sum(&:qtdechd) %> CHD</p>
+
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Hora</th>
+      <th>Roteiro</th>
+      <th>Pax</th>
+      <th>Hotel</th>
+      <th>Vendedor</th>
+      <th>PAX</th>
+      <th>CHD</th>
+      <th class="text-right">Valor</th>
+      <th class="text-right">Pago</th>
+      <th>Situação</th>
+      <th class="no-print">Agendamento</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @passeios.each do |passeio| %>
+      <% b = passeio.booking %>
+      <tr class="<%= 'text-muted' if passeio.cancelado? %>">
+        <td><%= l(passeio.data_passeio) %></td>
+        <td><%= passeio.hora %></td>
+        <td><%= passeio.destination.description %></td>
+        <td><%= b.snome %><% if b.telefone.present? %> <span class="text-muted small"><%= b.telefone %></span><% end %></td>
+        <td><%= b.hotel&.sname %><%= " / #{b.apto}" if b.apto.present? %></td>
+        <td><%= b.vendor.sname %></td>
+        <td><%= passeio.qtdepax %></td>
+        <td><%= passeio.qtdechd %></td>
+        <td class="text-right"><%= number_to_currency(passeio.valor) %></td>
+        <td class="text-right"><%= number_to_currency(passeio.pago) %></td>
+        <td><%= render "situacao", passeio: passeio %></td>
+        <td class="no-print"><%= link_to "nº #{b.id}", b %></td>
+      </tr>
+    <% end %>
+    <% if @passeios.empty? %>
+      <tr><td colspan="12" class="text-muted">Nenhum passeio agendado no período.</td></tr>
+    <% end %>
+  </tbody>
+</table>

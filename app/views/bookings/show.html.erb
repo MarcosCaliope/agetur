@@ -1,0 +1,130 @@
+<% b = @booking %>
+<h1>Agendamento nº <%= b.id %></h1>
+
+<div class="row mb-3">
+  <div class="col-md-8">
+    <p class="mb-1">
+      <strong><%= b.snome %></strong>
+      <% if b.customer %><span class="text-muted small">(cliente <%= link_to b.customer.id, b.customer %>)</span><% end %>
+      <% if b.telefone.present? %> · <%= b.telefone %><% end %>
+      <% if b.document.present? %> · <%= [b.documenttype, b.document].compact_blank.join(" ") %><% end %>
+    </p>
+    <p class="mb-1">
+      Hotel: <%= b.hotel&.sname || "—" %><%= " · apto #{b.apto}" if b.apto.present? %> ·
+      Vendedor: <%= b.vendor.sname %>
+    </p>
+    <p class="mb-1 text-muted small">
+      Agendado em <%= l(b.data) %><%= " por #{b.usuario}" if b.usuario %>
+      <% if b.forma_pagamento.present? %> · <%= CashEntry::FORMAS[b.forma_pagamento] %><%= " em #{b.parcelas}x" if b.parcelas.to_i > 1 %><% end %>
+    </p>
+    <% if b.observacoes.present? %><p class="mb-1"><%= b.observacoes %></p><% end %>
+    <% if b.companions.any? %>
+      <p class="mb-1">Lista pax: <%= b.companions.map { |c| SorderItemCompanion.new(c.atributos_para_ordem).descricao }.join("; ") %></p>
+    <% end %>
+  </div>
+  <div class="col-md-4 d-flex text-center">
+    <% [["Total", b.total], ["Pago", b.pago], ["A receber", b.total - b.pago]].each do |rotulo, valor| %>
+      <div class="flex-fill">
+        <div class="h5 mb-0"><%= number_to_currency(valor) %></div>
+        <div class="text-muted small"><%= rotulo %></div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<h2 class="h5">Passeios</h2>
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Hora</th>
+      <th>Roteiro</th>
+      <th>PAX</th>
+      <th>CHD</th>
+      <th class="text-right">Valor</th>
+      <th class="text-right">Pago</th>
+      <th>Situação</th>
+      <th>Observação</th>
+      <th class="no-print"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% b.items.includes(:destination, :pagamentos, :sorder_item).each do |passeio| %>
+      <tr class="<%= 'text-muted' if passeio.cancelado? %>">
+        <td><%= l(passeio.data_passeio) %></td>
+        <td><%= passeio.hora %></td>
+        <td><%= passeio.destination.description %></td>
+        <td><%= passeio.qtdepax %></td>
+        <td><%= passeio.qtdechd %></td>
+        <td class="text-right"><%= number_to_currency(passeio.valor) %></td>
+        <td class="text-right"><%= number_to_currency(passeio.pago) %></td>
+        <td><%= render "situacao", passeio: passeio %></td>
+        <td><%= passeio.observacao %></td>
+        <td class="no-print text-nowrap">
+          <% unless passeio.cancelado? || passeio.lancado? %>
+            <% passeio.ordens_candidatas.each do |ordem| %>
+              <%= link_to "Lançar na OS nº #{ordem.id}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
+                    class: "btn btn-outline-success btn-sm", data: { confirm: "Incluir este passageiro na OS nº #{ordem.id}?" } %>
+            <% end %>
+          <% end %>
+          <%= link_to (passeio.lancado? ? "Recebimentos" : "Sinal"), booking_item_recebimentos_path(b, passeio) %>
+          <%= link_to "Editar", edit_booking_item_path(b, passeio) %>
+          <% if passeio.lancado? %>
+            <%= link_to "Retirar da OS", retirar_booking_item_path(b, passeio), method: :patch,
+                  data: { confirm: "Retirar o passageiro da OS? Os sinais voltam para o agendamento." } %>
+          <% else %>
+            <%= link_to "Excluir", booking_item_path(b, passeio), method: :delete,
+                  data: { confirm: passeio.pagamentos.any? ? "Excluir o passeio e os sinais dele (e seus lançamentos no caixa)?" : "Tem certeza?" } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2 class="h6 mt-3">Incluir passeio</h2>
+<%= form_with model: @passeio, url: booking_items_path(b), local: true, class: "no-print" do |form| %>
+  <div class="form-row align-items-end">
+    <div class="form-group col-md-3">
+      <%= form.label :destination_id %>
+      <%= form.select :destination_id, @destination_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :data_passeio %>
+      <%= form.date_field :data_passeio, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-1">
+      <%= form.label :hora %>
+      <%= form.time_field :hora, class: "form-control", title: "Em branco: horário do passeio no hotel" %>
+    </div>
+    <div class="form-group col-4 col-md-1">
+      <%= form.label :qtdepax %>
+      <%= form.number_field :qtdepax, min: 0, class: "form-control" %>
+    </div>
+    <div class="form-group col-4 col-md-1">
+      <%= form.label :qtdechd %>
+      <%= form.number_field :qtdechd, min: 0, class: "form-control" %>
+    </div>
+    <div class="form-group col-4 col-md-2">
+      <%= form.label :valor %>
+      <%= form.number_field :valor, step: "0.01", min: 0, value: nil, placeholder: "pelo roteiro", class: "form-control" %>
+    </div>
+    <div class="form-group col-md-2">
+      <%= form.submit "Incluir", class: "btn btn-primary btn-block" %>
+    </div>
+  </div>
+  <div class="form-group">
+    <%= form.text_field :observacao, class: "form-control form-control-sm", placeholder: "Observação" %>
+  </div>
+<% end %>
+<p class="text-muted small no-print">
+  Hora e valor em branco são preenchidos pelo horário do passeio no hotel e pelo preço do roteiro
+  (adulto × PAX + CHD × CHD; sem preço CHD, metade do adulto).
+</p>
+
+<p class="no-print mt-3">
+  <%= link_to "[Editar agendamento]", edit_booking_path(b) %>
+  <%= link_to "[Agendamentos]", bookings_path %>
+  <%= link_to "[Excluir agendamento]", b, method: :delete, data: { confirm: "Excluir o agendamento, seus passeios e sinais?" } %>
+  <button type="button" onclick="print()">imprimir</button>
+</p>

@@ -13,6 +13,18 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :bookings, path: "agendamentos" do
+    get 'pendentes', on: :collection
+    resources :items, controller: "booking_items", path: "passeios", only: %i[create edit update destroy] do
+      member do
+        patch 'lancar'
+        patch 'retirar'
+      end
+      resources :recebimentos, controller: "booking_item_payments", only: %i[index create destroy]
+    end
+  end
+  resources :pickup_times, path: "horarios-de-passeio", except: :show
+
   resources :cash_entries, path: "caixa", except: :show
   resources :payables, path: "contas-a-pagar", except: :show do
     member do

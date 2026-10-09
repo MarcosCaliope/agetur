@@ -36,6 +36,11 @@ class SistgerImportTest < ActiveSupport::TestCase
                             "nValorIndividual" => BigDecimal("80"), "nValorIndividualChd" => nil, "nNetAdulto" => BigDecimal("60"),
                             "nNetChd" => nil, "nNetAdultoCartao" => nil, "nNetCHDCartao" => nil, "nIndCombo" => BigDecimal("150"),
                             "nIndCHDCombo" => nil, "nNETCombo" => BigDecimal("120"), "nNetComboCHD" => nil }],
+      "tblHorarioPasseios" => [
+        { "iCodHotel" => 2, "iCodRoteiro" => 0, "sHora" => "07:40     " },
+        { "iCodHotel" => 2, "iCodRoteiro" => 5, "sHora" => "08:00" },
+        { "iCodHotel" => 2, "iCodRoteiro" => 0, "sHora" => "7h" }
+      ],
       "tblVendedorRoteiro" => [
         { "iCodVendedor" => 2348, "iCodRoteiro" => 0, "cValorComissao" => BigDecimal("15"), "cValorNet" => BigDecimal("80"),
           "cValorNetCHD" => nil, "cValorNetCartao" => BigDecimal("85"), "cValorNetCHDCartao" => nil },
@@ -345,6 +350,17 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_equal 3, resultado.gravados
     assert_equal "período 01/10/2025 a 31/10/2025", resultado.filtro.descricao
     assert_equal [1, 2, 4], Sorder.where.not(sistger_id: nil).order(:sistger_id).pluck(:sistger_id), "nº 3 is dated 5025"
+  end
+
+  test "imports pickup times by hotel and destination code" do
+    importar_cadastros
+    resultado = @import.importar("horarios")
+    assert_equal 1, resultado.gravados
+    assert_match "1 horário(s) inválido(s)", resultado.avisos.join
+    assert_match "1 horário(s) ignorado(s) por hotel ou roteiro não importado", resultado.avisos.join
+    assert_equal "07:40", PickupTime.hora_para(Hotel.find_by!(sistger_id: 2).id, Destination.find_by!(sistger_id: 0).id)
+    assert_no_difference("PickupTime.count") { @import.importar("horarios") }
+    assert_equal({ sistger: 3, importados: 1, ultimo_sistger: 2, ultimo_importado: 2 }, @import.contagens["horarios"])
   end
 
   test "contagens compares SISTGER rows with imported records" do

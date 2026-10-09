@@ -4,6 +4,8 @@ class SorderItem < ApplicationRecord
   belongs_to :hotel, optional: true
   belongs_to :vendor, optional: true
   belongs_to :agency, optional: true
+  # Down payments taken on a booking go back to it when the item is removed.
+  before_destroy :devolver_sinais_ao_agendamento, prepend: true
   has_many :pagamentos, -> { order(:data, :id) }, class_name: "SorderItemPayment", dependent: :destroy
   has_many :companions, -> { order(:sistger_seq_adicional, :id) }, class_name: "SorderItemCompanion", inverse_of: :sorder_item,
                         dependent: :delete_all
@@ -14,6 +16,9 @@ class SorderItem < ApplicationRecord
   scope :ativos, -> { where(scancelado: [nil, "", "N"]) }
 
   validate :vendedor_ativo, if: -> { vendor_id.present? && vendor_id_changed? }
+
+  # Like SISTGER: a blank time takes the tour's pickup time at the hotel.
+  before_validation { self.hour = PickupTime.hora_para(hotel_id, sorder&.destination_id) if hour.blank? }
 
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "scancelado", "sorder_id", "vendor_id"]
@@ -40,6 +45,13 @@ class SorderItem < ApplicationRecord
   end
 
   private
+
+  def devolver_sinais_ao_agendamento
+    sinais = SorderItemPayment.where(sorder_item_id: id).where.not(booking_item_id: nil)
+    CashEntry.where(id: sinais.select(:cash_entry_id)).update_all(sorder_id: nil, sorder_item_id: nil)
+    sinais.update_all(sorder_item_id: nil)
+    pagamentos.reset
+  end
 
   # Like SISTGER's order entry: inactive vendors can't be chosen. Items
   # that already point at one (e.g. imported history) can still be edited.

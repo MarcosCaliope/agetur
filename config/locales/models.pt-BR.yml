@@ -39,6 +39,10 @@ pt-BR:
       sorder_item_payment: { one: "Recebimento", other: "Recebimentos" }
       cash_entry: { one: "Lançamento de caixa", other: "Lançamentos de caixa" }
       payable: { one: "Conta a pagar", other: "Contas a pagar" }
+      booking: { one: "Agendamento", other: "Agendamentos" }
+      booking_item: { one: "Passeio", other: "Passeios" }
+      booking_companion: { one: "Pessoa da lista pax", other: "Lista pax" }
+      pickup_time: { one: "Horário de passeio", other: "Horários de passeio" }
       state: { one: "Estado", other: "Estados" }
       tourguide: { one: "Guia", other: "Guias" }
       user: { one: "Usuário", other: "Usuários" }
@@ -129,6 +133,41 @@ pt-BR:
         descricao: "Descrição"
         requerente: "Requerente"
         documento: "CPF/CNPJ"
+      booking:
+        data: "Data do agendamento"
+        snome: "Passageiro"
+        customer: "Cliente"
+        customer_id: "Cliente"
+        telefone: "Telefone"
+        hotel: "Hotel"
+        hotel_id: "Hotel"
+        apto: "Apto."
+        documenttype: "Tipo de documento"
+        document: "Documento"
+        vendor: "Vendedor"
+        vendor_id: "Vendedor"
+        forma_pagamento: "Forma de pagamento"
+        parcelas: "Parcelas"
+        observacoes: "Observações"
+      booking/companions:
+        snome: "Nome na lista pax"
+      booking_item:
+        destination: "Roteiro"
+        destination_id: "Roteiro"
+        data_passeio: "Data do passeio"
+        hora: "Hora"
+        qtdepax: "PAX"
+        qtdechd: "CHD"
+        valor: "Valor"
+        observacao: "Observação"
+      booking_companion:
+        snome: "Nome"
+      pickup_time:
+        hotel: "Hotel"
+        hotel_id: "Hotel"
+        destination: "Roteiro"
+        destination_id: "Roteiro"
+        hora: "Hora"
       payable:
         tipo: "Tipo"
         descricao: "Descrição"

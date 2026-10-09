@@ -1,0 +1,45 @@
+<h1>Editar passeio do agendamento nº <%= @booking.id %></h1>
+<% if @item.lancado? %>
+  <div class="alert alert-info">Passeio lançado na OS nº <%= @item.sorder_item.sorder_id %>: só a observação pode ser alterada aqui; o resto, na OS.</div>
+<% end %>
+<%= form_with model: @item, url: booking_item_path(@booking, @item), local: true do |form| %>
+  <%= render "shared/erros", registro: @item %>
+  <fieldset <%= "disabled" if @item.lancado? %>>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <%= form.label :destination_id %>
+        <%= form.select :destination_id, @destination_options, {}, class: "form-control" %>
+      </div>
+      <div class="form-group col-sm-4 col-md-2">
+        <%= form.label :data_passeio %>
+        <%= form.date_field :data_passeio, class: "form-control" %>
+      </div>
+      <div class="form-group col-sm-4 col-md-2">
+        <%= form.label :hora %>
+        <%= form.time_field :hora, class: "form-control" %>
+      </div>
+      <div class="form-group col-4 col-md-1">
+        <%= form.label :qtdepax %>
+        <%= form.number_field :qtdepax, min: 0, class: "form-control" %>
+      </div>
+      <div class="form-group col-4 col-md-1">
+        <%= form.label :qtdechd %>
+        <%= form.number_field :qtdechd, min: 0, class: "form-control" %>
+      </div>
+      <div class="form-group col-4 col-md-2">
+        <%= form.label :valor %>
+        <%= form.number_field :valor, step: "0.01", min: 0, class: "form-control" %>
+      </div>
+    </div>
+    <div class="form-check mb-3">
+      <%= form.check_box :cancelado, class: "form-check-input" %>
+      <%= form.label :cancelado, "Passeio cancelado", class: "form-check-label" %>
+    </div>
+  </fieldset>
+  <div class="form-group">
+    <%= form.label :observacao %>
+    <%= form.text_field :observacao, class: "form-control" %>
+  </div>
+  <%= form.submit "Gravar", class: "btn btn-primary" %>
+<% end %>
+<p class="mt-3"><%= link_to "[Voltar]", @booking %></p>

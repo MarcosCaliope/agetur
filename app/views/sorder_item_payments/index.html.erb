@@ -32,7 +32,12 @@
     <% item.pagamentos.includes(:cash_entry).each do |pagamento| %>
       <tr>
         <td><%= l(pagamento.data) %></td>
-        <td><%= pagamento.descricao %></td>
+        <td>
+          <%= pagamento.descricao %>
+          <% if pagamento.booking_item_id %>
+            <span class="badge badge-info">sinal do <%= link_to "agendamento nº #{pagamento.booking_item.booking_id}", booking_path(pagamento.booking_item.booking_id), class: "text-white" %></span>
+          <% end %>
+        </td>
         <td><%= pagamento.nome_forma %></td>
         <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
         <td><%= pagamento.usuario %></td>
@@ -59,32 +64,7 @@
 
 <% unless ordem.encerrada? %>
   <h2 class="h5 mt-4">Novo recebimento</h2>
-  <%= form_with model: @pagamento, url: sorder_item_recebimentos_path(item), local: true do |form| %>
-    <%= render "shared/erros", registro: @pagamento %>
-    <div class="form-row">
-      <div class="form-group col-sm-3 col-md-2">
-        <%= form.label :data %>
-        <%= form.date_field :data, class: "form-control" %>
-      </div>
-      <div class="form-group col-sm-3 col-md-2">
-        <%= form.label :valor %>
-        <%= form.number_field :valor, step: "0.01", min: "0.01", class: "form-control" %>
-      </div>
-      <div class="form-group col-sm-6 col-md-3">
-        <%= form.label :forma_pagamento %>
-        <%= form.select :forma_pagamento, CashEntry::FORMAS.invert, {}, class: "form-control" %>
-      </div>
-      <div class="form-group col-md-5">
-        <%= form.label :descricao %>
-        <%= form.text_field :descricao, class: "form-control" %>
-      </div>
-    </div>
-    <div class="form-check mb-3">
-      <%= form.check_box :lancar_no_caixa, class: "form-check-input" %>
-      <%= form.label :lancar_no_caixa, "Lançar no caixa da data", class: "form-check-label" %>
-    </div>
-    <%= form.submit "Lançar recebimento", class: "btn btn-primary" %>
-  <% end %>
+  <%= render "shared/form_recebimento", pagamento: @pagamento, url: sorder_item_recebimentos_path(item) %>
 <% end %>
 
 <p class="mt-4"><%= link_to "[Voltar para a OS]", ordem %></p>

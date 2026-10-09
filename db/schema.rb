@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_09_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -78,6 +78,58 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
     t.index ["sistger_id"], name: "index_agencies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_agencies_on_state_id"
     t.index ["vendor_id"], name: "index_agencies_on_vendor_id"
+  end
+
+  create_table "booking_companions", force: :cascade do |t|
+    t.bigint "booking_id", null: false
+    t.string "snome", null: false
+    t.string "documenttype"
+    t.string "document"
+    t.boolean "chd", default: false, null: false
+    t.boolean "colo", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_booking_companions_on_booking_id"
+  end
+
+  create_table "booking_items", force: :cascade do |t|
+    t.bigint "booking_id", null: false
+    t.bigint "destination_id", null: false
+    t.date "data_passeio", null: false
+    t.string "hora"
+    t.integer "qtdepax", default: 1, null: false
+    t.integer "qtdechd", default: 0, null: false
+    t.decimal "valor", precision: 12, scale: 2, default: "0.0", null: false
+    t.boolean "cancelado", default: false, null: false
+    t.string "observacao"
+    t.bigint "sorder_item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_booking_items_on_booking_id"
+    t.index ["data_passeio"], name: "index_booking_items_on_data_passeio"
+    t.index ["destination_id"], name: "index_booking_items_on_destination_id"
+    t.index ["sorder_item_id"], name: "index_booking_items_on_sorder_item_id"
+  end
+
+  create_table "bookings", force: :cascade do |t|
+    t.date "data", null: false
+    t.string "snome", null: false
+    t.bigint "customer_id"
+    t.string "telefone"
+    t.bigint "hotel_id"
+    t.string "apto"
+    t.string "documenttype"
+    t.string "document"
+    t.bigint "vendor_id", null: false
+    t.string "forma_pagamento"
+    t.integer "parcelas"
+    t.string "observacoes"
+    t.string "usuario"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_bookings_on_customer_id"
+    t.index ["hotel_id"], name: "index_bookings_on_hotel_id"
+    t.index ["vendor_id"], name: "index_bookings_on_vendor_id"
   end
 
   create_table "cash_entries", force: :cascade do |t|
@@ -254,6 +306,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
     t.index ["vencimento"], name: "index_payables_on_vencimento"
   end
 
+  create_table "pickup_times", force: :cascade do |t|
+    t.bigint "hotel_id", null: false
+    t.bigint "destination_id", null: false
+    t.string "hora", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["destination_id"], name: "index_pickup_times_on_destination_id"
+    t.index ["hotel_id", "destination_id"], name: "index_pickup_times_on_hotel_id_and_destination_id", unique: true
+    t.index ["hotel_id"], name: "index_pickup_times_on_hotel_id"
+  end
+
   create_table "sorder_item_companions", force: :cascade do |t|
     t.bigint "sorder_item_id", null: false
     t.bigint "customer_id"
@@ -271,7 +334,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
   end
 
   create_table "sorder_item_payments", force: :cascade do |t|
-    t.bigint "sorder_item_id", null: false
+    t.bigint "sorder_item_id"
     t.date "data", null: false
     t.decimal "valor", precision: 12, scale: 2, null: false
     t.string "descricao"
@@ -282,6 +345,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
     t.integer "sistger_caixa"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "booking_item_id"
+    t.index ["booking_item_id"], name: "index_sorder_item_payments_on_booking_item_id"
     t.index ["cash_entry_id"], name: "index_sorder_item_payments_on_cash_entry_id"
     t.index ["sorder_item_id", "sistger_seq"], name: "index_sorder_item_payments_on_sorder_item_id_and_sistger_seq", unique: true
     t.index ["sorder_item_id"], name: "index_sorder_item_payments_on_sorder_item_id"
@@ -462,6 +527,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agencies", "states"
   add_foreign_key "agencies", "vendors"
+  add_foreign_key "booking_companions", "bookings", on_delete: :cascade
+  add_foreign_key "booking_items", "bookings", on_delete: :cascade
+  add_foreign_key "booking_items", "destinations"
+  add_foreign_key "booking_items", "sorder_items", on_delete: :nullify
+  add_foreign_key "bookings", "customers"
+  add_foreign_key "bookings", "hotels"
+  add_foreign_key "bookings", "vendors"
   add_foreign_key "cash_entries", "sorder_items", on_delete: :nullify
   add_foreign_key "cash_entries", "sorders", on_update: :cascade, on_delete: :nullify
   add_foreign_key "companies", "states"
@@ -473,8 +545,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
   add_foreign_key "payables", "cash_entries", on_delete: :nullify
   add_foreign_key "payables", "sorder_items", on_delete: :cascade
   add_foreign_key "payables", "sorders", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "pickup_times", "destinations", on_delete: :cascade
+  add_foreign_key "pickup_times", "hotels", on_delete: :cascade
   add_foreign_key "sorder_item_companions", "customers"
   add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade
+  add_foreign_key "sorder_item_payments", "booking_items", on_delete: :cascade
   add_foreign_key "sorder_item_payments", "cash_entries", on_delete: :nullify
   add_foreign_key "sorder_item_payments", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_items", "agencies"

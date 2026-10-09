@@ -14,6 +14,7 @@ class Site::WelcomeController < SiteController
       { nome: "Motoristas",  total: Driver.count,      lista: drivers_path,      novo: new_driver_path },
       { nome: "Guias",       total: Tourguide.count,   lista: tourguides_path,   novo: new_tourguide_path },
       { nome: "Roteiros",    total: Destination.count, lista: destinations_path, novo: new_destination_path },
+      { nome: "Horários de passeio", total: PickupTime.count, lista: pickup_times_path, novo: new_pickup_time_path },
       { nome: "Empresa",     total: Company.count,     lista: companies_path,    novo: new_company_path }
     ]
 
@@ -22,6 +23,8 @@ class Site::WelcomeController < SiteController
     @ordens_hoje = Sorder.where(data: hoje.all_day).count
     @ordens_proximas = Sorder.where(data: hoje.tomorrow.beginning_of_day..(hoje + 7).end_of_day).count
 
+    @agendamentos_pendentes = BookingItem.pendentes.where(data_passeio: hoje..).count
+    @agendamentos_semana = BookingItem.ativos.where(data_passeio: hoje..(hoje + 7)).count
     @caixa_saldo = CashEntry.saldo
     @caixa_hoje = CashEntry.where(data: hoje)
     @contas_abertas = Payable.abertas

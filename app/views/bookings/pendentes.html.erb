@@ -1,0 +1,48 @@
+<h1>Agendamentos pendentes de OS</h1>
+<p class="text-muted">
+  Passeios agendados a partir de <%= l(params[:inicio].present? ? Date.iso8601(params[:inicio]) : Time.zone.today) %> que ainda não estão
+  em ordem de serviço, por data e roteiro. Quando a OS do roteiro na data já existe (e está aberta), lance os passageiros nela.
+</p>
+
+<% if @grupos.empty? %>
+  <p>Nenhum passeio pendente.</p>
+<% end %>
+
+<% @grupos.each do |(data, destino), passeios| %>
+  <% ordens = @ordens.fetch([data, destino.id], []) %>
+  <div class="card mb-3">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+      <span>
+        <strong><%= l(data) %> · <%= destino.description %></strong> —
+        <%= passeios.sum(&:qtdepax) %> PAX, <%= passeios.sum(&:qtdechd) %> CHD
+      </span>
+      <span>
+        <% if ordens.any? %>
+          OS: <% ordens.each do |ordem| %><%= link_to "nº #{ordem.id}", ordem, class: "mr-1" %><% end %>
+        <% else %>
+          <span class="text-muted">sem OS ·</span> <%= link_to "Nova OS", new_sorder_path %>
+        <% end %>
+      </span>
+    </div>
+    <table class="table table-sm mb-0">
+      <tbody>
+        <% passeios.each do |passeio| %>
+          <% b = passeio.booking %>
+          <tr>
+            <td style="width: 5em"><%= passeio.hora %></td>
+            <td><%= link_to b.snome, b %></td>
+            <td><%= b.hotel&.sname %><%= " / #{b.apto}" if b.apto.present? %></td>
+            <td><%= passeio.qtdepax %> PAX<%= ", #{passeio.qtdechd} CHD" if passeio.qtdechd.positive? %></td>
+            <td class="text-right"><%= number_to_currency(passeio.valor) %> (pago <%= number_to_currency(passeio.pago) %>)</td>
+            <td class="text-right text-nowrap">
+              <% ordens.each do |ordem| %>
+                <%= link_to "Lançar na OS nº #{ordem.id}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
+                      class: "btn btn-outline-success btn-sm" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

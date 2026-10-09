@@ -53,6 +53,9 @@ class SistgerImport
     Etapa.new(chave: "roteiros", nome: "Roteiros", tabela: "TblDistancias", modelo: "Destination", codigo: "iCodigo",
               colunas: colunas("iCodigo sDescricao sDistancia sEstado nValorIndividual nValorIndividualChd nNetAdulto nNetChd " \
                                "nNetAdultoCartao nNetCHDCartao nIndCombo nIndCHDCombo nNETCombo nNetComboCHD")),
+    Etapa.new(chave: "horarios", nome: "Horários de passeio", tabela: "tblHorarioPasseios", modelo: "PickupTime",
+              codigo: "iCodHotel", ordem: "iCodHotel, iCodRoteiro", depende_de: %w[hoteis roteiros],
+              colunas: "iCodHotel, iCodRoteiro, sHora"),
     Etapa.new(chave: "comissoes_roteiro", nome: "Comissões por roteiro", tabela: "tblVendedorRoteiro",
               modelo: "VendorDestination", codigo: "iCodVendedor", ordem: "iCodVendedor, iCodRoteiro",
               depende_de: %w[vendedores roteiros],
@@ -117,7 +120,11 @@ class SistgerImport
   def contagens
     ETAPAS.to_h do |etapa|
       coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
-      importados = etapa.modelo.constantize.where.not(coluna => nil)
+      importados = etapa.modelo.constantize.where.not(coluna => nil) unless etapa.chave == "horarios"
+      if etapa.chave == "horarios" # keyed by hotel + destination, counted by the hotel's code
+        coluna = "hotels.sistger_id"
+        importados = PickupTime.joins(:hotel).where.not(hotels: { sistger_id: nil })
+      end
       if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
         coluna = "vendors.sistger_id"
         importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
@@ -210,6 +217,8 @@ class SistgerImport
       { vendedor: l["iCodVendedor"], roteiro: l["iCodRoteiro"], commission: numero(l["cValorComissao"]),
         net_adult: numero(l["cValorNet"]), net_chd: numero(l["cValorNetCHD"]),
         net_adult_card: numero(l["cValorNetCartao"]), net_chd_card: numero(l["cValorNetCHDCartao"]) }
+    when "horarios"
+      { hotel: l["iCodHotel"], roteiro: l["iCodRoteiro"], hora: texto(l["sHora"]).to_s.first(5) }
     when "veiculos"
       { sistger_id: l["iCodigo"], license: texto(l["sPlacas"]), vehicle_type: texto(l["sTipo"]), brand: texto(l["sMarca"]),
         smodel: texto(l["sModelo"]), manufacture_year: texto(l["sAnoFabricacao"]), year: texto(l["sAnoModelo"]),
@@ -280,6 +289,8 @@ class SistgerImport
       gravar_comissoes_roteiro(registros, avisos)
     when "caixa"
       gravar_caixa(registros, avisos)
+    when "horarios"
+      gravar_horarios(registros, avisos)
     else
       estados = estados_por_uf
       padrao = estado_padrao(estados)
@@ -447,6 +458,20 @@ class SistgerImport
        WHERE p.sistger_caixa = c.sistger_numero
     SQL
     gravados
+  end
+
+  # Pickup times are keyed by hotel and destination, both by SISTGER code.
+  def gravar_horarios(registros, avisos)
+    hoteis = Hotel.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
+    roteiros = Destination.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
+    invalidos, registros = registros.partition { |r| !r[:hora].match?(/\A([01]\d|2[0-3]):[0-5]\d\z/) }
+    sem_vinculo, validos = registros.partition { |r| hoteis[r[:hotel]].nil? || roteiros[r[:roteiro]].nil? }
+    avisos << "#{invalidos.size} horário(s) inválido(s) ignorado(s)." if invalidos.any?
+    avisos << "#{sem_vinculo.size} horário(s) ignorado(s) por hotel ou roteiro não importado." if sem_vinculo.any?
+
+    linhas = validos.map { |r| { hotel_id: hoteis[r[:hotel]], destination_id: roteiros[r[:roteiro]], hora: r[:hora] } }
+                    .uniq { |r| r.values_at(:hotel_id, :destination_id) }
+    upsert(PickupTime, linhas, unique_by: %i[hotel_id destination_id])
   end
 
   # {[order number, sequential] => id} of the imported items of these orders.

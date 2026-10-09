@@ -1,0 +1,19 @@
+<h1>Horários de passeio</h1>
+<p class="text-muted">Hora de saída de cada roteiro em cada hotel, sugerida no agendamento e nos passageiros da OS.</p>
+<%= render "shared/pesquisa", url: pickup_times_path, dica: "Hotel ou roteiro", total: @pickup_times.size %>
+<p class="no-print"><%= link_to "Novo horário", new_pickup_time_path, class: "btn btn-success btn-sm" %></p>
+
+<table class="table table-sm table-hover">
+  <thead><tr><th>Hotel</th><th>Roteiro</th><th>Hora</th><th colspan="2"></th></tr></thead>
+  <tbody>
+    <% @pickup_times.each do |horario| %>
+      <tr>
+        <td><%= horario.hotel.sname %></td>
+        <td><%= horario.destination.description %></td>
+        <td><%= horario.hora %></td>
+        <td><%= link_to "Editar", edit_pickup_time_path(horario) %></td>
+        <td><%= link_to "Excluir", horario, method: :delete, data: { confirm: "Tem certeza?" } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

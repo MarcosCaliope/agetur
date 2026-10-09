@@ -1,0 +1,37 @@
+<% b = @item.booking %>
+<h1>Sinais do passeio</h1>
+<p>
+  <strong><%= b.snome %></strong> — <%= @item.destination.description %> em <%= l(@item.data_passeio) %> ·
+  <%= link_to "agendamento nº #{b.id}", b %>
+</p>
+<p>
+  Valor <%= number_to_currency(@item.valor) %> · pago <%= number_to_currency(@item.pago) %> ·
+  a receber <strong><%= number_to_currency(@item.saldo) %></strong>
+</p>
+
+<table class="table table-sm table-hover">
+  <thead>
+    <tr><th>Data</th><th>Descrição</th><th>Forma</th><th class="text-right">Valor</th><th>Usuário</th><th>Caixa</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @item.pagamentos.includes(:cash_entry).each do |pagamento| %>
+      <tr>
+        <td><%= l(pagamento.data) %></td>
+        <td><%= pagamento.descricao %></td>
+        <td><%= pagamento.nome_forma %></td>
+        <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
+        <td><%= pagamento.usuario %></td>
+        <td><%= pagamento.cash_entry ? link_to("nº #{pagamento.cash_entry_id}", cash_entries_path(inicio: pagamento.cash_entry.data)) : "—" %></td>
+        <td class="text-right">
+          <%= link_to "Excluir", booking_item_recebimento_path(b, @item, pagamento), method: :delete,
+                data: { confirm: pagamento.cash_entry ? "Excluir o sinal e o lançamento dele no caixa?" : "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2 class="h5 mt-4">Novo sinal</h2>
+<%= render "shared/form_recebimento", pagamento: @pagamento, url: booking_item_recebimentos_path(b, @item) %>
+<p class="text-muted small">Ao lançar o passeio na OS, os sinais passam a ser recebimentos do passageiro na OS.</p>
+<p class="mt-3"><%= link_to "[Voltar para o agendamento]", b %></p>

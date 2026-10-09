@@ -1,0 +1,73 @@
+<%= form_with(model: booking, local: true) do |form| %>
+  <%= render "shared/erros", registro: booking %>
+  <div class="form-row">
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :data %>
+      <%= form.date_field :data, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-8 col-md-5">
+      <%= form.label :snome %>
+      <%= form.text_field :snome, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-5">
+      <%= form.label :customer_id %>
+      <%= form.select :customer_id, @customer_options, { include_blank: "Não cadastrado" }, class: "form-control" %>
+      <% if booking.customer_id.blank? %>
+        <div class="form-check mt-1">
+          <%= form.check_box :cadastrar_cliente, class: "form-check-input" %>
+          <%= form.label :cadastrar_cliente, "Incluir este passageiro no cadastro de clientes", class: "form-check-label small" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-sm-4 col-md-3">
+      <%= form.label :telefone %>
+      <%= form.telephone_field :telefone, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :documenttype %>
+      <%= form.select :documenttype, (["CPF", "RG", "PASSP"] | [booking.documenttype]).compact, { include_blank: true }, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-3">
+      <%= form.label :document %>
+      <%= form.text_field :document, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-4">
+      <%= form.label :vendor_id %>
+      <%= form.select :vendor_id, @vendor_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-sm-8 col-md-5">
+      <%= form.label :hotel_id %>
+      <%= form.select :hotel_id, @hotel_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :apto %>
+      <%= form.text_field :apto, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-8 col-md-3">
+      <%= form.label :forma_pagamento %>
+      <%= form.select :forma_pagamento, CashEntry::FORMAS.invert, { include_blank: true }, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :parcelas %>
+      <%= form.number_field :parcelas, min: 1, class: "form-control" %>
+    </div>
+  </div>
+  <div class="form-group">
+    <%= form.label :observacoes %>
+    <%= form.text_field :observacoes, class: "form-control" %>
+  </div>
+
+  <h2 class="h6">Lista pax <small class="text-muted">(além do titular)</small></h2>
+  <div id="booking-companions" class="mb-3">
+    <%= form.fields_for :companions do |companion| %>
+      <%= render "companion_fields", f: companion %>
+    <% end %>
+    <%= link_to_add_association "[Adicionar à lista pax]", form, :companions %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

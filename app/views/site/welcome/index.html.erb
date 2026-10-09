@@ -82,6 +82,29 @@
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
+              <h2 class="h5 card-title">Agendamentos</h2>
+              <div class="d-flex text-center mt-3">
+                <div class="flex-fill">
+                  <p class="dashboard-total mb-0"><%= @agendamentos_pendentes %></p>
+                  <p class="text-muted small mb-0">passeios sem OS</p>
+                </div>
+                <div class="flex-fill">
+                  <p class="dashboard-total mb-0"><%= @agendamentos_semana %></p>
+                  <p class="text-muted small mb-0">próximos 7 dias</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', bookings_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to 'Novo', new_booking_path, class: "btn btn-outline-secondary btn-sm" %>
+              <%= link_to 'Pendentes', pendentes_bookings_path, class: "btn btn-outline-secondary btn-sm" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
               <h2 class="h5 card-title">Caixa</h2>
               <p class="dashboard-total mb-0"><%= number_to_currency(@caixa_saldo) %></p>
               <p class="text-muted small mb-0">
