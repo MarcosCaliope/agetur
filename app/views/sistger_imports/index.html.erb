@@ -14,10 +14,10 @@
     atualiza o que já foi importado, sem duplicar; registros criados diretamente neste sistema não são alterados.
   </p>
   <p class="text-muted small">
-    As tabelas são importadas nesta ordem. Ordens de serviço dependem da empresa e dos roteiros; passageiros
-    dependem das ordens, então use o mesmo filtro nas duas. Nas ordens e passageiros, o código é o número da
-    ordem e o período é pela data da ordem; "últimos" nos passageiros são os das últimas ordens. Para trazer só o
-    que falta, use a faixa de código a partir do "último importado".
+    As tabelas são importadas nesta ordem. Ordens de serviço dependem da empresa e dos roteiros e trazem junto
+    seus passageiros (<code>tblOrdemServicoItens</code>) e a lista pax (<code>tblListaPax</code>). Nas ordens, o
+    código é o número da ordem e o período é pela data da ordem. Para trazer só o que falta, use a faixa de código
+    a partir do "último importado".
   </p>
 
   <%= form_with url: sistger_imports_path, method: :post, local: true, id: "sistger-import" do |form| %>

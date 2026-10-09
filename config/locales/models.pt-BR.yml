@@ -35,6 +35,7 @@ pt-BR:
       hotel: { one: "Hotel", other: "Hotéis" }
       sorder: { one: "Ordem de serviço", other: "Ordens de serviço" }
       sorder_item: { one: "Passageiro", other: "Passageiros" }
+      sorder_item_companion: { one: "Pessoa da lista pax", other: "Lista pax" }
       state: { one: "Estado", other: "Estados" }
       tourguide: { one: "Guia", other: "Guias" }
       user: { one: "Usuário", other: "Usuários" }
@@ -94,6 +95,8 @@ pt-BR:
         Valordiaria: "Valor da diária"
       sorder/sorder_items:
         vendor: "Vendedor do passageiro"
+      sorder/sorder_items/companions:
+        snome: "Nome na lista pax"
       sorder:
         company: "Empresa"
         data: "Data"
@@ -106,6 +109,15 @@ pt-BR:
         vendor: "Vendedor"
         sorder: "Ordem de serviço"
         sorder_id: "Ordem de serviço"
+        companions: "Lista pax"
+      sorder_item/companions:
+        snome: "Nome na lista pax"
+      sorder_item_companion:
+        snome: "Nome"
+        documenttype: "Tipo de documento"
+        document: "Documento"
+        chd: "CHD"
+        colo: "Colo"
       state:
         uf: "UF"
       vehicle:

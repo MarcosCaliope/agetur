@@ -116,7 +116,7 @@ class SordersController < ApplicationController
       @sorder = Sorder.find(params[:id])
     end
     def set_sorder_item
-      @sorder_item = SorderItem.where('sorder_id = ?', params[:id])
+      @sorder_item = SorderItem.where('sorder_id = ?', params[:id]).includes(:companions)
     end
     def set_destination_options
       @destination_options = Destination.all.pluck(:description, :id)
@@ -159,6 +159,7 @@ class SordersController < ApplicationController
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,
-      :amountpay, :amountcomission, :amountcomissionpay, :amountcomissionrep, :amountcomissionreppay, :snomepax, :scancelado, :done, :_destroy])
+      :amountpay, :amountcomission, :amountcomissionpay, :amountcomissionrep, :amountcomissionreppay, :snomepax, :scancelado, :done, :_destroy,
+      companions_attributes: [:id, :snome, :documenttype, :document, :chd, :colo, :_destroy]])
     end
 end

@@ -54,8 +54,10 @@ class SistgerImportTest < ActiveSupport::TestCase
         item(99, 1, nome: "ORFAO")
       ],
       "tblListaPax" => [
-        { "iNumero" => 1, "iSequencial" => 1, "sNomeCliente" => "NADIA" },
-        { "iNumero" => 1, "iSequencial" => 1, "sNomeCliente" => "PEDRO " }
+        pax(1, 1, 2, "PEDRO ", chd: "S"),
+        pax(1, 1, 1, "NADIA", cliente: 10, colo: "S"),
+        pax(1, 2, 1, "  "),
+        pax(99, 1, 1, "DO ORFAO")
       ]
     )
     @import = SistgerImport.new(@fonte)
@@ -82,6 +84,11 @@ class SistgerImportTest < ActiveSupport::TestCase
       "nValorRecVendedor" => BigDecimal("10"), "iCodRepassado" => agencia_codigo, "sRepassado" => agencia,
       "nValorComissaoRepassado" => BigDecimal("20"), "nValorPagoRepasse" => nil, "sFlgCancelado" => cancelado,
       "sTipoDoc" => "RG  ", "sNumeroDoc" => "000", "sObservacoes" => "COMBO" }
+  end
+
+  def pax(numero, seq, adicional, nome, cliente: 0, chd: "N", colo: "N")
+    { "iNumero" => numero, "iSequencial" => seq, "iSeqAdicional" => adicional, "iClienteAdc" => cliente,
+      "sNomeCliente" => nome, "sTipoDoc" => "RG        ", "sNumeroDoc" => "0000   ", "SCHD" => chd, "SCOLO" => colo }
   end
 
   def importar_cadastros
@@ -188,25 +195,80 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_equal [50.0, 640.0, "OBS 1"], [os1.valorguia, os1.valoros, os1.sobservacoes]
   end
 
-  test "passengers resolve hotel and agency by code, else by the text, and keep the extra passenger list" do
+  test "an imported order is numbered with SISTGER's iNumero" do
     importar_cadastros
     @import.importar("ordens")
-    resultado = @import.importar("passageiros")
 
-    assert_equal [2, 3], [resultado.gravados, resultado.lidos]
-    assert_match "1 passageiro(s) ignorado(s)", resultado.avisos.join
+    assert_equal [1, 2, 3, 4], Sorder.where(sistger_id: 1..4).order(:id).pluck(:id)
+    assert_operator Sorder.create!(Sorder.find(1).attributes.except("id", "sistger_id")).id, :>, 4, "new orders continue after the imported numbers"
+    assert_no_difference("Sorder.count") { @import.importar("ordens") }
+  end
+
+  test "orders imported under another number are renumbered with their passengers" do
+    importar_cadastros
+    @import.importar("ordens")
+    Sorder.connection.execute("UPDATE sorders SET id = id + 100 WHERE sistger_id IS NOT NULL")
+
+    @import.importar("ordens")
+
+    assert_equal 1, Sorder.find_by!(sistger_id: 1).id
+    assert_equal 1, SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1).sorder_id
+  end
+
+  test "an order created here keeps its number and the SISTGER order with that number is skipped" do
+    importar_cadastros
+    @import.importar("ordens")
+    Sorder.find(2).destroy!
+    local = Sorder.create!(Sorder.find(1).attributes.except("id", "sistger_id").merge("id" => 2))
+
+    resultado = @import.importar("ordens")
+
+    assert_match "1 ordem(ns) ignorada(s) porque o número já é de outra ordem deste sistema (nº 2)", resultado.avisos.join
+    assert_nil local.reload.sistger_id
+    assert_equal [1, 3, 4], Sorder.where.not(sistger_id: nil).order(:id).pluck(:id)
+  end
+
+  test "orders bring their passengers, which resolve hotel and agency by code, else by the text" do
+    importar_cadastros
+    resultado = @import.importar("ordens")
+
+    assert_equal ["2 passageiro(s)", "2 na lista pax"], resultado.detalhes
+    assert_empty SorderItem.where(sistger_numero: 99), "order 99 doesn't exist"
 
     jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
     assert_equal ["JORGE", "FORTALEZA MAR HOTEL", Agency.find_by!(sistger_id: 7).id, "MARIA", "ALEX TURISMO", "N"],
                  [jorge.snomepax, jorge.hotel.sname, jorge.agency_id, jorge.customer.nome, jorge.vendor.sname, jorge.scancelado]
-    assert_equal "COMBO | Lista de passageiros: NADIA, PEDRO", jorge.comments
+    assert_equal "COMBO", jorge.comments
     assert_equal [40.0, 10.0, 20.0, 300.0], [jorge.amountcomission, jorge.amountcomissionpay, jorge.amountcomissionrep, jorge.total_passeio]
 
     leandro = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 2)
     assert_equal ["BRASIL TROPICAL", "NOVA AGENCIA", "S"], [leandro.hotel.sname, Agency.find(leandro.agency_id).sname, leandro.scancelado]
     assert_equal 2, Sorder.find_by!(sistger_id: 1).total_pax, "cancelled passenger is not counted"
 
-    assert_no_difference(["SorderItem.count", "Hotel.count", "Agency.count"]) { @import.importar("passageiros") }
+    assert_no_difference(["SorderItem.count", "SorderItemCompanion.count", "Hotel.count", "Agency.count"]) { @import.importar("ordens") }
+  end
+
+  test "orders bring the pax list of their passengers" do
+    importar_cadastros
+    resultado = @import.importar("ordens")
+    jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
+
+    assert_equal [["NADIA", "RG", "0000", false, true, Customer.find_by!(sistger_id: 10).id], ["PEDRO", "RG", "0000", true, false, nil]],
+                 jorge.companions.map { |c| [c.snome, c.documenttype, c.document, c.chd, c.colo, c.customer_id] }
+    assert_match "1 nome(s) em branco na lista pax ignorado(s)", resultado.avisos.join
+    assert_equal ["NADIA (RG 0000, colo)", "PEDRO (RG 0000, CHD)"], jorge.companions.map(&:descricao)
+  end
+
+  test "re-importing an order replaces its imported pax list and keeps names added here" do
+    importar_cadastros
+    @import.importar("ordens")
+    jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
+    jorge.companions.create!(snome: "INCLUIDO AQUI")
+    @fonte.instance_variable_get(:@tabelas)["tblListaPax"].reject! { |l| l["sNomeCliente"] == "PEDRO " }
+
+    @import.importar("ordens")
+
+    assert_equal ["NADIA", "INCLUIDO AQUI"], jorge.companions.reload.map(&:snome)
   end
 
   test "preview maps rows without saving" do
@@ -230,7 +292,6 @@ class SistgerImportTest < ActiveSupport::TestCase
     @import.importar("clientes")
     assert_equal({ sistger: 1, importados: 1, ultimo_sistger: 10, ultimo_importado: 10 }, @import.contagens["clientes"])
     assert_equal({ sistger: 4, importados: 0, ultimo_sistger: 4, ultimo_importado: nil }, @import.contagens["ordens"])
-    # passenger 99/1 points at an order that doesn't exist: not the "last" one
-    assert_equal({ sistger: 3, importados: 0, ultimo_sistger: 1, ultimo_importado: nil }, @import.contagens["passageiros"])
+    assert_nil @import.contagens["passageiros"], "passengers come with their orders"
   end
 end

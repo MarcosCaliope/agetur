@@ -4,7 +4,6 @@ class SistgerFiltroTest < ActiveSupport::TestCase
   Filtro = SistgerImport::Filtro
 
   def ordens = SistgerImport.etapa("ordens")
-  def passageiros = SistgerImport.etapa("passageiros")
   def clientes = SistgerImport.etapa("clientes")
 
   test "todos reads the whole table in code order" do
@@ -12,15 +11,14 @@ class SistgerFiltroTest < ActiveSupport::TestCase
     assert_match(/\ASELECT TOP 5 /, Filtro.todos.sql(clientes, limite: 5))
   end
 
-  test "period filters orders by date, inclusive, and passengers through their order" do
+  test "period filters orders by date, inclusive" do
     filtro = Filtro.de_params(modo: "periodo", inicio: "2026-06-01", fim: "2026-06-30")
     assert_match "WHERE Data >= '20260601' AND Data < '20260701'", filtro.sql(ordens)
-    assert_match "WHERE iNumero IN (SELECT iNumero FROM tblOrdemServico WHERE Data >= '20260601' AND Data < '20260701')", filtro.sql(passageiros)
     assert_equal "período 01/06/2026 a 30/06/2026", filtro.descricao
     assert_match "WHERE Data >= '20260601' ORDER", Filtro.de_params(modo: "periodo", inicio: "2026-06-01").sql(ordens)
   end
 
-  test "period is only for orders and passengers" do
+  test "period is only for orders" do
     filtro = Filtro.de_params(modo: "periodo", inicio: "2026-06-01")
     erro = assert_raises(SistgerImport::Erro) { filtro.sql(clientes) }
     assert_match "filtro por período não disponível", erro.message
@@ -29,15 +27,15 @@ class SistgerFiltroTest < ActiveSupport::TestCase
   test "code range uses each step's key column" do
     filtro = Filtro.de_params(modo: "faixa", de: "100", ate: "200")
     assert_match "FROM tblClientes WHERE iCodigo >= 100 AND iCodigo <= 200", filtro.sql(clientes)
-    assert_match "FROM tblOrdemServicoItens WHERE iNumero >= 100 AND iNumero <= 200 ORDER BY iNumero, iSequencial", filtro.sql(passageiros)
+    assert_match "FROM tblOrdemServico WHERE iNumero >= 100 AND iNumero <= 200 ORDER BY iNumero", filtro.sql(ordens)
     assert_match "WHERE iCodigo <= 50 ORDER", Filtro.de_params(modo: "faixa", ate: "50").sql(clientes)
   end
 
-  test "last N takes the highest codes; for passengers, those of the last N orders" do
+  test "last N takes the highest codes" do
     filtro = Filtro.de_params(modo: "ultimos", quantidade: "10")
     assert_match(/\ASELECT TOP 10 .* FROM tblClientes ORDER BY iCodigo DESC\z/, filtro.sql(clientes))
     assert_match(/\ASELECT TOP 5 /, filtro.sql(clientes, limite: 5))
-    assert_match "WHERE iNumero IN (SELECT TOP 10 iNumero FROM tblOrdemServico ORDER BY iNumero DESC)", filtro.sql(passageiros)
+    assert_match(/\ASELECT TOP 10 .* FROM tblOrdemServico ORDER BY iNumero DESC\z/, filtro.sql(ordens))
   end
 
   test "rejects incomplete or invalid filters" do

@@ -21,14 +21,9 @@ class SistgerFonteFalsa
     linhas.map(&:dup)
   end
 
-  def resumo(tabela, coluna, ultimo_onde: nil)
+  def resumo(tabela, coluna)
     linhas = @tabelas.fetch(tabela, [])
-    candidatas = linhas
-    if ultimo_onde&.include?("tblOrdemServico")
-      ordens = @tabelas.fetch("tblOrdemServico", []).map { |o| o["iNumero"] }
-      candidatas = linhas.select { |l| ordens.include?(l["iNumero"]) }
-    end
-    { total: linhas.size, ultimo: candidatas.filter_map { |l| l[coluna] }.max }
+    { total: linhas.size, ultimo: linhas.filter_map { |l| l[coluna] }.max }
   end
 
   def fechar; end

@@ -54,6 +54,14 @@
         <%= f.label :obs %>
         <%= f.text_field :comments , size:130%>
 
+        <div class="ml-3 my-2">
+          <strong>Lista pax</strong>
+          <%= f.fields_for :companions do |companion| %>
+            <%= render "companion_fields", f: companion %>
+          <% end %>
+          <%= link_to_add_association "[Adicionar à lista pax]", f, :companions %>
+        </div>
+
         <%= link_to_remove_association('X', f, class: "btn btn-danger") %>
         
         <div>

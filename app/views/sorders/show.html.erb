@@ -72,7 +72,12 @@
         <tr>
           <td><%= sorder_item.hotel&.sname %></td>
           <td><%= sorder_item.apto %></td>
-          <td><%= sorder_item.nome_passageiro %></td>
+          <td>
+            <%= sorder_item.nome_passageiro %>
+            <% if sorder_item.companions.any? %>
+              <div class="small text-muted">Lista pax: <%= sorder_item.companions.map(&:descricao).join("; ") %></div>
+            <% end %>
+          </td>
           <td><%= sorder_item.documenttype %></td>
           <td><%= sorder_item.document %></td>
           <td><%= sorder_item.phone %></td>

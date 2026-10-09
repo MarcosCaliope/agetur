@@ -50,6 +50,26 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_equal ["Maria", 10.0, 5.0, 2.0, "N"], [item.snomepax, item.amountcomissionpay, item.amountcomissionrep, item.amountcomissionreppay, item.scancelado]
   end
 
+  test "should save the pax list of a passenger and show it on the order and its PDF" do
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { snomepax: "Titular", qtdepax: 3,
+      companions_attributes: { "0" => { snome: "Ana", documenttype: "RG", document: "123", chd: "1", colo: "0" },
+                               "1" => { snome: "", documenttype: "", chd: "0", colo: "0" } } } } } }
+    item = @sorder.sorder_items.find_by!(snomepax: "Titular")
+    assert_equal ["Ana (RG 123, CHD)"], item.companions.map(&:descricao), "a row without a name is ignored"
+
+    get edit_sorder_url(@sorder)
+    assert_select "input[value=Ana]"
+    get sorder_url(@sorder)
+    assert_select "td", text: /Lista pax: Ana \(RG 123, CHD\)/
+    get export_sorder_url(@sorder)
+    assert_response :success
+
+    companion = item.companions.first
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id,
+      companions_attributes: { "0" => { id: companion.id, _destroy: "1" } } } } } }
+    assert_empty item.companions.reload
+  end
+
   test "should hide cancelled passengers and show totals" do
     @sorder.sorder_items.create!(snomepax: "Ativo", qtdepax: 2, scancelado: "N")
     @sorder.sorder_items.create!(snomepax: "Desistiu", qtdepax: 3, scancelado: "S")

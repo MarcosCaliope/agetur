@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_08_130000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -206,6 +206,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_08_130000) do
     t.index ["state_id"], name: "index_hotels_on_state_id"
   end
 
+  create_table "sorder_item_companions", force: :cascade do |t|
+    t.bigint "sorder_item_id", null: false
+    t.bigint "customer_id"
+    t.string "snome"
+    t.string "documenttype"
+    t.string "document"
+    t.boolean "chd", default: false, null: false
+    t.boolean "colo", default: false, null: false
+    t.integer "sistger_seq_adicional"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_sorder_item_companions_on_customer_id"
+    t.index ["sorder_item_id", "sistger_seq_adicional"], name: "idx_on_sorder_item_id_sistger_seq_adicional_536c241731", unique: true
+    t.index ["sorder_item_id"], name: "index_sorder_item_companions_on_sorder_item_id"
+  end
+
   create_table "sorder_items", force: :cascade do |t|
     t.bigint "sorder_id"
     t.string "comments"
@@ -384,10 +400,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_08_130000) do
   add_foreign_key "destinations", "states"
   add_foreign_key "drivers", "states"
   add_foreign_key "hotels", "states"
+  add_foreign_key "sorder_item_companions", "customers"
+  add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_items", "agencies"
   add_foreign_key "sorder_items", "customers"
   add_foreign_key "sorder_items", "hotels"
-  add_foreign_key "sorder_items", "sorders"
+  add_foreign_key "sorder_items", "sorders", on_update: :cascade
   add_foreign_key "sorder_items", "vendors"
   add_foreign_key "sorders", "companies"
   add_foreign_key "sorders", "destinations"

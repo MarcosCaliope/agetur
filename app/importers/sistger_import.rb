@@ -54,14 +54,22 @@ class SistgerImport
               periodo: true, depende_de: %w[empresa roteiros],
               colunas: "iNumero, Data, iCodDestino, iCodVeiculo, sPlacas, sNomeRedGuia, sNomeRedMotorista, nValorGuia, " \
                        "nValorMotorista, nValorPedagio, nDespesas, nValorCombustivel, nValorOS, ValorFinalOS, " \
-                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes, bCancelado"),
+                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes, bCancelado")
+  ].each { |etapa| etapa.ordem ||= etapa.codigo }.each(&:freeze).freeze
+
+  # Parts of an order, read and saved by the "ordens" step for the orders it
+  # imports (they have no filter of their own).
+  PARTES_DA_ORDEM = [
     Etapa.new(chave: "passageiros", nome: "Passageiros", tabela: "tblOrdemServicoItens", modelo: "SorderItem", codigo: "iNumero",
-              ordem: "iNumero, iSequencial", periodo: true, depende_de: %w[ordens],
+              ordem: "iNumero, iSequencial",
               colunas: "iNumero, iSequencial, iCodCliente, sNomeCliente, iCodHotel, sHotel, sNumeroApto, iNumeroPax, iNumeroCHD, " \
                        "sHora, sTelefone, nValor, nValorPago, iCodVendedor, nValorComissao, nValorRecVendedor, iCodRepassado, " \
                        "sRepassado, nValorComissaoRepassado, nValorPagoRepasse, sFlgCancelado, sTipoDoc, sNumeroDoc, " \
-                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes")
-  ].each { |etapa| etapa.ordem ||= etapa.codigo }.each(&:freeze).freeze
+                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes"),
+    Etapa.new(chave: "lista_pax", nome: "Lista pax", tabela: "tblListaPax", modelo: "SorderItemCompanion", codigo: "iNumero",
+              ordem: "iNumero, iSequencial, iSeqAdicional",
+              colunas: "iNumero, iSequencial, iSeqAdicional, iClienteAdc, sNomeCliente, sTipoDoc, sNumeroDoc, SCHD, SCOLO")
+  ].each(&:freeze).freeze
 
   # Labels for reference columns shown in the preview before they're resolved to ids.
   ROTULOS = {
@@ -74,7 +82,8 @@ class SistgerImport
 
   LOTE = 1000
 
-  Resultado = Struct.new(:etapa, :filtro, :lidos, :gravados, :avisos, keyword_init: true)
+  # detalhes: what was saved along with the step (an order's passengers and pax list).
+  Resultado = Struct.new(:etapa, :filtro, :lidos, :gravados, :avisos, :detalhes, keyword_init: true)
 
   class Erro < StandardError; end
 
@@ -87,20 +96,17 @@ class SistgerImport
   end
 
   # {chave => {sistger:, importados:, ultimo_sistger:, ultimo_importado:}}:
-  # row counts and highest legacy code (order number for passengers) on
-  # each side, to help pick the code range still to import.
+  # row counts and highest legacy code on each side, to help pick the code
+  # range still to import.
   def contagens
     ETAPAS.to_h do |etapa|
-      coluna = etapa.chave == "passageiros" ? :sistger_numero : :sistger_id
+      coluna = :sistger_id
       importados = etapa.modelo.constantize.where.not(coluna => nil)
       if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
         coluna = "vendors.sistger_id"
         importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
       end
-      # A few legacy passengers point at order numbers that don't exist; they
-      # can't be imported, so they don't count as the last one.
-      onde = "iNumero IN (SELECT iNumero FROM tblOrdemServico)" if etapa.chave == "passageiros"
-      origem = @fonte.resumo(etapa.tabela, etapa.codigo, ultimo_onde: onde)
+      origem = @fonte.resumo(etapa.tabela, etapa.codigo)
       [etapa.chave, { sistger: origem[:total], importados: importados.count,
                       ultimo_sistger: origem[:ultimo], ultimo_importado: importados.maximum(coluna) }]
     end
@@ -118,8 +124,9 @@ class SistgerImport
     verificar_dependencias(etapa)
     linhas = ler(etapa, filtro)
     avisos = []
+    @detalhes = []
     gravados = etapa.modelo.constantize.transaction { gravar(chave, linhas.map { |l| mapear(chave, l) }, avisos) }
-    Resultado.new(etapa: etapa, filtro: filtro, lidos: linhas.size, gravados: gravados, avisos: avisos)
+    Resultado.new(etapa: etapa, filtro: filtro, lidos: linhas.size, gravados: gravados, avisos: avisos, detalhes: @detalhes)
   end
 
   # Runs the chosen steps in dependency order. filtros: {chave => Filtro}.
@@ -137,26 +144,21 @@ class SistgerImport
   # ---- SQL ---------------------------------------------------------------
 
   def ler(etapa, filtro, limite: nil)
-    linhas = @fonte.linhas(filtro.sql(etapa, limite: limite))
-    etapa.chave == "passageiros" ? juntar_lista_pax(linhas) : linhas
+    @fonte.linhas(filtro.sql(etapa, limite: limite))
   end
 
-  # tblListaPax holds the other passengers of an order item; their names are
-  # appended to the item's observations.
-  def juntar_lista_pax(linhas)
-    numeros = linhas.map { |l| l["iNumero"] }.uniq
-    return linhas if numeros.empty?
+  # Rows of an order part (passengers, pax list) for the orders `numeros`.
+  # Few orders are filtered by number; many read the whole table in one
+  # pass, much faster than batches of IN (...) that each scan it.
+  def ler_da_ordem(parte, numeros)
+    return [] if numeros.empty?
 
-    # A preview filters by order number; a full import reads the whole table
-    # in one pass, much faster than batches of IN (...) that each scan it.
-    filtro = numeros.size <= LOTE ? "WHERE iNumero IN (#{numeros.map { |n| Integer(n) }.join(',')}) " : ""
-    nomes = Hash.new { |h, k| h[k] = [] }
-    @fonte.linhas("SELECT iNumero, iSequencial, sNomeCliente FROM tblListaPax #{filtro}" \
-                  "ORDER BY iNumero, iSequencial, iSeqAdicional").each do |pax|
-      nome = texto(pax["sNomeCliente"])
-      nomes[[pax["iNumero"], pax["iSequencial"]]] << nome if nome
-    end
-    linhas.map { |l| l.merge("lista_pax" => nomes[[l["iNumero"], l["iSequencial"]]]) }
+    filtro = numeros.size <= LOTE ? " WHERE iNumero IN (#{numeros.map { |n| Integer(n) }.join(',')})" : ""
+    linhas = @fonte.linhas("SELECT #{parte.colunas} FROM #{parte.tabela}#{filtro} ORDER BY #{parte.ordem}")
+    return linhas unless filtro.empty?
+
+    numeros = numeros.to_set
+    linhas.select { |l| numeros.include?(l["iNumero"]) }
   end
 
   # ---- Mapping (one SISTGER row -> attributes here) -------------------------
@@ -216,7 +218,6 @@ class SistgerImport
         valorpedagio: numero(l["nValorPedagio"]), valordespesas: numero(l["nDespesas"]),
         valorcombustivel: numero(l["nValorCombustivel"]), valoros: numero(l["nValorOS"]), valorfinalos: numero(l["ValorFinalOS"]) }
     when "passageiros"
-      lista = Array(l["lista_pax"])
       { ordem: l["iNumero"], sequencial: l["iSequencial"], cliente: l["iCodCliente"], snomepax: texto(l["sNomeCliente"]),
         documenttype: texto(l["sTipoDoc"]), document: texto(l["sNumeroDoc"]),
         hotel_codigo: l["iCodHotel"], hotel: texto(l["sHotel"]), apto: texto(l["sNumeroApto"]),
@@ -226,7 +227,11 @@ class SistgerImport
         agencia_codigo: l["iCodRepassado"], agencia: texto(l["sRepassado"]),
         amountcomissionrep: numero(l["nValorComissaoRepassado"]), amountcomissionreppay: numero(l["nValorPagoRepasse"]),
         scancelado: texto(l["sFlgCancelado"]) == "S" ? "S" : "N",
-        comments: juntar(texto(l["sObservacoes"]), (rotulado("Lista de passageiros", lista.join(", ")) if lista.any?), separador: " | ") }
+        comments: texto(l["sObservacoes"]) }
+    when "lista_pax"
+      { ordem: l["iNumero"], sequencial: l["iSequencial"], sistger_seq_adicional: l["iSeqAdicional"], cliente: l["iClienteAdc"],
+        snome: texto(l["sNomeCliente"]), documenttype: texto(l["sTipoDoc"]), document: texto(l["sNumeroDoc"]),
+        chd: texto(l["SCHD"]) == "S", colo: texto(l["SCOLO"]) == "S" }
     end
   end
 
@@ -244,8 +249,6 @@ class SistgerImport
     case chave
     when "ordens"
       gravar_ordens(registros, avisos)
-    when "passageiros"
-      gravar_passageiros(registros, avisos)
     when "comissoes_roteiro"
       gravar_comissoes_roteiro(registros, avisos)
     else
@@ -260,12 +263,11 @@ class SistgerImport
         r[:vendor_id] = vendedores[r.delete(:vendedor)] if chave == "agencias"
         r
       end
-      upsert(chave, registros)
+      upsert(self.class.etapa(chave).modelo.constantize, registros)
     end
   end
 
-  def upsert(chave, registros, unique_by: :sistger_id)
-    modelo = self.class.etapa(chave).modelo.constantize
+  def upsert(modelo, registros, unique_by: :sistger_id)
     registros.each_slice(LOTE) { |lote| modelo.upsert_all(lote, unique_by: unique_by) }
     registros.size
   end
@@ -291,13 +293,44 @@ class SistgerImport
       avisos << "#{datas_estranhas.size} ordem(ns) com data fora do normal importada(s) como estão (#{exemplos})."
     end
 
+    # The order number (id) is SISTGER's iNumero. A number already taken by
+    # an order created here stays with it, and the legacy order is skipped.
+    renumerar_ordens
+    ocupados = Sorder.where(id: validos.map { |r| r[:sistger_id] }).where("sistger_id IS DISTINCT FROM id").pluck(:id)
+    if ocupados.any?
+      avisos << "#{ocupados.size} ordem(ns) ignorada(s) porque o número já é de outra ordem deste sistema (nº #{ocupados.sort.first(5).join(', ')})."
+      validos = validos.reject { |r| ocupados.include?(r[:sistger_id]) }
+    end
+
     linhas = validos.map do |r|
       r.except(:roteiro, :guia, :motorista, :veiculo, :placa).merge(
-        destination_id: roteiros[r[:roteiro]], tourguide_id: guias[r[:guia]], driver_id: motoristas[r[:motorista]],
+        id: r[:sistger_id], destination_id: roteiros[r[:roteiro]], tourguide_id: guias[r[:guia]], driver_id: motoristas[r[:motorista]],
         vehicle_id: veiculos_codigo[r[:veiculo]] || placas[r[:placa]], company_id: empresa_id
       )
     end
-    upsert("ordens", linhas)
+    gravados = upsert(Sorder, linhas)
+    Sorder.connection.reset_pk_sequence!(Sorder.table_name)
+    gravar_partes_da_ordem(linhas.map { |l| l[:id] }, avisos)
+    gravados
+  end
+
+  # Passengers (tblOrdemServicoItens) and their pax list (tblListaPax) of
+  # the orders just saved.
+  def gravar_partes_da_ordem(numeros, avisos)
+    passageiros, lista_pax = PARTES_DA_ORDEM
+    itens = ler_da_ordem(passageiros, numeros).map { |l| mapear("passageiros", l) }
+    pax = ler_da_ordem(lista_pax, numeros).map { |l| mapear("lista_pax", l) }
+    @detalhes << "#{gravar_passageiros(itens, avisos)} passageiro(s)" << "#{gravar_lista_pax(numeros, pax, avisos)} na lista pax"
+  end
+
+  # Gives imported orders numbered otherwise (before iNumero became the id)
+  # their SISTGER number, when it's free. Passengers follow via the FK's
+  # ON UPDATE CASCADE. Negating first avoids clashes while swapping.
+  def renumerar_ordens
+    conexao = Sorder.connection
+    conexao.execute("UPDATE sorders SET id = -id WHERE sistger_id IS NOT NULL AND id <> sistger_id")
+    conexao.execute("UPDATE sorders SET id = sistger_id WHERE id < 0 AND sistger_id NOT IN (SELECT id FROM sorders WHERE id > 0)")
+    conexao.execute("UPDATE sorders SET id = -id WHERE id < 0")
   end
 
   def gravar_comissoes_roteiro(registros, avisos)
@@ -309,7 +342,7 @@ class SistgerImport
     linhas = validos.map do |r|
       r.except(:vendedor, :roteiro).merge(vendor_id: vendedores[r[:vendedor]], destination_id: roteiros[r[:roteiro]])
     end
-    upsert("comissoes_roteiro", linhas, unique_by: %i[vendor_id destination_id])
+    upsert(VendorDestination, linhas, unique_by: %i[vendor_id destination_id])
   end
 
   def gravar_passageiros(registros, avisos)
@@ -332,7 +365,29 @@ class SistgerImport
         agency_id: agencias_codigo[r[:agencia_codigo]] || agencias[r[:agencia]]
       )
     end
-    upsert("passageiros", linhas, unique_by: %i[sistger_numero sistger_sequencial])
+    upsert(SorderItem, linhas, unique_by: %i[sistger_numero sistger_sequencial])
+  end
+
+  # The pax list of imported items is replaced by SISTGER's; names added
+  # here (no sistger_seq_adicional) stay.
+  def gravar_lista_pax(numeros, registros, avisos)
+    itens = SorderItem.where(sistger_numero: numeros).pluck(:sistger_numero, :sistger_sequencial, :id)
+                      .to_h { |numero, sequencial, id| [[numero, sequencial], id] }
+    SorderItemCompanion.where(sorder_item_id: itens.values).where.not(sistger_seq_adicional: nil).delete_all
+
+    sem_nome, registros = registros.partition { |r| r[:snome].nil? }
+    sem_item, validos = registros.partition { |r| itens[[r[:ordem], r[:sequencial]]].nil? }
+    avisos << "#{sem_nome.size} nome(s) em branco na lista pax ignorado(s)." if sem_nome.any?
+    avisos << "#{sem_item.size} nome(s) da lista pax ignorado(s) porque o passageiro não foi importado." if sem_item.any?
+
+    clientes = Customer.where(sistger_id: validos.map { |r| r[:cliente] }.uniq).pluck(:sistger_id, :id).to_h
+    agora = Time.current
+    linhas = validos.map do |r|
+      r.except(:ordem, :sequencial, :cliente).merge(sorder_item_id: itens[[r[:ordem], r[:sequencial]]],
+                                                     customer_id: clientes[r[:cliente]], created_at: agora, updated_at: agora)
+    end
+    linhas.each_slice(LOTE) { |lote| SorderItemCompanion.insert_all(lote) }
+    linhas.size
   end
 
   # {name => id}, creating records for names not found (exact match).
@@ -393,11 +448,6 @@ class SistgerImport
 
   def endereco(*partes)
     juntar(*partes, separador: ", ")
-  end
-
-  def rotulado(rotulo, valor)
-    valor = texto(valor)
-    "#{rotulo}: #{valor}" if valor.present?
   end
 
   def juntar(*partes, separador: " / ")

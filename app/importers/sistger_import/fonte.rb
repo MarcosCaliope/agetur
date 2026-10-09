@@ -27,11 +27,9 @@ class SistgerImport
       raise ConexaoFalhou, "Erro ao ler o SISTGER: #{e.message}"
     end
 
-    # {total:, ultimo:}: row count and highest value of the key column,
-    # optionally only among rows matching ultimo_onde.
-    def resumo(tabela, coluna, ultimo_onde: nil)
-      maximo = ultimo_onde ? "(SELECT MAX(#{coluna}) FROM #{tabela} WHERE #{ultimo_onde})" : "MAX(#{coluna})"
-      linha = linhas("SELECT COUNT(*) AS total, #{maximo} AS ultimo FROM #{tabela}").first
+    # {total:, ultimo:}: row count and highest value of the key column.
+    def resumo(tabela, coluna)
+      linha = linhas("SELECT COUNT(*) AS total, MAX(#{coluna}) AS ultimo FROM #{tabela}").first
       { total: linha["total"], ultimo: linha["ultimo"] }
     end
 

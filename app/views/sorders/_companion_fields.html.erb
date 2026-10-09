@@ -1,0 +1,9 @@
+<div class="nested-fields form-inline mb-1">
+  <%= f.text_field :snome, size: 35, placeholder: "Nome", class: "mr-1", aria: { label: "Nome na lista pax" } %>
+  <%= f.select :documenttype, (["CPF", "RG", "PASSP"] | [f.object.documenttype]).compact, { include_blank: "Doc." },
+        class: "mr-1", aria: { label: "Tipo de documento" } %>
+  <%= f.text_field :document, size: 14, placeholder: "Número", class: "mr-2", aria: { label: "Número do documento" } %>
+  <%= f.check_box :chd, class: "mr-1" %><%= f.label :chd, "CHD", class: "mr-2" %>
+  <%= f.check_box :colo, class: "mr-1" %><%= f.label :colo, "Colo", class: "mr-2" %>
+  <%= link_to_remove_association "X", f, class: "btn btn-outline-danger btn-sm" %>
+</div>

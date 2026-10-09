@@ -60,7 +60,10 @@ class SistgerImportsController < ApplicationController
   end
 
   def resumo(resultados)
-    partes = resultados.map { |r| "#{r.etapa.nome} (#{r.filtro.descricao}): #{r.gravados} de #{r.lidos} gravados" }
+    partes = resultados.map do |r|
+      com = " (com #{r.detalhes.to_sentence})" if r.detalhes.present?
+      "#{r.etapa.nome} (#{r.filtro.descricao}): #{r.gravados} de #{r.lidos} gravados#{com}"
+    end
     avisos = resultados.flat_map(&:avisos)
     (["Importação concluída. #{partes.join('; ')}."] + avisos).join(" ")
   end

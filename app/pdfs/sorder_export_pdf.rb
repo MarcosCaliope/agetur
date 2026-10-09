@@ -30,8 +30,9 @@ class SorderExportPdf < Prawn::Document
 
     def items_rows
     [["Hotel", "Apto", "Passageiro/Titular", "Documento", "Telefone", "PAX", "CHD", "A Receber", "Solicitante", "Observações"]] +
-        @sorder.sorder_items.ativos.map do |item|
-            [item.hotel&.sname, item.apto, item.nome_passageiro, [item.documenttype, item.document].compact_blank.join(" "),
+        @sorder.sorder_items.ativos.includes(:companions).map do |item|
+            passageiros = [item.nome_passageiro, *item.companions.map(&:descricao)].compact.join("\n")
+            [item.hotel&.sname, item.apto, passageiros, [item.documenttype, item.document].compact_blank.join(" "),
              item.phone, item.qtdepax, item.qtdechd, item.total_passeio, item.vendor&.sname, item.comments].map(&:to_s)
         end
     end

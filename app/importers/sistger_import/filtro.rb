@@ -59,17 +59,13 @@ class SistgerImport
 
       case modo
       when "periodo"
-        condicoes << condicao_ordens(etapa, periodo_sql)
+        condicoes << periodo_sql
       when "faixa"
         faixa = [("#{etapa.codigo} >= #{de}" if de), ("#{etapa.codigo} <= #{ate}" if ate)].compact.join(" AND ")
         condicoes << faixa
       when "ultimos"
-        if etapa.chave == "passageiros"
-          condicoes << "iNumero IN (SELECT TOP #{quantidade} iNumero FROM tblOrdemServico ORDER BY iNumero DESC)"
-        else
-          topo = [quantidade, limite].compact.min
-          ordem = "#{etapa.codigo} DESC"
-        end
+        topo = [quantidade, limite].compact.min
+        ordem = "#{etapa.codigo} DESC"
       end
 
       sql = +"SELECT #{"TOP #{Integer(topo)} " if topo}#{etapa.colunas} FROM #{etapa.tabela}"
@@ -104,11 +100,6 @@ class SistgerImport
     # Order date between inicio and fim (inclusive), as SQL Server literals.
     def periodo_sql
       [("Data >= '#{inicio.strftime('%Y%m%d')}'" if inicio), ("Data < '#{(fim + 1).strftime('%Y%m%d')}'" if fim)].compact.join(" AND ")
-    end
-
-    # Passengers have no reliable date of their own: filter through their order.
-    def condicao_ordens(etapa, condicao)
-      etapa.chave == "passageiros" ? "iNumero IN (SELECT iNumero FROM tblOrdemServico WHERE #{condicao})" : condicao
     end
   end
 end
