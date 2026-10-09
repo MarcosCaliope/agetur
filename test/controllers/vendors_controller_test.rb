@@ -9,6 +9,7 @@ class VendorsControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get vendors_url
     assert_response :success
+    assert_select "tr:not(.text-muted) td:first-child", text: @vendor.id.to_s
   end
 
   test "should get new" do

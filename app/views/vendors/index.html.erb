@@ -20,8 +20,8 @@
 
   <tbody>
     <% @vendors.each do |vendor| %>
-      <tr class="<%= 'text-muted' unless vendor.active %>
-        <td><%= vendor.id %></td>">
+      <tr class="<%= 'text-muted' unless vendor.active %>">
+        <td><%= vendor.id %></td>
         <td><%= vendor.sname %></td>
         <td><%= vendor.short_name %></td>
         <td><%= vendor.phone %></td>
