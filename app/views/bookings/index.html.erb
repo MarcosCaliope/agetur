@@ -16,6 +16,21 @@
   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="print()">Imprimir</button>
 <% end %>
 
+<% if @sem_passeio.any? %>
+  <div class="alert alert-warning no-print">
+    <strong><%= pluralize(@sem_passeio.size, "agendamento sem passeio", plural: "agendamentos sem passeio") %></strong>
+    — abra para incluir os passeios:
+    <ul class="mb-0">
+      <% @sem_passeio.each do |b| %>
+        <li>
+          <%= link_to "nº #{b.id} – #{b.snome}", b %>
+          <span class="text-muted small">(<%= l(b.data) %> · <%= b.vendor.sname %><%= " · #{b.hotel.sname}" if b.hotel %>)</span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
 <p class="text-muted">Passeios de <%= l(@inicio) %> a <%= l(@fim) %> — <%= pluralize(@passeios.size, "passeio", plural: "passeios") %>,
   <%= @passeios.reject(&:cancelado?).sum(&:qtdepax) %> PAX e <%= @passeios.reject(&:cancelado?).sum(&:qtdechd) %> CHD</p>
 

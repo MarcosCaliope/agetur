@@ -26,6 +26,16 @@ class BookingsController < ApplicationController
       )
     end
     @passeios = passeios.includes(:destination, :pagamentos, :sorder_item, booking: %i[hotel vendor]).order(:data_passeio, :hora, :id)
+
+    # The list is by tour, so bookings with none yet are shown apart.
+    sem_passeio = Booking.where.missing(:items).includes(:hotel, :vendor).order(:data, :id)
+    if params[:busca].present?
+      sem_passeio = sem_passeio.left_joins(:hotel, :vendor).where(
+        "unaccent(bookings.snome) ILIKE unaccent(:t) OR unaccent(hotels.sname) ILIKE unaccent(:t) OR unaccent(vendors.sname) ILIKE unaccent(:t)",
+        t: "%#{Booking.sanitize_sql_like(params[:busca].squish)}%"
+      )
+    end
+    @sem_passeio = sem_passeio
   end
 
   # GET /agendamentos/pendentes: tours not in an order yet, by date and destination.

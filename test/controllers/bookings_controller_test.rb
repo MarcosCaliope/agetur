@@ -66,6 +66,16 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Lançar na OS nº #{@ordem.id}"
   end
 
+  test "lists bookings that have no tour yet" do
+    vazio = Booking.create!(data: Date.new(2026, 10, 9), snome: "Sem Passeio", vendor: vendors(:one))
+    get bookings_url
+    assert_select ".alert-warning a[href='#{booking_path(vazio)}']", text: "nº #{vazio.id} – Sem Passeio"
+    assert_select ".alert-warning a", text: /Ana/, count: 0
+
+    get bookings_url(busca: "outro nome")
+    assert_select ".alert-warning", count: 0
+  end
+
   test "takes a down payment on a tour" do
     get booking_item_recebimentos_url(@booking, @passeio)
     assert_select "input[name='sorder_item_payment[valor]'][value='100.0']"
