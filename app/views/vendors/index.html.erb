@@ -1,10 +1,12 @@
 
 <h1>Vendedores</h1>
 <%= ultimo_registro(Vendor) %>
+<%= render "shared/pesquisa", url: vendors_path, dica: "Código, nome, nome reduzido, CPF/CNPJ, telefone, cidade…", total: @vendors.size %>
 
 <table class="table table-hover">
   <thead>
     <tr>
+      <th>Código</th>
       <th>Nome</th>
       <th>Nome reduzido</th>
       <th>Telefone</th>
@@ -18,7 +20,8 @@
 
   <tbody>
     <% @vendors.each do |vendor| %>
-      <tr class="<%= 'text-muted' unless vendor.active %>">
+      <tr class="<%= 'text-muted' unless vendor.active %>
+        <td><%= vendor.id %></td>">
         <td><%= vendor.sname %></td>
         <td><%= vendor.short_name %></td>
         <td><%= vendor.phone %></td>

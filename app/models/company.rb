@@ -1,4 +1,7 @@
 class Company < ApplicationRecord
+  include Pesquisavel
+  pesquisavel_por :name, :short_name, :cnpj, :city, :email
+
   LOGO_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
   LOGO_MAX_SIZE = 2.megabytes
 

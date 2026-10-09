@@ -5,7 +5,7 @@ class TourguidesController < ApplicationController
   # GET /tourguides
   # GET /tourguides.json
   def index
-    @tourguides = Tourguide.includes(:state)
+    @tourguides = Tourguide.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /tourguides/1

@@ -4,7 +4,7 @@ class CompaniesController < ApplicationController
 
   # GET /companies or /companies.json
   def index
-    @companies = Company.all
+    @companies = Company.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /companies/1 or /companies/1.json

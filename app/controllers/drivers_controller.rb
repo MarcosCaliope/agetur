@@ -5,7 +5,7 @@ class DriversController < ApplicationController
   # GET /drivers
   # GET /drivers.json
   def index
-    @drivers = Driver.includes(:state)
+    @drivers = Driver.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /drivers/1

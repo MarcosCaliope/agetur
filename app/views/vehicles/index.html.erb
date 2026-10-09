@@ -1,10 +1,12 @@
 
 <h1>Veículos</h1>
 <%= ultimo_registro(Vehicle) %>
+<%= render "shared/pesquisa", url: vehicles_path, dica: "Código, placa, marca, modelo, renavam, cidade…", total: @vehicles.size %>
 
 <table class="table table-hover">
   <thead>
     <tr>
+      <th>Código</th>
       <th>Placas</th>
       <th>Marca</th>
       <th>Modelo</th>
@@ -20,6 +22,7 @@
   <tbody>
     <% @vehicles.each do |vehicle| %>
       <tr>
+        <td><%= vehicle.id %></td>
         <td><%= vehicle.license %></td>
         <td><%= vehicle.brand %></td>
         <td><%= vehicle.smodel %></td>

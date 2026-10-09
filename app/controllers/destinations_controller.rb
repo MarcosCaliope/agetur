@@ -4,7 +4,7 @@ class DestinationsController < ApplicationController
   # GET /destinations
   # GET /destinations.json
   def index
-    @destinations = Destination.all
+    @destinations = Destination.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /destinations/1

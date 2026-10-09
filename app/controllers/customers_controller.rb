@@ -4,7 +4,7 @@ class CustomersController < ApplicationController
   # GET /customers
   # GET /customers.json
   def index
-    @customers = Customer.all
+    @customers = Customer.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /customers/1

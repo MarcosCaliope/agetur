@@ -5,7 +5,7 @@ class AgenciesController < ApplicationController
   # GET /agencies
   # GET /agencies.json
   def index
-    @agencies = Agency.includes(:state)
+    @agencies = Agency.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /agencies/1

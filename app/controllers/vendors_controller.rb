@@ -5,7 +5,7 @@ class VendorsController < ApplicationController
   # GET /vendors
   # GET /vendors.json
   def index
-    @vendors = Vendor.includes(:state)
+    @vendors = Vendor.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /vendors/1

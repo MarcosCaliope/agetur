@@ -5,7 +5,7 @@ class VehiclesController < ApplicationController
   # GET /vehicles
   # GET /vehicles.json
   def index
-    @vehicles = Vehicle.all
+    @vehicles = Vehicle.pesquisar(params[:busca]).includes(:state).order(:id)
   end
 
   # GET /vehicles/1

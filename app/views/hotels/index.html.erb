@@ -9,21 +9,14 @@
     }
   </style>
 
-  <div class="no-print">
-    Pesquisar por Nome
-    <%= search_form_for @q do |f| %>
-      <%= f.label :sname_cont, "Nome Contém" %>
-      <%= f.search_field :sname_cont %>
-      <%= f.submit %>
-    <% end %>
-  </div>
-
 <h1>Hotéis</h1>
 <%= ultimo_registro(Hotel) %>
+<%= render "shared/pesquisa", url: hotels_path, dica: "Código, nome, nome reduzido, CPF/CNPJ, telefone, cidade…", total: @hotels.size %>
 
 <table class="table table-hover">
   <thead>
     <tr>
+      <th>Código</th>
       <th>Nome</th>
       <th>Nome reduzido</th>
       <th>Telefone</th>
@@ -37,6 +30,7 @@
   <tbody>
     <% @hotels.each do |hotel| %>
       <tr>
+        <td><%= hotel.id %></td>
         <td><%= hotel.sname %></td>
         <td><%= hotel.short_name %></td>
         <td><%= hotel.phone %></td>
@@ -55,6 +49,6 @@
   <br>
   <%= link_to 'Novo Hotel', new_hotel_path %>
   <br>
-  <%= link_to 'Lista em PDF', hotels_path(request.query_parameters.merge(format: 'pdf')) %>
+  <%= link_to 'Lista em PDF', hotels_path(format: :pdf, busca: params[:busca].presence) %>
 </div>
 <button onclick="print()" class="no-print">imprimir</button>

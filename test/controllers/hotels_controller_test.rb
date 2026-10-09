@@ -14,7 +14,7 @@ class HotelsControllerTest < ActionDispatch::IntegrationTest
   test "should search hotels by name" do
     @hotel.update!(sname: "Hotel Praia")
     hotels(:two).update!(sname: "Pousada Serra")
-    get hotels_url, params: { q: { sname_cont: "praia" } }
+    get hotels_url, params: { busca: "praia" }
     assert_select "td", text: "Hotel Praia"
     assert_select "td", text: "Pousada Serra", count: 0
   end

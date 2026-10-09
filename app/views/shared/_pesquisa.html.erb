@@ -1,0 +1,12 @@
+<%# Search box for a cadastro list (Pesquisavel). locals: url, dica, total. %>
+<%= form_with url: url, method: :get, local: true, class: "form-inline mb-2 no-print", html: { role: "search" } do %>
+  <%= search_field_tag :busca, params[:busca], class: "form-control form-control-sm mr-2 pesquisa-cadastro",
+        placeholder: dica, aria: { label: "Pesquisar" }, size: 40 %>
+  <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm mr-2" %>
+  <% if params[:busca].present? %>
+    <%= link_to "Limpar", url, class: "btn btn-outline-secondary btn-sm mr-2" %>
+    <span class="text-muted small">
+      <%= pluralize(total, "registro encontrado", plural: "registros encontrados") %> para "<%= params[:busca] %>"
+    </span>
+  <% end %>
+<% end %>

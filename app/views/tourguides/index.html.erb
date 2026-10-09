@@ -1,10 +1,12 @@
 
 <h1>Guias</h1>
 <%= ultimo_registro(Tourguide) %>
+<%= render "shared/pesquisa", url: tourguides_path, dica: "Código, nome, nome reduzido, CPF/CNPJ, telefone, cidade…", total: @tourguides.size %>
 
 <table class="table table-hover">
   <thead>
     <tr>
+      <th>Código</th>
       <th>Nome</th>
       <th>Nome reduzido</th>
       <th>Telefone</th>
@@ -18,6 +20,7 @@
   <tbody>
     <% @tourguides.each do |tourguide| %>
       <tr>
+        <td><%= tourguide.id %></td>
         <td><%= tourguide.sname %></td>
         <td><%= tourguide.short_name %></td>
         <td><%= tourguide.phone %></td>
