@@ -45,6 +45,8 @@ Rails.application.routes.draw do
   post '/txt/importar',  to: 'txt#importar'
 
   root to: 'site/welcome#index'
+
+  mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
  
   resources :customers
   resources :states

@@ -32,8 +32,11 @@ config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   # Store uploaded files on the local file system (see config/storage.yml for options)
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  # Sent e-mails (e.g. Devise password resets) are not delivered; they open
+  # in the browser at /letter_opener.
+  config.action_mailer.delivery_method = :letter_opener_web
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
 
   config.action_mailer.perform_caching = false
 
