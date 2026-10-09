@@ -42,14 +42,14 @@
         <%= f.select( "vendor_id", @vendor_options, { include_blank: "Selecione" }) %>
         <%= f.label :Comissão %>
         <%= f.text_field :amountcomission , size:7%>
-        <%= f.label :Recebido %>
+        <%= f.label :amountcomissionpay, "Pago" %>
         <%= f.text_field :amountcomissionpay , size:7%>
         </div>
         <%= f.label :Repassado %>
         <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
         <%= f.label :amountcomissionrep, "Comissão" %>
         <%= f.text_field :amountcomissionrep , size:7%>
-        <%= f.label :amountcomissionreppay, "Recebido" %>
+        <%= f.label :amountcomissionreppay, "Pago" %>
         <%= f.text_field :amountcomissionreppay , size:7%>
 
         <%= f.label :Cancelado %>

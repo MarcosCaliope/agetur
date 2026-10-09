@@ -5,14 +5,14 @@ class SorderItemTest < ActiveSupport::TestCase
     @sorder = sorders(:two)
   end
 
-  test "total_receber subtracts commission already received" do
+  test "comissao_a_pagar subtracts commission already paid" do
     item = SorderItem.new(amountcomission: 30.0, amountcomissionpay: 10.0)
-    assert_equal 20.0, item.total_receber
+    assert_equal 20.0, item.comissao_a_pagar
   end
 
-  test "total_receber and total_passeio treat blank values as zero" do
-    assert_equal 30.0, SorderItem.new(amountcomission: 30.0).total_receber
-    assert_equal 0.0, SorderItem.new.total_receber
+  test "comissao_a_pagar and total_passeio treat blank values as zero" do
+    assert_equal 30.0, SorderItem.new(amountcomission: 30.0).comissao_a_pagar
+    assert_equal 0.0, SorderItem.new.comissao_a_pagar
     assert_equal 100.0, SorderItem.new(amount: 100.0).total_passeio
     assert_equal 60.0, SorderItem.new(amount: 100.0, amountpay: 40.0).total_passeio
   end

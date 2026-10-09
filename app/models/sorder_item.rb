@@ -28,8 +28,8 @@ class SorderItem < ApplicationRecord
     snomepax.presence || customer&.nome
   end
 
-  # Commission still to be received from the vendor.
-  def total_receber
+  # Commission still to be paid to the vendor (SISTGER's "R$ Pagar").
+  def comissao_a_pagar
     amountcomission.to_f - amountcomissionpay.to_f
   end
 

@@ -53,7 +53,7 @@ class Sorder < ApplicationRecord
       base = { vencimento: vencimento }
       contas = sorder_items.ativos.includes(:vendor, :agency).flat_map do |item|
         pax = item.nome_passageiro
-        vendedor = item.amountcomission.to_f - item.amountcomissionpay.to_f
+        vendedor = item.comissao_a_pagar
         repasse = item.amountcomissionrep.to_f - item.amountcomissionreppay.to_f
         [
           (if vendedor.positive? && item.vendor && !item.vendor.no_commission

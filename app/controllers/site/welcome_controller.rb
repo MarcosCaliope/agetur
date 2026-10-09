@@ -27,7 +27,7 @@ class Site::WelcomeController < SiteController
     @contas_abertas = Payable.abertas
     @contas_vencidas = Payable.abertas.where(vencimento: ...hoje)
 
-    @comissoes_a_receber = SorderItem.ativos
+    @comissoes_a_pagar = SorderItem.ativos
       .sum("COALESCE(amountcomission, 0) - COALESCE(amountcomissionpay, 0)")
   end
 end

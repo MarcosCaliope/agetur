@@ -136,8 +136,8 @@
           <div class="card h-100 dashboard-card">
             <div class="card-body">
               <h2 class="h5 card-title">Comissões</h2>
-              <p class="dashboard-total mb-0"><%= number_to_currency(@comissoes_a_receber) %></p>
-              <p class="text-muted small mb-0">a receber dos vendedores (passageiros não cancelados)</p>
+              <p class="dashboard-total mb-0"><%= number_to_currency(@comissoes_a_pagar) %></p>
+              <p class="text-muted small mb-0">a pagar aos vendedores (passageiros não cancelados)</p>
             </div>
             <div class="card-footer bg-transparent border-top-0">
               <%= link_to 'Abrir relatório', showcomis_path, class: "btn btn-primary btn-sm" %>
