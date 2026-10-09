@@ -1,0 +1,40 @@
+<%= form_with(model: cash_entry, local: true) do |form| %>
+  <%= render "shared/erros", registro: cash_entry %>
+  <div class="form-row">
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :data %>
+      <%= form.date_field :data, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-2">
+      <%= form.label :tipo %>
+      <%= form.select :tipo, CashEntry::TIPOS.invert, {}, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-4 col-md-3">
+      <%= form.label :categoria %>
+      <%= form.select :categoria, (CashEntry::CATEGORIAS | [cash_entry.categoria]).compact, {}, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-3">
+      <%= form.label :forma_pagamento %>
+      <%= form.select :forma_pagamento, CashEntry::FORMAS.invert, {}, class: "form-control" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-2">
+      <%= form.label :valor %>
+      <%= form.number_field :valor, step: "0.01", min: "0.01", class: "form-control" %>
+    </div>
+  </div>
+  <div class="form-group">
+    <%= form.label :descricao %>
+    <%= form.text_field :descricao, class: "form-control" %>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-8">
+      <%= form.label :requerente %>
+      <%= form.text_field :requerente, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-4">
+      <%= form.label :documento %>
+      <%= form.text_field :documento, class: "form-control" %>
+    </div>
+  </div>
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

@@ -68,7 +68,7 @@ class SistgerImport
         ordem = "#{etapa.codigo} DESC"
       end
 
-      sql = +"SELECT #{"TOP #{Integer(topo)} " if topo}#{etapa.colunas} FROM #{etapa.tabela}"
+      sql = +"SELECT #{"TOP #{Integer(topo)} " if topo}#{etapa.colunas} FROM #{etapa.from}"
       sql << " WHERE #{condicoes.join(' AND ')}" if condicoes.any?
       sql << " ORDER BY #{ordem}"
     end

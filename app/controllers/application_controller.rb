@@ -9,4 +9,9 @@ class ApplicationController < ActionController::Base
   def authenticate_user_or_admin!
     authenticate_user! unless admin_signed_in?
   end
+
+  # Who did it, for records that keep it (SISTGER's sUsuario).
+  def usuario_atual
+    (current_admin || current_user)&.email
+  end
 end

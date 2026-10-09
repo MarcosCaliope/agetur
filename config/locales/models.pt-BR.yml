@@ -36,6 +36,9 @@ pt-BR:
       sorder: { one: "Ordem de serviço", other: "Ordens de serviço" }
       sorder_item: { one: "Passageiro", other: "Passageiros" }
       sorder_item_companion: { one: "Pessoa da lista pax", other: "Lista pax" }
+      sorder_item_payment: { one: "Recebimento", other: "Recebimentos" }
+      cash_entry: { one: "Lançamento de caixa", other: "Lançamentos de caixa" }
+      payable: { one: "Conta a pagar", other: "Contas a pagar" }
       state: { one: "Estado", other: "Estados" }
       tourguide: { one: "Guia", other: "Guias" }
       user: { one: "Usuário", other: "Usuários" }
@@ -112,6 +115,27 @@ pt-BR:
         companions: "Lista pax"
       sorder_item/companions:
         snome: "Nome na lista pax"
+      sorder_item_payment:
+        data: "Data"
+        valor: "Valor"
+        descricao: "Descrição"
+        forma_pagamento: "Forma de pagamento"
+      cash_entry:
+        data: "Data"
+        tipo: "Tipo"
+        categoria: "Categoria"
+        forma_pagamento: "Forma de pagamento"
+        valor: "Valor"
+        descricao: "Descrição"
+        requerente: "Requerente"
+        documento: "CPF/CNPJ"
+      payable:
+        tipo: "Tipo"
+        descricao: "Descrição"
+        credor_nome: "Credor"
+        valor: "Valor"
+        vencimento: "Vencimento"
+        observacoes: "Observações"
       sorder_item_companion:
         snome: "Nome"
         documenttype: "Tipo de documento"

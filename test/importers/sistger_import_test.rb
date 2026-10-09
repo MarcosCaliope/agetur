@@ -53,6 +53,20 @@ class SistgerImportTest < ActiveSupport::TestCase
         item(1, 2, nome: "LEANDRO", hotel_codigo: 0, hotel: "BRASIL TROPICAL", agencia_codigo: 0, agencia: "NOVA AGENCIA", cancelado: "S"),
         item(99, 1, nome: "ORFAO")
       ],
+      "tblOrdemServicoPagtos" => [
+        { "iNumero" => 1, "iSql" => 1, "iSeq" => 1, "sDescri" => "SINAL", "cValor" => BigDecimal("60"), "data" => Time.utc(2025, 9, 20),
+          "sUsuario" => "fran", "iNumeroCXA" => BigDecimal("7") },
+        { "iNumero" => 1, "iSql" => 1, "iSeq" => 2, "sDescri" => nil, "cValor" => BigDecimal("40"), "data" => Time.utc(2025, 9, 21),
+          "sUsuario" => "fran", "iNumeroCXA" => nil },
+        { "iNumero" => 1, "iSql" => 1, "iSeq" => 3, "sDescri" => "ZERADO", "cValor" => BigDecimal("0"), "data" => Time.utc(2025, 9, 21),
+          "sUsuario" => "fran", "iNumeroCXA" => nil }
+      ],
+      "cx_mov" => [
+        caixa(7, descricao: "Recebimento Parcial do Passeio OS: 1 PAX:JORGE", total: 60, ordem: 1, seq: 1, forma: "O", doc: "123.456"),
+        caixa(8, descricao: "Pagto. Comissão do Passeio OS: 1 PAX:JORGE", total: -15, ordem: 1, seq: 1, tipo: "S"),
+        caixa(9, descricao: "  ", total: 30, forma: "X", doc: "00000000000"),
+        caixa(10, descricao: "ZERADO", total: 0)
+      ],
       "tblListaPax" => [
         pax(1, 1, 2, "PEDRO ", chd: "S"),
         pax(1, 1, 1, "NADIA", cliente: 10, colo: "S"),
@@ -74,7 +88,7 @@ class SistgerImportTest < ActiveSupport::TestCase
     { "iNumero" => numero, "Data" => data, "iCodDestino" => 0, "iCodVeiculo" => veiculo, "sPlacas" => placa,
       "sNomeRedGuia" => guia, "sNomeRedMotorista" => motorista, "nValorGuia" => BigDecimal("50"), "nValorMotorista" => nil,
       "nValorPedagio" => nil, "nDespesas" => nil, "nValorCombustivel" => nil, "nValorOS" => BigDecimal("640"),
-      "ValorFinalOS" => BigDecimal("640"), "sObservacoes" => "OBS #{numero}", "bCancelado" => false }
+      "ValorFinalOS" => BigDecimal("640"), "sObservacoes" => "OBS #{numero}", "bCancelado" => false, "iFlgAberto" => (numero == 4 ? 1 : 0) }
   end
 
   def item(numero, seq, nome:, hotel_codigo: 0, hotel: nil, agencia_codigo: 0, agencia: nil, cancelado: "N")
@@ -83,7 +97,13 @@ class SistgerImportTest < ActiveSupport::TestCase
       "nValor" => BigDecimal("400"), "nValorPago" => BigDecimal("100"), "iCodVendedor" => 2348, "nValorComissao" => BigDecimal("40"),
       "nValorRecVendedor" => BigDecimal("10"), "iCodRepassado" => agencia_codigo, "sRepassado" => agencia,
       "nValorComissaoRepassado" => BigDecimal("20"), "nValorPagoRepasse" => nil, "sFlgCancelado" => cancelado,
-      "sTipoDoc" => "RG  ", "sNumeroDoc" => "000", "sObservacoes" => "COMBO" }
+      "sTipoDoc" => "RG  ", "sNumeroDoc" => "000", "sObservacoes" => "COMBO", "nDesconto" => BigDecimal("5"), "nDescontoVendedor" => nil }
+  end
+
+  def caixa(numero, descricao:, total:, ordem: 0, seq: 0, tipo: "E", forma: "D", doc: nil)
+    { "numero" => BigDecimal(numero), "iSql" => BigDecimal(1), "descricao" => descricao, "qtd" => 1, "valor" => BigDecimal(total.to_s),
+      "total" => BigDecimal(total.to_s), "tpMov" => tipo, "iNumeroOS" => BigDecimal(ordem), "iSeq" => seq, "Data" => Time.utc(2025, 9, 20),
+      "requerente" => "JORGE", "scpfcnpj" => doc, "tipo_pg" => forma }
   end
 
   def pax(numero, seq, adicional, nome, cliente: 0, chd: "N", colo: "N")
@@ -232,20 +252,59 @@ class SistgerImportTest < ActiveSupport::TestCase
     importar_cadastros
     resultado = @import.importar("ordens")
 
-    assert_equal ["2 passageiro(s)", "2 na lista pax"], resultado.detalhes
+    assert_equal ["2 passageiro(s)", "2 recebimento(s)", "2 na lista pax"], resultado.detalhes
     assert_empty SorderItem.where(sistger_numero: 99), "order 99 doesn't exist"
 
     jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
     assert_equal ["JORGE", "FORTALEZA MAR HOTEL", Agency.find_by!(sistger_id: 7).id, "MARIA", "ALEX TURISMO", "N"],
                  [jorge.snomepax, jorge.hotel.sname, jorge.agency_id, jorge.customer.nome, jorge.vendor.sname, jorge.scancelado]
     assert_equal "COMBO", jorge.comments
-    assert_equal [40.0, 10.0, 20.0, 300.0], [jorge.amountcomission, jorge.amountcomissionpay, jorge.amountcomissionrep, jorge.total_passeio]
+    assert_equal [40.0, 10.0, 20.0, 5.0, 295.0], [jorge.amountcomission, jorge.amountcomissionpay, jorge.amountcomissionrep, jorge.discount, jorge.total_passeio]
 
     leandro = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 2)
     assert_equal ["BRASIL TROPICAL", "NOVA AGENCIA", "S"], [leandro.hotel.sname, Agency.find(leandro.agency_id).sname, leandro.scancelado]
     assert_equal 2, Sorder.find_by!(sistger_id: 1).total_pax, "cancelled passenger is not counted"
 
     assert_no_difference(["SorderItem.count", "SorderItemCompanion.count", "Hotel.count", "Agency.count"]) { @import.importar("ordens") }
+  end
+
+  test "orders bring their closed flag and passenger payments, linked to the imported cash book" do
+    importar_cadastros
+    resultado = @import.importar("ordens")
+    assert_match "1 recebimento(s) sem valor ou data ignorado(s)", resultado.avisos.join
+    assert_equal [false, true], [Sorder.find(1).encerrada?, Sorder.find(4).encerrada?]
+
+    jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
+    assert_equal 100.0, jorge.amountpay, "imported payments don't move the paid amount SISTGER already has"
+    assert_equal [["SINAL", 60, Date.new(2025, 9, 20), "fran", nil], [nil, 40, Date.new(2025, 9, 21), "fran", nil]],
+                 jorge.pagamentos.map { |p| [p.descricao, p.valor, p.data, p.usuario, p.cash_entry_id] }
+
+    @import.importar("caixa")
+    sinal = jorge.pagamentos.reload.first
+    assert_equal [CashEntry.find_by!(sistger_numero: 7), "O"], [sinal.cash_entry, sinal.forma_pagamento]
+
+    assert_no_difference(["SorderItemPayment.count", "CashEntry.count"]) do
+      @import.importar("ordens")
+      @import.importar("caixa")
+    end
+    assert_equal CashEntry.find_by!(sistger_numero: 7), jorge.pagamentos.reload.first.cash_entry, "re-importing orders keeps the link"
+  end
+
+  test "imports the cash book" do
+    importar_cadastros
+    @import.importar("ordens")
+    resultado = @import.importar("caixa")
+
+    assert_equal [3, 4], [resultado.gravados, resultado.lidos]
+    assert_match "1 lançamento(s) de caixa sem valor ou data ignorado(s)", resultado.avisos.join
+    jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
+    entrada, saida, avulso = [7, 8, 9].map { |n| CashEntry.find_by!(sistger_numero: n) }
+    assert_equal ["E", "O", 60, "Recebimento de passeio", "123.456", 1, jorge.id],
+                 [entrada.tipo, entrada.forma_pagamento, entrada.valor, entrada.categoria, entrada.documento, entrada.sorder_id, entrada.sorder_item_id]
+    assert_equal ["S", 15, "Pagamento de conta"], [saida.tipo, saida.valor, saida.categoria]
+    assert_equal ["D", "Lançamento do SISTGER nº 9", nil, "Outros", nil], [avulso.forma_pagamento, avulso.descricao, avulso.documento, avulso.categoria, avulso.sorder_id]
+    assert_equal 75, CashEntry.saldo
+    assert_equal({ sistger: 4, importados: 3, ultimo_sistger: 10, ultimo_importado: 9 }, @import.contagens["caixa"])
   end
 
   test "orders bring the pax list of their passengers" do

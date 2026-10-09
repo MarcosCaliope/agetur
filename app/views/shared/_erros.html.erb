@@ -1,0 +1,11 @@
+<%# Validation errors of a form. locals: registro. %>
+<% if registro.errors.any? %>
+  <div id="error_explanation" class="alert alert-danger">
+    <h2 class="h6"><%= t("errors.template.header", model: registro.model_name.human.downcase, count: registro.errors.count) %></h2>
+    <ul class="mb-0">
+      <% registro.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

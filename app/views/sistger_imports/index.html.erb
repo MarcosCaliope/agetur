@@ -43,7 +43,7 @@
               <td><%= check_box_tag "etapas[]", etapa.chave, false, id: "etapa_#{etapa.chave}", class: "sistger-marcar" %></td>
               <td>
                 <label for="etapa_<%= etapa.chave %>" class="mb-0"><%= etapa.nome %></label><br>
-                <code class="small"><%= etapa.tabela %></code>
+                <code class="small"><%= etapa.tabelas %></code>
               </td>
               <td class="text-right"><%= number_with_delimiter(contagem[:sistger]) %></td>
               <td class="text-right sistger-ultimo"><%= contagem[:ultimo_sistger] ? number_with_delimiter(contagem[:ultimo_sistger]) : "—" %></td>

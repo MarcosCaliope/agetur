@@ -40,15 +40,17 @@
   <tbody>
     <% @sorders.each do |sorder| %>
       <tr>
-        <td><%= sorder.id %></td>
+        <td><%= sorder.id %><% if sorder.encerrada? %> <span class="badge badge-secondary">Encerrada</span><% end %></td>
         <td><%= sorder.data&.strftime("%d/%m/%Y") %></td>
         <td><%= sorder.destination.description%></td>
         <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.tourguide.sname%></td>
 
         <td class="no-print"><%= link_to 'Exibir', sorder %></td>
-        <td class="no-print"><%= link_to 'Editar', edit_sorder_path(sorder) %></td>
-        <td class="no-print"><%= link_to 'Excluir', sorder, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <% unless sorder.encerrada? %>
+          <td class="no-print"><%= link_to 'Editar', edit_sorder_path(sorder) %></td>
+          <td class="no-print"><%= link_to 'Excluir', sorder, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>

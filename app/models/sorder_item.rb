@@ -3,6 +3,8 @@ class SorderItem < ApplicationRecord
   belongs_to :customer, optional: true
   belongs_to :hotel, optional: true
   belongs_to :vendor, optional: true
+  belongs_to :agency, optional: true
+  has_many :pagamentos, -> { order(:data, :id) }, class_name: "SorderItemPayment", dependent: :destroy
   has_many :companions, -> { order(:sistger_seq_adicional, :id) }, class_name: "SorderItemCompanion", inverse_of: :sorder_item,
                         dependent: :delete_all
   accepts_nested_attributes_for :companions, reject_if: ->(atributos) { atributos["snome"].blank? }, allow_destroy: true
@@ -31,9 +33,10 @@ class SorderItem < ApplicationRecord
     amountcomission.to_f - amountcomissionpay.to_f
   end
 
-  # Tour value still to be paid by the passenger.
+  # Tour value still to be paid by the passenger (as SISTGER: value less
+  # what was paid and both discounts).
   def total_passeio
-    amount.to_f - amountpay.to_f
+    (amount.to_f - amountpay.to_f - discount.to_f - vendor_discount.to_f).round(2)
   end
 
   private

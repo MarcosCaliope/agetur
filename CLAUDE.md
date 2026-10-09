@@ -61,16 +61,24 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - Ransack (4.x) powers search/filtering on sorders, hotels and the commission report. Ransack 4 raises unless the model allowlists searchable fields via `self.ransackable_attributes`, so add new filter fields there.
 - `_forma.html.erb` / `_sordera_item_fields.html.erb` are alternate/unused partials alongside the real `_form` / `_sorder_item_fields`.
 
+### Financeiro: recebimentos, caixa, contas a pagar
+
+Ported from SISTGER's `frmLancamentoOS` (sources in `D:\SISTGER\OS-Fontes`). There, only passenger payments and the cash book were really used. The bills-to-pay code (`tblOrdemPagar`, `tblDuplicatas`) sits after an `Exit Sub` in "Encerrar OS" and its tables are empty.
+- `SorderItemPayment` (`item.pagamentos`, `/sorder_items/:id/recebimentos`, SISTGER's `tblOrdemServicoPagtos`): creating or destroying one moves `amountpay` by its value. It doesn't recompute a sum, because imported items carry a paid amount without detailed payments. It also creates or destroys its `CashEntry` unless `lancar_no_caixa` is off. It's refused above `SorderItem#total_passeio` (value − paid − `discount` − `vendor_discount`, as SISTGER) or on a closed order.
+- `CashEntry` (`/caixa`, SISTGER's `cx_num`+`cx_mov`, one row per line): `tipo` `E`/`S`, `forma_pagamento` from `CashEntry::FORMAS`, `valor` always positive, and `CashEntry.saldo` signs it. Entries made by a payment or a paid bill are `automatico?` and can be changed only from their origin.
+- `Payable` (`/contas-a-pagar`): `tipo` comissao_vendedor / comissao_repasse / custo_os / avulsa. `Sorder#encerrar!` creates the first three from the active items' commission balances (skipping `no_commission` vendors) and the order's costs (`Sorder::CUSTOS`). They're due on the order date and keyed by `origem`, so closing again doesn't duplicate them. `reabrir!` drops the unpaid ones. `pagar!` posts an exit in the cash book and, for commissions, adds to the item's `amountcomissionpay`/`amountcomissionreppay`. `estornar!` undoes both.
+- `sorders.encerrada` (SISTGER's `iFlgAberto`): `SordersController` refuses edit/update/destroy on a closed order.
+
 ### SISTGER import (Manutenção tab)
 
-`SistgerImport` (`app/importers/sistger_import.rb`) reads the legacy SISTGER SQL Server through `SistgerImport::Fonte` (`tiny_tds`) and upserts one step per table: empresa → clientes, vendedores, agências (after vendors, for their "vendedor correspondente"), hotéis, guias (`tblAgenteViagem`), motoristas (`tblFuncionarios`), veículos, roteiros → comissões por roteiro → ordens. The orders step also brings, for the orders it imports, their passengers (`tblOrdemServicoItens`) and pax list (`tblListaPax`). These are `PARTES_DA_ORDEM`: they aren't steps and have no filter of their own. The UI is `SistgerImportsController` at `/manutencao/sistger`. The user ticks steps and gives each a `SistgerImport::Filtro`:
+`SistgerImport` (`app/importers/sistger_import.rb`) reads the legacy SISTGER SQL Server through `SistgerImport::Fonte` (`tiny_tds`) and upserts one step per table: empresa → clientes, vendedores, agências (after vendors, for their "vendedor correspondente"), hotéis, guias (`tblAgenteViagem`), motoristas (`tblFuncionarios`), veículos, roteiros → comissões por roteiro → ordens → caixa. The orders step also brings, for the orders it imports, their passengers (`tblOrdemServicoItens`), payments (`tblOrdemServicoPagtos`) and pax list (`tblListaPax`). These are `PARTES_DA_ORDEM`: they aren't steps and have no filter of their own. The UI is `SistgerImportsController` at `/manutencao/sistger`. The user ticks steps and gives each a `SistgerImport::Filtro`:
 - all;
-- a period (orders only, by order date);
+- a period (orders and caixa only, by date);
 - a code range (order number for orders);
 - the last N.
 
 Previews honor the filter. Chosen steps always run in dependency order.
-- Re-importing an order replaces the pax list of its imported items. Names added in this app (`sistger_seq_adicional` NULL) stay.
+- Re-importing an order replaces the pax list and payments of its imported items. Ones added in this app (`sistger_seq_adicional`/`sistger_seq` NULL) stay. Imported payments don't touch `amountpay`. The caixa step reads a join (`Etapa#origem`) and links payments to their entry through `sistger_caixa`.
 - Connection settings (`SistgerImport::Configuracao`): each `SISTGER_DB_*` env var wins, and anything unset falls back to the Windows registry key the old SISTGER client uses (`HKCU\SOFTWARE\VB and VBA Program Settings\oServico\BANCO_DE_DADOS`), read with `reg.exe` under WSL. In dev, `.env` sets only host/port: the registry's named instance `mynt\sqlexpress` needs the SQL Browser, which WSL can't reach. Database, user and password come from the registry. `SISTGER_DB_REGISTRO=off` disables the registry lookup.
 - Records carry the legacy key (`sistger_id`; `sistger_numero`+`sistger_sequencial` on `sorder_items`), so re-importing updates instead of duplicating. Records created in this app have NULL and are never touched.
 - An imported order's `id` (the order number shown everywhere) is SISTGER's `iNumero`, equal to its `sistger_id`. Each order import renumbers older imports to match (`renumerar_ordens`; the `sorder_items` FK has `ON UPDATE CASCADE`). It then resets the `sorders` id sequence past the highest number. An `iNumero` already used by an order created here is skipped with a warning.

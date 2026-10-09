@@ -1,0 +1,68 @@
+<h1>Contas a pagar</h1>
+
+<%= form_with url: payables_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= select_tag :situacao, options_for_select([["Em aberto", "abertas"], ["Pagas", "pagas"], ["Todas", "todas"]], @situacao),
+        class: "form-control form-control-sm mr-2", aria: { label: "Situação" } %>
+  <%= select_tag :tipo, options_for_select(Payable::TIPOS.invert, params[:tipo]), include_blank: "Todos os tipos",
+        class: "form-control form-control-sm mr-2", aria: { label: "Tipo" } %>
+  <%= label_tag :inicio, "Vencimento de", class: "mr-1" %>
+  <%= date_field_tag :inicio, params[:inicio], class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, params[:fim], class: "form-control form-control-sm mr-2" %>
+  <%= search_field_tag :busca, params[:busca], class: "form-control form-control-sm mr-2", placeholder: "Descrição ou credor",
+        aria: { label: "Pesquisar" } %>
+  <%= submit_tag "Filtrar", name: nil, class: "btn btn-primary btn-sm mr-2" %>
+  <%= link_to "Nova conta", new_payable_path, class: "btn btn-success btn-sm" %>
+<% end %>
+
+<p>
+  <%= pluralize(@payables.size, "conta", plural: "contas") %> — total <strong><%= number_to_currency(@total) %></strong>
+</p>
+
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Vencimento</th>
+      <th>Tipo</th>
+      <th>Descrição</th>
+      <th>Credor</th>
+      <th class="text-right">Valor</th>
+      <th>Pagamento</th>
+      <th class="no-print"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @payables.each do |conta| %>
+      <tr class="<%= 'table-danger' if conta.vencida? %>">
+        <td><%= l(conta.vencimento) %></td>
+        <td><%= conta.nome_tipo %></td>
+        <td>
+          <%= conta.descricao %>
+          <% if conta.sorder_id %>· <%= link_to "OS #{conta.sorder_id}", sorder_path(conta.sorder_id) %><% end %>
+        </td>
+        <td><%= conta.nome_credor %></td>
+        <td class="text-right"><%= number_to_currency(conta.valor) %></td>
+        <td>
+          <% if conta.pago? %>
+            <%= l(conta.pago_em) %> · <%= number_to_currency(conta.valor_pago) %> · <%= conta.nome_forma %>
+          <% else %>
+            <span class="text-muted"><%= conta.vencida? ? "vencida" : "em aberto" %></span>
+          <% end %>
+        </td>
+        <td class="no-print text-nowrap">
+          <% if conta.pago? %>
+            <%= link_to "Estornar", estornar_payable_path(conta), method: :patch,
+                  data: { confirm: "Estornar o pagamento e retirar a saída do caixa?" } %>
+          <% else %>
+            <%= link_to "Pagar", pagamento_payable_path(conta), class: "btn btn-outline-success btn-sm" %>
+            <%= link_to "Editar", edit_payable_path(conta) %>
+            <%= link_to "Excluir", conta, method: :delete, data: { confirm: "Tem certeza?" } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @payables.empty? %>
+      <tr><td colspan="7" class="text-muted">Nenhuma conta encontrada.</td></tr>
+    <% end %>
+  </tbody>
+</table>

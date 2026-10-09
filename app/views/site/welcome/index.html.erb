@@ -82,6 +82,43 @@
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
+              <h2 class="h5 card-title">Caixa</h2>
+              <p class="dashboard-total mb-0"><%= number_to_currency(@caixa_saldo) %></p>
+              <p class="text-muted small mb-0">
+                saldo · hoje: <%= number_to_currency(@caixa_hoje.entradas.sum(:valor)) %> de entradas,
+                <%= number_to_currency(@caixa_hoje.saidas.sum(:valor)) %> de saídas
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', cash_entries_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to 'Novo lançamento', new_cash_entry_path, class: "btn btn-outline-secondary btn-sm" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Contas a pagar</h2>
+              <p class="dashboard-total mb-0"><%= number_to_currency(@contas_abertas.sum(:valor)) %></p>
+              <p class="text-muted small mb-0">
+                em aberto (<%= @contas_abertas.count %>)
+                <% if @contas_vencidas.exists? %>
+                  · <span class="text-danger"><%= pluralize(@contas_vencidas.count, "vencida", plural: "vencidas") %>:
+                  <%= number_to_currency(@contas_vencidas.sum(:valor)) %></span>
+                <% end %>
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', payables_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to 'Nova conta', new_payable_path, class: "btn btn-outline-secondary btn-sm" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
               <h2 class="h5 card-title">Importar clientes</h2>
               <p class="text-muted small mb-0">Cadastra clientes em lote a partir de um arquivo TXT separado por vírgulas.</p>
             </div>

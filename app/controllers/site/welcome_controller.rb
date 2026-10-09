@@ -22,6 +22,11 @@ class Site::WelcomeController < SiteController
     @ordens_hoje = Sorder.where(data: hoje.all_day).count
     @ordens_proximas = Sorder.where(data: hoje.tomorrow.beginning_of_day..(hoje + 7).end_of_day).count
 
+    @caixa_saldo = CashEntry.saldo
+    @caixa_hoje = CashEntry.where(data: hoje)
+    @contas_abertas = Payable.abertas
+    @contas_vencidas = Payable.abertas.where(vencimento: ...hoje)
+
     @comissoes_a_receber = SorderItem.ativos
       .sum("COALESCE(amountcomission, 0) - COALESCE(amountcomissionpay, 0)")
   end

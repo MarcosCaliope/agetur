@@ -13,8 +13,15 @@ class SistgerImport
   NAO_INFORMADO = "Não informado".freeze
 
   # codigo: legacy key column (code ranges, "last N"); ordem: default ORDER BY;
-  # periodo: whether the date-period filter applies.
-  Etapa = Struct.new(:chave, :nome, :tabela, :modelo, :colunas, :codigo, :ordem, :periodo, :depende_de, keyword_init: true)
+  # periodo: whether the date-period filter applies; origem: what to read
+  # FROM when it isn't the table itself (a join), aliased by the table name.
+  Etapa = Struct.new(:chave, :nome, :tabela, :modelo, :colunas, :codigo, :ordem, :periodo, :depende_de, :origem,
+                     keyword_init: true) do
+    def from = origem ? "(#{origem}) #{tabela}" : tabela
+
+    # The SISTGER table(s) it reads, for the screen.
+    def tabelas = origem ? origem.scan(/(?:FROM|JOIN) (\w+)/).join(" + ") : tabela
+  end
 
   # Columns of SISTGER's generic cadastro screen (frmCadGenerico: vendors,
   # agencies, hotels, guides, drivers). Aliased so row keys don't depend on
@@ -54,7 +61,13 @@ class SistgerImport
               periodo: true, depende_de: %w[empresa roteiros],
               colunas: "iNumero, Data, iCodDestino, iCodVeiculo, sPlacas, sNomeRedGuia, sNomeRedMotorista, nValorGuia, " \
                        "nValorMotorista, nValorPedagio, nDespesas, nValorCombustivel, nValorOS, ValorFinalOS, " \
-                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes, bCancelado")
+                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes, bCancelado, iFlgAberto"),
+    # cx_num (header) + cx_mov (lines): one cash book entry per line.
+    Etapa.new(chave: "caixa", nome: "Caixa", tabela: "caixa", modelo: "CashEntry", codigo: "numero", ordem: "numero, iSql",
+              periodo: true,
+              origem: "SELECT m.numero, m.iSql, m.descricao, m.qtd, m.valor, m.total, m.tpMov, m.iNumeroOS, m.iSeq, " \
+                      "c.data AS Data, c.requerente, c.scpfcnpj, c.tipo_pg FROM cx_mov m JOIN cx_num c ON c.numero = m.numero",
+              colunas: "numero, iSql, descricao, qtd, valor, total, tpMov, iNumeroOS, iSeq, Data, requerente, scpfcnpj, tipo_pg")
   ].each { |etapa| etapa.ordem ||= etapa.codigo }.each(&:freeze).freeze
 
   # Parts of an order, read and saved by the "ordens" step for the orders it
@@ -65,7 +78,10 @@ class SistgerImport
               colunas: "iNumero, iSequencial, iCodCliente, sNomeCliente, iCodHotel, sHotel, sNumeroApto, iNumeroPax, iNumeroCHD, " \
                        "sHora, sTelefone, nValor, nValorPago, iCodVendedor, nValorComissao, nValorRecVendedor, iCodRepassado, " \
                        "sRepassado, nValorComissaoRepassado, nValorPagoRepasse, sFlgCancelado, sTipoDoc, sNumeroDoc, " \
-                       "CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes"),
+                       "nDesconto, nDescontoVendedor, CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes"),
+    Etapa.new(chave: "recebimentos", nome: "Recebimentos", tabela: "tblOrdemServicoPagtos", modelo: "SorderItemPayment",
+              codigo: "iNumero", ordem: "iNumero, iSql, iSeq",
+              colunas: "iNumero, iSql, iSeq, sDescri, cValor, data, sUsuario, iNumeroCXA"),
     Etapa.new(chave: "lista_pax", nome: "Lista pax", tabela: "tblListaPax", modelo: "SorderItemCompanion", codigo: "iNumero",
               ordem: "iNumero, iSequencial, iSeqAdicional",
               colunas: "iNumero, iSequencial, iSeqAdicional, iClienteAdc, sNomeCliente, sTipoDoc, sNumeroDoc, SCHD, SCOLO")
@@ -100,13 +116,13 @@ class SistgerImport
   # range still to import.
   def contagens
     ETAPAS.to_h do |etapa|
-      coluna = :sistger_id
+      coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
       importados = etapa.modelo.constantize.where.not(coluna => nil)
       if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
         coluna = "vendors.sistger_id"
         importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
       end
-      origem = @fonte.resumo(etapa.tabela, etapa.codigo)
+      origem = @fonte.resumo(etapa.from, etapa.codigo)
       [etapa.chave, { sistger: origem[:total], importados: importados.count,
                       ultimo_sistger: origem[:ultimo], ultimo_importado: importados.maximum(coluna) }]
     end
@@ -154,7 +170,7 @@ class SistgerImport
     return [] if numeros.empty?
 
     filtro = numeros.size <= LOTE ? " WHERE iNumero IN (#{numeros.map { |n| Integer(n) }.join(',')})" : ""
-    linhas = @fonte.linhas("SELECT #{parte.colunas} FROM #{parte.tabela}#{filtro} ORDER BY #{parte.ordem}")
+    linhas = @fonte.linhas("SELECT #{parte.colunas} FROM #{parte.from}#{filtro} ORDER BY #{parte.ordem}")
     return linhas unless filtro.empty?
 
     numeros = numeros.to_set
@@ -216,7 +232,17 @@ class SistgerImport
         veiculo: l["iCodVeiculo"], placa: texto(l["sPlacas"]) || NAO_INFORMADO,
         valorguia: numero(l["nValorGuia"]), valormotorista: numero(l["nValorMotorista"]),
         valorpedagio: numero(l["nValorPedagio"]), valordespesas: numero(l["nDespesas"]),
-        valorcombustivel: numero(l["nValorCombustivel"]), valoros: numero(l["nValorOS"]), valorfinalos: numero(l["ValorFinalOS"]) }
+        valorcombustivel: numero(l["nValorCombustivel"]), valoros: numero(l["nValorOS"]), valorfinalos: numero(l["ValorFinalOS"]),
+        encerrada: l["iFlgAberto"] == 1 }
+    when "caixa"
+      { sistger_numero: Integer(l["numero"]), sistger_linha: Integer(l["iSql"]), data: l["Data"]&.to_date,
+        tipo: texto(l["tpMov"]) == "S" ? "S" : "E", forma_pagamento: CashEntry::FORMAS.key?(texto(l["tipo_pg"])) ? texto(l["tipo_pg"]) : "D",
+        valor: numero(l["total"] || l["valor"])&.abs, descricao: texto(l["descricao"]) || "Lançamento do SISTGER nº #{Integer(l['numero'])}",
+        requerente: texto(l["requerente"]), documento: (doc = texto(l["scpfcnpj"])) && !doc.match?(/\A0*\z/) ? doc : nil,
+        ordem: l["iNumeroOS"].to_i, sequencial: l["iSeq"].to_i }
+    when "recebimentos"
+      { ordem: l["iNumero"], sequencial: l["iSql"], sistger_seq: l["iSeq"], descricao: texto(l["sDescri"]), valor: numero(l["cValor"]),
+        data: l["data"]&.to_date, usuario: texto(l["sUsuario"]), sistger_caixa: l["iNumeroCXA"].to_i.nonzero? }
     when "passageiros"
       { ordem: l["iNumero"], sequencial: l["iSequencial"], cliente: l["iCodCliente"], snomepax: texto(l["sNomeCliente"]),
         documenttype: texto(l["sTipoDoc"]), document: texto(l["sNumeroDoc"]),
@@ -227,6 +253,7 @@ class SistgerImport
         agencia_codigo: l["iCodRepassado"], agencia: texto(l["sRepassado"]),
         amountcomissionrep: numero(l["nValorComissaoRepassado"]), amountcomissionreppay: numero(l["nValorPagoRepasse"]),
         scancelado: texto(l["sFlgCancelado"]) == "S" ? "S" : "N",
+        discount: numero(l["nDesconto"]), vendor_discount: numero(l["nDescontoVendedor"]),
         comments: texto(l["sObservacoes"]) }
     when "lista_pax"
       { ordem: l["iNumero"], sequencial: l["iSequencial"], sistger_seq_adicional: l["iSeqAdicional"], cliente: l["iClienteAdc"],
@@ -251,6 +278,8 @@ class SistgerImport
       gravar_ordens(registros, avisos)
     when "comissoes_roteiro"
       gravar_comissoes_roteiro(registros, avisos)
+    when "caixa"
+      gravar_caixa(registros, avisos)
     else
       estados = estados_por_uf
       padrao = estado_padrao(estados)
@@ -317,10 +346,13 @@ class SistgerImport
   # Passengers (tblOrdemServicoItens) and their pax list (tblListaPax) of
   # the orders just saved.
   def gravar_partes_da_ordem(numeros, avisos)
-    passageiros, lista_pax = PARTES_DA_ORDEM
+    passageiros, recebimentos, lista_pax = PARTES_DA_ORDEM
     itens = ler_da_ordem(passageiros, numeros).map { |l| mapear("passageiros", l) }
+    @detalhes << "#{gravar_passageiros(itens, avisos)} passageiro(s)"
+    pagos = ler_da_ordem(recebimentos, numeros).map { |l| mapear("recebimentos", l) }
+    @detalhes << "#{gravar_recebimentos(numeros, pagos, avisos)} recebimento(s)"
     pax = ler_da_ordem(lista_pax, numeros).map { |l| mapear("lista_pax", l) }
-    @detalhes << "#{gravar_passageiros(itens, avisos)} passageiro(s)" << "#{gravar_lista_pax(numeros, pax, avisos)} na lista pax"
+    @detalhes << "#{gravar_lista_pax(numeros, pax, avisos)} na lista pax"
   end
 
   # Gives imported orders numbered otherwise (before iNumero became the id)
@@ -368,11 +400,71 @@ class SistgerImport
     upsert(SorderItem, linhas, unique_by: %i[sistger_numero sistger_sequencial])
   end
 
+  # Payments of imported items are replaced by SISTGER's (those added here
+  # stay). They link to the cash book entry SISTGER posted them as, when
+  # the cash book was imported.
+  def gravar_recebimentos(numeros, registros, avisos)
+    itens = itens_importados(numeros)
+    SorderItemPayment.where(sorder_item_id: itens.values).where.not(sistger_seq: nil).delete_all
+
+    invalidos, registros = registros.partition { |r| r[:valor].to_f <= 0 || r[:data].nil? }
+    sem_item, validos = registros.partition { |r| itens[[r[:ordem], r[:sequencial]]].nil? }
+    avisos << "#{invalidos.size} recebimento(s) sem valor ou data ignorado(s)." if invalidos.any?
+    avisos << "#{sem_item.size} recebimento(s) ignorado(s) porque o passageiro não foi importado." if sem_item.any?
+
+    caixa = lancamentos_do_caixa(validos.filter_map { |r| r[:sistger_caixa] })
+    agora = Time.current
+    linhas = validos.map do |r|
+      lancamento = caixa[r[:sistger_caixa]]
+      r.except(:ordem, :sequencial).merge(sorder_item_id: itens[[r[:ordem], r[:sequencial]]], cash_entry_id: lancamento&.first,
+                                          forma_pagamento: lancamento&.last, created_at: agora, updated_at: agora)
+    end
+    linhas.each_slice(LOTE) { |lote| SorderItemPayment.insert_all(lote) }
+    linhas.size
+  end
+
+  # Cash book: entries are keyed by SISTGER's number and line. Each links to
+  # its order/passenger, and payments posted as it get linked back.
+  def gravar_caixa(registros, avisos)
+    invalidos, validos = registros.partition { |r| r[:valor].to_f <= 0 || r[:data].nil? }
+    avisos << "#{invalidos.size} lançamento(s) de caixa sem valor ou data ignorado(s)." if invalidos.any?
+
+    ordens = Sorder.where(id: validos.map { |r| r[:ordem] }.uniq).pluck(:id).to_set
+    itens = itens_importados(ordens.to_a)
+    linhas = validos.map do |r|
+      r.except(:ordem, :sequencial).merge(
+        categoria: r[:tipo] == "S" ? "Pagamento de conta" : (r[:ordem].positive? ? "Recebimento de passeio" : "Outros"),
+        sorder_id: (r[:ordem] if ordens.include?(r[:ordem])), sorder_item_id: itens[[r[:ordem], r[:sequencial]]]
+      )
+    end
+    gravados = upsert(CashEntry, linhas, unique_by: %i[sistger_numero sistger_linha])
+
+    SorderItemPayment.connection.execute(<<~SQL)
+      UPDATE sorder_item_payments p
+         SET cash_entry_id = c.id, forma_pagamento = c.forma_pagamento
+        FROM (SELECT DISTINCT ON (sistger_numero) id, sistger_numero, forma_pagamento
+                FROM cash_entries WHERE sistger_numero IS NOT NULL ORDER BY sistger_numero, sistger_linha) c
+       WHERE p.sistger_caixa = c.sistger_numero
+    SQL
+    gravados
+  end
+
+  # {[order number, sequential] => id} of the imported items of these orders.
+  def itens_importados(numeros)
+    SorderItem.where(sistger_numero: numeros).pluck(:sistger_numero, :sistger_sequencial, :id)
+              .to_h { |numero, sequencial, id| [[numero, sequencial], id] }
+  end
+
+  # {SISTGER cash number => [id, payment method]} of imported entries (first line).
+  def lancamentos_do_caixa(numeros)
+    CashEntry.where(sistger_numero: numeros.uniq).order(:sistger_numero, :sistger_linha)
+             .pluck(:sistger_numero, :id, :forma_pagamento).each_with_object({}) { |(n, id, forma), h| h[n] ||= [id, forma] }
+  end
+
   # The pax list of imported items is replaced by SISTGER's; names added
   # here (no sistger_seq_adicional) stay.
   def gravar_lista_pax(numeros, registros, avisos)
-    itens = SorderItem.where(sistger_numero: numeros).pluck(:sistger_numero, :sistger_sequencial, :id)
-                      .to_h { |numero, sequencial, id| [[numero, sequencial], id] }
+    itens = itens_importados(numeros)
     SorderItemCompanion.where(sorder_item_id: itens.values).where.not(sistger_seq_adicional: nil).delete_all
 
     sem_nome, registros = registros.partition { |r| r[:snome].nil? }

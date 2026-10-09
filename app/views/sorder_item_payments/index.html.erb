@@ -1,0 +1,90 @@
+<% item = @sorder_item %>
+<% ordem = item.sorder %>
+<h1>Recebimentos do passageiro</h1>
+<p>
+  <strong><%= item.nome_passageiro %></strong> — <%= link_to "OS nº #{ordem.id}", ordem %>
+  <% if ordem.encerrada? %><span class="badge badge-secondary">OS encerrada</span><% end %>
+</p>
+
+<div class="d-flex flex-wrap text-center mb-3">
+  <% [["Valor do passeio", item.amount], ["Descontos", item.discount.to_f + item.vendor_discount.to_f],
+      ["Pago", item.amountpay], ["A receber", item.total_passeio]].each do |rotulo, valor| %>
+    <div class="mr-4">
+      <div class="h5 mb-0"><%= number_to_currency(valor.to_f) %></div>
+      <div class="text-muted small"><%= rotulo %></div>
+    </div>
+  <% end %>
+</div>
+
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Descrição</th>
+      <th>Forma</th>
+      <th class="text-right">Valor</th>
+      <th>Usuário</th>
+      <th>Caixa</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% item.pagamentos.includes(:cash_entry).each do |pagamento| %>
+      <tr>
+        <td><%= l(pagamento.data) %></td>
+        <td><%= pagamento.descricao %></td>
+        <td><%= pagamento.nome_forma %></td>
+        <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
+        <td><%= pagamento.usuario %></td>
+        <td>
+          <% if pagamento.cash_entry %>
+            <%= link_to "nº #{pagamento.cash_entry.id}", cash_entries_path(inicio: pagamento.cash_entry.data) %>
+          <% else %>
+            <span class="text-muted">—</span>
+          <% end %>
+        </td>
+        <td class="text-right">
+          <% unless ordem.encerrada? %>
+            <%= link_to "Excluir", sorder_item_recebimento_path(item, pagamento), method: :delete,
+                  data: { confirm: pagamento.cash_entry ? "Excluir o recebimento e o lançamento dele no caixa?" : "Tem certeza?" } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% if item.pagamentos.none? && item.amountpay.to_f.positive? %>
+  <p class="text-muted small">O valor pago deste passageiro foi informado sem detalhar os recebimentos.</p>
+<% end %>
+
+<% unless ordem.encerrada? %>
+  <h2 class="h5 mt-4">Novo recebimento</h2>
+  <%= form_with model: @pagamento, url: sorder_item_recebimentos_path(item), local: true do |form| %>
+    <%= render "shared/erros", registro: @pagamento %>
+    <div class="form-row">
+      <div class="form-group col-sm-3 col-md-2">
+        <%= form.label :data %>
+        <%= form.date_field :data, class: "form-control" %>
+      </div>
+      <div class="form-group col-sm-3 col-md-2">
+        <%= form.label :valor %>
+        <%= form.number_field :valor, step: "0.01", min: "0.01", class: "form-control" %>
+      </div>
+      <div class="form-group col-sm-6 col-md-3">
+        <%= form.label :forma_pagamento %>
+        <%= form.select :forma_pagamento, CashEntry::FORMAS.invert, {}, class: "form-control" %>
+      </div>
+      <div class="form-group col-md-5">
+        <%= form.label :descricao %>
+        <%= form.text_field :descricao, class: "form-control" %>
+      </div>
+    </div>
+    <div class="form-check mb-3">
+      <%= form.check_box :lancar_no_caixa, class: "form-check-input" %>
+      <%= form.label :lancar_no_caixa, "Lançar no caixa da data", class: "form-check-label" %>
+    </div>
+    <%= form.submit "Lançar recebimento", class: "btn btn-primary" %>
+  <% end %>
+<% end %>
+
+<p class="mt-4"><%= link_to "[Voltar para a OS]", ordem %></p>

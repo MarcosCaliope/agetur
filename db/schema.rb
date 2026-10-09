@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -78,6 +78,28 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
     t.index ["sistger_id"], name: "index_agencies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_agencies_on_state_id"
     t.index ["vendor_id"], name: "index_agencies_on_vendor_id"
+  end
+
+  create_table "cash_entries", force: :cascade do |t|
+    t.date "data", null: false
+    t.string "tipo", null: false
+    t.string "categoria", null: false
+    t.string "forma_pagamento", null: false
+    t.decimal "valor", precision: 12, scale: 2, null: false
+    t.string "descricao", null: false
+    t.string "requerente"
+    t.string "documento"
+    t.string "usuario"
+    t.bigint "sorder_id"
+    t.bigint "sorder_item_id"
+    t.integer "sistger_numero"
+    t.integer "sistger_linha"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["data"], name: "index_cash_entries_on_data"
+    t.index ["sistger_numero", "sistger_linha"], name: "index_cash_entries_on_sistger_numero_and_sistger_linha", unique: true
+    t.index ["sorder_id"], name: "index_cash_entries_on_sorder_id"
+    t.index ["sorder_item_id"], name: "index_cash_entries_on_sorder_item_id"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -206,6 +228,32 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
     t.index ["state_id"], name: "index_hotels_on_state_id"
   end
 
+  create_table "payables", force: :cascade do |t|
+    t.string "tipo", null: false
+    t.string "origem"
+    t.string "descricao", null: false
+    t.string "credor_type"
+    t.bigint "credor_id"
+    t.string "credor_nome"
+    t.bigint "sorder_id"
+    t.bigint "sorder_item_id"
+    t.decimal "valor", precision: 12, scale: 2, null: false
+    t.date "vencimento", null: false
+    t.date "pago_em"
+    t.decimal "valor_pago", precision: 12, scale: 2
+    t.string "forma_pagamento"
+    t.bigint "cash_entry_id"
+    t.string "observacoes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cash_entry_id"], name: "index_payables_on_cash_entry_id"
+    t.index ["credor_type", "credor_id"], name: "index_payables_on_credor"
+    t.index ["sorder_id", "sorder_item_id", "origem"], name: "index_payables_on_origem_da_ordem", unique: true, where: "(origem IS NOT NULL)", nulls_not_distinct: true
+    t.index ["sorder_id"], name: "index_payables_on_sorder_id"
+    t.index ["sorder_item_id"], name: "index_payables_on_sorder_item_id"
+    t.index ["vencimento"], name: "index_payables_on_vencimento"
+  end
+
   create_table "sorder_item_companions", force: :cascade do |t|
     t.bigint "sorder_item_id", null: false
     t.bigint "customer_id"
@@ -220,6 +268,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
     t.index ["customer_id"], name: "index_sorder_item_companions_on_customer_id"
     t.index ["sorder_item_id", "sistger_seq_adicional"], name: "idx_on_sorder_item_id_sistger_seq_adicional_536c241731", unique: true
     t.index ["sorder_item_id"], name: "index_sorder_item_companions_on_sorder_item_id"
+  end
+
+  create_table "sorder_item_payments", force: :cascade do |t|
+    t.bigint "sorder_item_id", null: false
+    t.date "data", null: false
+    t.decimal "valor", precision: 12, scale: 2, null: false
+    t.string "descricao"
+    t.string "forma_pagamento"
+    t.string "usuario"
+    t.bigint "cash_entry_id"
+    t.integer "sistger_seq"
+    t.integer "sistger_caixa"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cash_entry_id"], name: "index_sorder_item_payments_on_cash_entry_id"
+    t.index ["sorder_item_id", "sistger_seq"], name: "index_sorder_item_payments_on_sorder_item_id_and_sistger_seq", unique: true
+    t.index ["sorder_item_id"], name: "index_sorder_item_payments_on_sorder_item_id"
   end
 
   create_table "sorder_items", force: :cascade do |t|
@@ -248,6 +313,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
     t.string "scancelado"
     t.integer "sistger_numero"
     t.integer "sistger_sequencial"
+    t.float "discount"
+    t.float "vendor_discount"
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"
     t.index ["hotel_id"], name: "index_sorder_items_on_hotel_id"
@@ -274,6 +341,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
     t.float "valorfinalos"
     t.bigint "company_id"
     t.integer "sistger_id"
+    t.boolean "encerrada", default: false, null: false
     t.index ["company_id"], name: "index_sorders_on_company_id"
     t.index ["destination_id"], name: "index_sorders_on_destination_id"
     t.index ["driver_id"], name: "index_sorders_on_driver_id"
@@ -394,14 +462,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_09_130000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agencies", "states"
   add_foreign_key "agencies", "vendors"
+  add_foreign_key "cash_entries", "sorder_items", on_delete: :nullify
+  add_foreign_key "cash_entries", "sorders", on_update: :cascade, on_delete: :nullify
   add_foreign_key "companies", "states"
   add_foreign_key "customers", "states"
   add_foreign_key "customers", "states", column: "billing_state_id"
   add_foreign_key "destinations", "states"
   add_foreign_key "drivers", "states"
   add_foreign_key "hotels", "states"
+  add_foreign_key "payables", "cash_entries", on_delete: :nullify
+  add_foreign_key "payables", "sorder_items", on_delete: :cascade
+  add_foreign_key "payables", "sorders", on_update: :cascade, on_delete: :cascade
   add_foreign_key "sorder_item_companions", "customers"
   add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade
+  add_foreign_key "sorder_item_payments", "cash_entries", on_delete: :nullify
+  add_foreign_key "sorder_item_payments", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_items", "agencies"
   add_foreign_key "sorder_items", "customers"
   add_foreign_key "sorder_items", "hotels"

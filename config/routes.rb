@@ -1,11 +1,24 @@
 Rails.application.routes.draw do
   
   resources :companies
-  resources :sorder_items
+  resources :sorder_items do
+    resources :recebimentos, controller: "sorder_item_payments", only: %i[index create destroy]
+  end
   get 'showcomis', to: 'sorder_items#showcomis'
   resources :sorders do
     member do
       get 'export'
+      patch 'encerrar'
+      patch 'reabrir'
+    end
+  end
+
+  resources :cash_entries, path: "caixa", except: :show
+  resources :payables, path: "contas-a-pagar", except: :show do
+    member do
+      get 'pagamento'
+      patch 'pagar'
+      patch 'estornar'
     end
   end
   

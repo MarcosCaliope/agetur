@@ -1,7 +1,8 @@
 class SordersController < ApplicationController
 # No Before Action nós adicionamos também o export para que ele consiga pegar o agreement correto  
 
-  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export]
+  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export, :encerrar, :reabrir]
+  before_action :exigir_ordem_aberta, only: [:edit, :update, :destroy]
   before_action :set_destination_options, only: [:new, :create, :edit, :update]
   before_action :set_tourguide_options, only: [:new, :create, :edit, :update]
   before_action :set_driver_options, only: [:new, :create, :edit, :update]
@@ -34,6 +35,20 @@ class SordersController < ApplicationController
   end
 
 
+
+  # PATCH /sorders/1/encerrar
+  def encerrar
+    antes = @sorder.payables.count
+    @sorder.encerrar!
+    geradas = @sorder.payables.count - antes
+    redirect_to @sorder, notice: "Ordem de serviço encerrada. #{geradas} conta(s) a pagar gerada(s)."
+  end
+
+  # PATCH /sorders/1/reabrir
+  def reabrir
+    @sorder.reabrir!
+    redirect_to @sorder, notice: "Ordem de serviço reaberta. As contas a pagar dela ainda não pagas foram removidas."
+  end
 
   # GET /sorders/1/export
   def export
@@ -115,6 +130,11 @@ class SordersController < ApplicationController
     def set_sorder
       @sorder = Sorder.find(params[:id])
     end
+
+    # A closed order (SISTGER's iFlgAberto) can't be changed until reopened.
+    def exigir_ordem_aberta
+      redirect_to @sorder, alert: "Ordem de serviço encerrada: reabra para alterar." if @sorder.encerrada?
+    end
     def set_sorder_item
       @sorder_item = SorderItem.where('sorder_id = ?', params[:id]).includes(:companions)
     end
@@ -159,7 +179,7 @@ class SordersController < ApplicationController
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,
-      :amountpay, :amountcomission, :amountcomissionpay, :amountcomissionrep, :amountcomissionreppay, :snomepax, :scancelado, :done, :_destroy,
+      :amountpay, :discount, :vendor_discount, :amountcomission, :amountcomissionpay, :amountcomissionrep, :amountcomissionreppay, :snomepax, :scancelado, :done, :_destroy,
       companions_attributes: [:id, :snome, :documenttype, :document, :chd, :colo, :_destroy]])
     end
 end

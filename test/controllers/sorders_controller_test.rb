@@ -147,6 +147,22 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit][value=?]", "Criar Ordem de serviço"
   end
 
+  test "closing an order makes its bills and blocks changes until reopened" do
+    @sorder.update!(valorguia: 50)
+    assert_difference("Payable.count") { patch encerrar_sorder_url(@sorder) }
+    follow_redirect!
+    assert_select ".alert-success", text: "Ordem de serviço encerrada. 1 conta(s) a pagar gerada(s)."
+    assert_select "a", text: "[Reabrir OS]"
+
+    get edit_sorder_url(@sorder)
+    assert_redirected_to sorder_url(@sorder)
+    patch sorder_url(@sorder), params: { sorder: { sobservacoes: "mudou" } }
+    assert_not_equal "mudou", @sorder.reload.sobservacoes
+
+    assert_difference("Payable.count", -1) { patch reabrir_sorder_url(@sorder) }
+    assert_not @sorder.reload.encerrada?
+  end
+
   test "should destroy sorder" do
     assert_difference('Sorder.count', -1) do
       delete sorder_url(@sorder)

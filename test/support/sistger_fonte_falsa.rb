@@ -21,8 +21,10 @@ class SistgerFonteFalsa
     linhas.map(&:dup)
   end
 
+  # tabela may be a joined source ("(SELECT ... FROM cx_mov ...) caixa"):
+  # its rows are canned under the first table it reads.
   def resumo(tabela, coluna)
-    linhas = @tabelas.fetch(tabela, [])
+    linhas = @tabelas.fetch(tabela[/FROM (\w+)/, 1] || tabela, [])
     { total: linhas.size, ultimo: linhas.filter_map { |l| l[coluna] }.max }
   end
 
