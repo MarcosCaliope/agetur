@@ -58,13 +58,13 @@ Rails.application.routes.draw do
   namespace :admins_backoffice do
     get 'welcome/index'
     resources :users, path: "usuarios", except: :show
-    patch 'empresa', to: 'empresas#update', as: :empresa
   end
   
   devise_for :users
   devise_for :admins
  
   get 'inicio', to: 'site/welcome#index'
+  patch 'trocar-empresa', to: 'troca_empresa#update', as: :trocar_empresa
 
   scope 'manutencao' do
     get 'sistger', to: 'sistger_imports#index', as: :sistger_imports

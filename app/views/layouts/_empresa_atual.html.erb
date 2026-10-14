@@ -1,6 +1,7 @@
-<%# The company the page's data belongs to; an admin can switch it. %>
-<% if admin_signed_in? %>
-  <%= form_with url: admins_backoffice_empresa_path, method: :patch, local: true, class: "form-inline d-inline-flex empresa-atual no-print" do %>
+<%# The company the page's data belongs to; an admin, or a user allowed every
+    company, can switch it. %>
+<% if escolhe_empresa? %>
+  <%= form_with url: trocar_empresa_path, method: :patch, local: true, class: "form-inline d-inline-flex empresa-atual no-print" do %>
     <label for="empresa_id" class="small text-muted mr-1">Empresa:</label>
     <%= select_tag :empresa_id, options_from_collection_for_select(Company.order(:name), :id, :name, empresa_atual&.id),
           class: "form-control form-control-sm", onchange: "this.form.requestSubmit()" %>

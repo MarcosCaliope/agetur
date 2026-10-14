@@ -5,8 +5,11 @@ class User < ApplicationRecord
   devise :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
-  # The company whose data the user sees (DaEmpresa). Without one, none.
+  # The company whose data the user sees (DaEmpresa). With todas_empresas
+  # they pick it in the header instead; with neither, they see no data.
   belongs_to :company, optional: true
+
+  TODAS_EMPRESAS = "todas".freeze
 
   before_validation :limpar_permissoes
 
@@ -15,6 +18,16 @@ class User < ApplicationRecord
   # home page.
   def pode?(controller, action)
     acesso_total? || permissoes.include?(Permissao.chave(controller, action))
+  end
+
+  # The form's single "Empresa" select: blank, TODAS_EMPRESAS or a company id.
+  def acesso_empresa
+    todas_empresas? ? TODAS_EMPRESAS : company_id
+  end
+
+  def acesso_empresa=(valor)
+    self.todas_empresas = valor.to_s == TODAS_EMPRESAS
+    self.company_id = todas_empresas? ? nil : valor.presence
   end
 
   private

@@ -9,7 +9,13 @@
       <tr>
         <td><%= user.name %></td>
         <td><%= user.email %></td>
-        <td><%= user.company&.name || content_tag(:span, "Nenhuma (não vê dados)", class: "text-danger") %></td>
+        <td>
+          <% if user.todas_empresas? %>
+            Todas (escolhe no topo)
+          <% else %>
+            <%= user.company&.name || content_tag(:span, "Nenhuma (não vê dados)", class: "text-danger") %>
+          <% end %>
+        </td>
         <td>
           <% if user.acesso_total? %>
             Total

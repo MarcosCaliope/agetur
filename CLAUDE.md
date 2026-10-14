@@ -114,11 +114,12 @@ Previews honor the filter. Chosen steps always run in dependency order.
 ### Empresas (data per company)
 
 - Every cadastro and movement table has a required `company_id`, and its model includes the `DaEmpresa` concern. States are shared. Companions and `VendorDestination` are reached only through their parent and have no column.
-- `ApplicationController#definir_empresa` (a `prepend_before_action`, never skipped) fills `Current`:
-  - a `User` works in `user.company`, and without one sees no data at all;
-  - an admin works in the company picked in the header (`layouts/_empresa_atual`, `PATCH /admins_backoffice/empresa`, kept in `session[:empresa_id]`), defaulting to the first.
+- `ApplicationController#definir_empresa` fills `Current`. It's the first `before_action`, never skipped, and not prepended: it must run after the CSRF check, or looking up the account on a sign-in request makes Devise reset the token and every login fails (`csrf_login_test.rb` covers it).
+  - An admin, or a user with `todas_empresas` ("Todas as empresas" in the user form), works in the company picked in the header (`escolhe_empresa?`). The picker is `layouts/_empresa_atual`, posting to `PATCH /trocar-empresa` (`TrocaEmpresaController`, outside the route permissions), and the choice is kept in `session[:empresa_id]`, defaulting to the first company.
+  - Any other user works in `user.company` and sees no data without one.
+  - The form sets both columns through the virtual `User#acesso_empresa` (blank, `"todas"` or a company id).
 - `DaEmpresa`'s `default_scope` then filters every query, including `find` (another company's id is a 404), selects, counts, Ransack and PDFs. New rows take `Current.empresa_id`, or their parent's company via `da_empresa via:`. An optional reference to a record the scope hides fails validation.
-- `Company` itself is scoped to the user's own record (`Current.so_a_propria_empresa`). Admins see and manage every company.
+- `Company` itself is scoped to a bound user's own record (`Current.so_a_propria_empresa`). Admins and `todas_empresas` users see every company.
 - Use `empresa_atual` (a helper) for "the company of this page", never `Company.first`. The order form has no company select; an order belongs to the company being worked in.
 - Outside a request (console, seeds) nothing is filtered and `company_id` must be given. Tests set `Current.empresa_id` to `companies(:two)` in `test_helper.rb`, and every fixture belongs to `:two`. Users `:one`/`:two`/`:consulta` work in it, `:sem_rotas` has none. Add `company: two` to new fixtures.
 - `upsert_all`/`insert_all` skip callbacks, so pass `company_id` yourself. The SISTGER import runs with the scope off (`sem_escopo_de_empresa`) and writes everything to the company imported from SISTGER, or to the importer's company until that one is imported.

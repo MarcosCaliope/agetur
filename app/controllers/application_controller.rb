@@ -1,7 +1,9 @@
 class ApplicationController < ActionController::Base
-  # Which company's data the request sees (see DaEmpresa). Runs first and is
-  # never skipped, so every controller is scoped.
-  prepend_before_action :definir_empresa
+  # Which company's data the request sees (see DaEmpresa). Declared first and
+  # never skipped, so every controller is scoped. Not prepended: it must run
+  # after the CSRF check, because looking up the account on a sign-in request
+  # authenticates it and Devise then resets the CSRF token.
+  before_action :definir_empresa
   # Every page requires a signed-in User or Admin unless its controller opts
   # out: Devise's own controllers, the public site and the namespaced
   # back-offices (which run their own authenticate_user!/authenticate_admin!).
@@ -10,21 +12,27 @@ class ApplicationController < ActionController::Base
   # The controllers that opt out of this are Permissao::LIVRES.
   before_action :verificar_permissao!, unless: :devise_controller?
 
-  helper_method :pode_acessar?, :empresa_atual
+  helper_method :pode_acessar?, :empresa_atual, :escolhe_empresa?
 
   private
 
-  # A user works in their company; an admin in the one picked in the header
-  # (session[:empresa_id]), else the first.
+  # An admin, or a user with todas_empresas, works in the company picked in
+  # the header (session[:empresa_id]), else the first. Any other user works
+  # in their own company only, and sees no data without one.
   def definir_empresa
-    if admin_signed_in?
+    return unless admin_signed_in? || user_signed_in?
+
+    Current.filtrar_empresa = true
+    if escolhe_empresa?
       Current.empresa_id = Company.where(id: session[:empresa_id]).pick(:id) || Company.order(:id).pick(:id)
-      Current.filtrar_empresa = true
-    elsif user_signed_in?
+    else
       Current.empresa_id = current_user.company_id
-      Current.filtrar_empresa = true
       Current.so_a_propria_empresa = true
     end
+  end
+
+  def escolhe_empresa?
+    admin_signed_in? || (user_signed_in? && current_user.todas_empresas?)
   end
 
   def empresa_atual

@@ -4,7 +4,8 @@
 # permission), and payables' pagamento screen shares pagar's.
 #
 # Only controllers that run the permission check are listed: ApplicationController
-# subclasses, minus Devise, the public site and the back-offices.
+# subclasses, minus Devise, the public site, the back-offices and the header's
+# company switch.
 module Permissao
   Item = Struct.new(:chave, :rotulo, :rotas)
   Grupo = Struct.new(:controller, :rotulo, :itens)
@@ -12,7 +13,7 @@ module Permissao
   MESMA_ACAO = { "new" => "create", "edit" => "update" }.freeze
   MESMA_CHAVE = { "payables#pagamento" => "payables#pagar" }.freeze
   ORDEM = %w[index show create update destroy].freeze
-  LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController].freeze
+  LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController].freeze
 
   module_function
 

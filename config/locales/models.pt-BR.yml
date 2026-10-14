@@ -222,6 +222,7 @@ pt-BR:
         permissoes: "Rotas"
         company: "Empresa"
         company_id: "Empresa"
+        acesso_empresa: "Empresa"
         password: "Senha"
         password_confirmation: "Confirmação da senha"
         remember_me: "Lembrar de mim"

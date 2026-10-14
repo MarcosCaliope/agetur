@@ -1,7 +1,7 @@
 require 'test_helper'
 
-# Each user sees and creates only their company's data (DaEmpresa); an admin
-# works in the company picked in the header.
+# Each user sees and creates only their company's data (DaEmpresa); an admin,
+# or a user allowed every company, works in the company picked in the header.
 class EmpresasTest < ActionDispatch::IntegrationTest
   setup do
     @outra = companies(:one)
@@ -68,31 +68,72 @@ class EmpresasTest < ActionDispatch::IntegrationTest
 
   test "an admin switches the company to work in" do
     sign_in admins(:one)
-    patch admins_backoffice_empresa_url, params: { empresa_id: @outra.id }
+    patch trocar_empresa_url, params: { empresa_id: @outra.id }
     assert_redirected_to root_url
     get hotels_url
     assert_select "td", text: @hotel_da_outra.sname
     assert_select "td", text: hotels(:one).sname, count: 0
     get companies_url
-    assert_select "a[href=?]", company_path(companies(:two))
+    assert_select "td", text: companies(:two).name
+    assert_select "td", text: @outra.name
 
-    patch admins_backoffice_empresa_url, params: { empresa_id: companies(:two).id }
+    patch trocar_empresa_url, params: { empresa_id: companies(:two).id }
     get hotels_url
     assert_select "td", text: hotels(:one).sname
     assert_select "select#empresa_id option[selected]", text: companies(:two).name
   end
 
-  test "users can't switch companies" do
+  test "a user bound to a company can't switch" do
     sign_in users(:one)
-    patch admins_backoffice_empresa_url, params: { empresa_id: @outra.id }
-    assert_redirected_to new_admin_session_url
+    get hotels_url
+    assert_select "select#empresa_id", count: 0
+    patch trocar_empresa_url, params: { empresa_id: @outra.id }
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_select ".alert-danger", text: "Seu cadastro não permite trocar de empresa."
     get hotels_url
     assert_select "td", text: @hotel_da_outra.sname, count: 0
   end
 
-  test "the admin sets a user's company" do
+  test "a user allowed every company picks one in the header" do
+    users(:consulta).update!(acesso_empresa: User::TODAS_EMPRESAS, permissoes: %w[hotels#index companies#index])
+    sign_in users(:consulta)
+    patch trocar_empresa_url, params: { empresa_id: @outra.id }
+    get hotels_url
+    assert_select "select#empresa_id option[selected]", text: @outra.name
+    assert_select "td", text: @hotel_da_outra.sname
+    assert_select "td", text: hotels(:one).sname, count: 0
+    get companies_url
+    assert_select "td", text: companies(:two).name
+    assert_select "td", text: @outra.name
+
+    patch trocar_empresa_url, params: { empresa_id: companies(:two).id }
+    get hotels_url
+    assert_select "td", text: hotels(:one).sname
+    assert_select "td", text: @hotel_da_outra.sname, count: 0
+  end
+
+  test "switching needs a signed-in account" do
+    patch trocar_empresa_url, params: { empresa_id: @outra.id }
+    assert_redirected_to new_user_session_url
+  end
+
+  test "the admin sets a user's company, all of them or none" do
     sign_in admins(:one)
-    patch admins_backoffice_user_url(users(:consulta)), params: { user: { company_id: @outra.id } }
-    assert_equal @outra, users(:consulta).reload.company
+    user = users(:consulta)
+    get edit_admins_backoffice_user_url(user)
+    assert_select "select[name='user[acesso_empresa]'] option[selected]", text: companies(:two).name
+    assert_select "select[name='user[acesso_empresa]'] option[value=todas]", text: "Todas as empresas"
+
+    patch admins_backoffice_user_url(user), params: { user: { acesso_empresa: @outra.id } }
+    assert_equal [@outra, false], [user.reload.company, user.todas_empresas?]
+
+    patch admins_backoffice_user_url(user), params: { user: { acesso_empresa: "todas" } }
+    assert_equal [nil, true], [user.reload.company, user.todas_empresas?]
+    get admins_backoffice_users_url
+    assert_select "td", text: /Todas \(escolhe no topo\)/
+
+    patch admins_backoffice_user_url(user), params: { user: { acesso_empresa: "" } }
+    assert_equal [nil, false], [user.reload.company, user.todas_empresas?]
   end
 end
