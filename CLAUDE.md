@@ -20,7 +20,7 @@ bin/rails console
 bin/rails db:create db:migrate    # or db:schema:load
 bin/rails db:seed
 
-bin/rails test                                   # full suite (models + controllers)
+bin/rails test                                   # everything except system tests (models, controllers, importers, integration)
 bin/rails test test/models/sorder_test.rb        # single file
 bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # Capybara/Selenium (Selenium Manager resolves the driver)
@@ -99,7 +99,7 @@ Previews honor the filter. Chosen steps always run in dependency order.
 
 ### PDF generation
 
-1. **Preferred:** `app/pdfs/*.rb` (`HotelPdf`, `SorderPdf`, `OsrelPdf`, `SorderExportPdf`). These are `Prawn::Document` subclasses (with `prawn-table`) that build the document in `initialize`. Controllers render them with `send_data pdf.render, ...`, either from a `format.pdf` branch (`HotelsController#index`, `SordersController#index`) or from a dedicated action (`SordersController#export`, the single-order PDF at `/sorders/:id/export`). Follow this pattern for new PDFs.
+1. **Preferred:** `app/pdfs/*.rb` (`HotelPdf`, `SorderPdf`, `OsrelPdf`, `SorderExportPdf`, `ReciboCaixaPdf`, `ResumoCaixaPdf`; shared header/number formatting in the `PdfFormatacao` module). These are `Prawn::Document` subclasses (with `prawn-table`) that build the document in `initialize`. Controllers render them with `send_data pdf.render, ...`, either from a `format.pdf` branch (`HotelsController#index`, `SordersController#index`) or from a dedicated action (`SordersController#export`, the single-order PDF at `/sorders/:id/export`). Follow this pattern for new PDFs.
 2. `app/views/sorders/index.pdf.prawn` is an older `prawn-rails` template. The `pdfkit`, `wicked_pdf` and `wkhtmltopdf-binary` gems and the `layouts/pdf.html.*` files are present but effectively unused.
 
 ### Auth / namespacing
