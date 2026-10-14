@@ -57,6 +57,7 @@ Rails.application.routes.draw do
   end
   namespace :admins_backoffice do
     get 'welcome/index'
+    resources :users, path: "usuarios", except: :show
   end
   
   devise_for :users

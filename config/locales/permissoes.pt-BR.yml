@@ -1,0 +1,49 @@
+# Labels of the routes listed in a Perfil de acesso (see Permissao). A
+# controller with a model falls back to its plural model name; an action
+# without a label here falls back to its humanized name. Generic labels name
+# the link they show or hide in the screens.
+pt-BR:
+  permissoes:
+    controllers:
+      booking_item_payments: "Agendamentos — sinais recebidos"
+      booking_items: "Agendamentos — passeios"
+      commission_payments: "Pagamento de comissões"
+      sistger_imports: "Importação do SISTGER"
+      sorder_item_payments: "Passageiros — recebimentos"
+      sorder_items: "Passageiros"
+      txt: "Importação de clientes (TXT)"
+      vendor_destinations: "Vendedores — comissões por roteiro"
+    acoes:
+      index: "Listar"
+      show: "Exibir"
+      create: "Incluir (Novo)"
+      update: "Alterar (Editar)"
+      destroy: "Excluir"
+      bookings:
+        pendentes: "Passeios pendentes"
+      booking_items:
+        lancar: "Lançar na OS"
+        retirar: "Retirar da OS"
+      cash_entries:
+        recibo: "Recibo (PDF)"
+      commission_payments:
+        create: "Pagar comissões"
+      payables:
+        pagar: "Pagar"
+        estornar: "Estornar pagamento"
+      sistger_imports:
+        index: "Abrir"
+        show: "Prévia de uma etapa"
+        create: "Importar"
+      sorder_items:
+        showcomis: "Relatório de comissões"
+      sorders:
+        export: "Exportar PDF"
+        encerrar: "Encerrar"
+        reabrir: "Reabrir"
+      txt:
+        index: "Abrir"
+        importar: "Importar"
+      vendor_destinations:
+        show: "Exibir"
+        update: "Alterar"

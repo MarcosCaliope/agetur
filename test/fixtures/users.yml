@@ -1,9 +1,22 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# :one/:two may open every route; :consulta only a few; :sem_rotas none.
 
 one:
   email: user_one@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  acesso_total: true
 
 two:
   email: user_two@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  acesso_total: true
+
+consulta:
+  name: Consulta
+  email: consulta@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  permissoes: ["sorders#index", "sorders#show", "states#index", "customers#index", "customers#update"]
+
+sem_rotas:
+  email: sem_rotas@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>

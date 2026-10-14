@@ -1,0 +1,29 @@
+<%= form_with(model: [:admins_backoffice, user], local: true) do |form| %>
+  <%= render "shared/erros", registro: user %>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <%= form.label :name %>
+      <%= form.text_field :name, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= form.label :email %>
+      <%= form.email_field :email, class: "form-control", required: true %>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <%= form.label :password %>
+      <%= form.password_field :password, class: "form-control", autocomplete: "new-password" %>
+      <% if user.persisted? %><small class="form-text text-muted">Deixe em branco para manter a senha atual.</small><% end %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= form.label :password_confirmation %>
+      <%= form.password_field :password_confirmation, class: "form-control", autocomplete: "new-password" %>
+    </div>
+  </div>
+
+  <%= render "permissoes", form: form, user: user %>
+
+  <%= form.submit class: "btn btn-primary" %>
+  <%= link_to "Voltar", admins_backoffice_users_path, class: "btn btn-link" %>
+<% end %>

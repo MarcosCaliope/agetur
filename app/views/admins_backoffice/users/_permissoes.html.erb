@@ -1,0 +1,42 @@
+<%# The user's routes: one checkbox per Permissao key, grouped by screen. locals: form, user. %>
+<div class="form-check mb-2">
+  <%= form.check_box :acesso_total, class: "form-check-input perfil-acesso-total" %>
+  <%= form.label :acesso_total, class: "form-check-label font-weight-bold" %>
+  <small class="form-text text-muted">Libera todas as rotas, inclusive as de telas criadas depois.</small>
+</div>
+
+<h2 class="h5 mt-3">Rotas</h2>
+<p class="text-muted small">
+  Marque o que este usuário pode abrir. Os botões e links das telas (Novo, Exibir, Editar, Excluir, Encerrar…) só
+  aparecem para ele quando a rota correspondente está marcada, e uma rota desmarcada leva de volta à página inicial com
+  um aviso. "Incluir" e "Alterar" valem para o formulário e para a gravação.
+</p>
+<%= hidden_field_tag "user[permissoes][]", "", id: nil %>
+<div class="row perfil-rotas">
+  <% @grupos.each do |grupo| %>
+    <div class="col-md-6 col-xl-4 mb-3">
+      <div class="card h-100 perfil-grupo">
+        <div class="card-header py-2">
+          <div class="form-check">
+            <%= check_box_tag nil, "1", grupo.itens.all? { |item| user.permissoes.include?(item.chave) },
+                  id: "grupo_#{grupo.controller}", class: "form-check-input perfil-marcar-grupo" %>
+            <label class="form-check-label font-weight-bold" for="grupo_<%= grupo.controller %>"><%= grupo.rotulo %></label>
+          </div>
+        </div>
+        <div class="card-body py-2">
+          <% grupo.itens.each do |item| %>
+            <% id = "permissao_#{item.chave.tr('#', '_')}" %>
+            <div class="form-check mb-1">
+              <%= check_box_tag "user[permissoes][]", item.chave, user.permissoes.include?(item.chave),
+                    id: id, class: "form-check-input perfil-permissao" %>
+              <label class="form-check-label" for="<%= id %>">
+                <%= item.rotulo %>
+                <small class="d-block text-muted"><%= safe_join(item.rotas.map { |rota| content_tag(:code, rota) }, tag.br) %></small>
+              </label>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

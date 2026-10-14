@@ -1,2 +1,17 @@
-<h1>Área administrativa</h1>
-<p><%= link_to 'Sair', destroy_admin_session_path, method: :delete %></p>
+<h1 class="h3 mb-4">Área administrativa</h1>
+
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <div class="card h-100 dashboard-card">
+      <div class="card-body">
+        <h2 class="h5 card-title">Usuários</h2>
+        <p class="dashboard-total mb-0"><%= User.count %></p>
+        <p class="text-muted small mb-0">Contas de acesso ao sistema e as rotas que cada uma pode abrir.</p>
+      </div>
+      <div class="card-footer bg-transparent border-top-0">
+        <%= link_to 'Abrir', admins_backoffice_users_path, class: "btn btn-primary btn-sm" %>
+        <%= link_to 'Novo', new_admins_backoffice_user_path, class: "btn btn-outline-secondary btn-sm" %>
+      </div>
+    </div>
+  </div>
+</div>

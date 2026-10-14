@@ -7,6 +7,7 @@
     <div class="text-muted small">
       <% if admin_signed_in? %>
         Administrador <%= current_admin.email %> ·
+        <%= link_to 'Administração', admins_backoffice_welcome_index_path %> ·
         <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
       <% else %>
         <%= current_user.email %> ·
@@ -15,23 +16,21 @@
     </div>
   </header>
 
+  <% aba_ativa = ->(aba) { " show active" if aba == @abas.keys.first } %>
+  <% if @abas.empty? %>
+    <div class="alert alert-info">Seu perfil de acesso ainda não libera nenhuma tela. Fale com o administrador do sistema.</div>
+  <% end %>
   <ul class="nav nav-tabs dashboard-tabs" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" id="cadastros-tab" data-toggle="tab" href="#cadastros" role="tab" aria-controls="cadastros" aria-selected="true">Cadastros</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="processos-tab" data-toggle="tab" href="#processos" role="tab" aria-controls="processos" aria-selected="false">Processos</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="relatorios-tab" data-toggle="tab" href="#relatorios" role="tab" aria-controls="relatorios" aria-selected="false">Relatórios</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="manutencao-tab" data-toggle="tab" href="#manutencao" role="tab" aria-controls="manutencao" aria-selected="false">Manutenção</a>
-    </li>
+    <% @abas.each_with_index do |(aba, nome), indice| %>
+      <li class="nav-item">
+        <a class="nav-link<%= " active" if indice.zero? %>" id="<%= aba %>-tab" data-toggle="tab" href="#<%= aba %>" role="tab" aria-controls="<%= aba %>" aria-selected="<%= indice.zero? %>"><%= nome %></a>
+      </li>
+    <% end %>
   </ul>
 
   <div class="tab-content pt-4">
-    <section class="tab-pane fade show active" id="cadastros" role="tabpanel" aria-labelledby="cadastros-tab">
+    <% if @abas.key?("cadastros") %>
+    <section class="tab-pane fade<%= aba_ativa.call("cadastros") %>" id="cadastros" role="tabpanel" aria-labelledby="cadastros-tab">
       <div class="row">
         <% @cadastros.each do |cadastro| %>
           <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
@@ -50,9 +49,12 @@
         <% end %>
       </div>
     </section>
+    <% end %>
 
-    <section class="tab-pane fade" id="processos" role="tabpanel" aria-labelledby="processos-tab">
+    <% if @abas.key?("processos") %>
+    <section class="tab-pane fade<%= aba_ativa.call("processos") %>" id="processos" role="tabpanel" aria-labelledby="processos-tab">
       <div class="row">
+        <% if pode_acessar?("sorders") %>
         <div class="col-md-6 col-lg-5 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -78,7 +80,9 @@
             </div>
           </div>
         </div>
+        <% end %>
 
+        <% if pode_acessar?("bookings") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -101,7 +105,9 @@
             </div>
           </div>
         </div>
+        <% end %>
 
+        <% if pode_acessar?("cash_entries") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -118,7 +124,9 @@
             </div>
           </div>
         </div>
+        <% end %>
 
+        <% if pode_acessar?("payables") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -138,7 +146,9 @@
             </div>
           </div>
         </div>
+        <% end %>
 
+        <% if pode_acessar?("txt") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -150,10 +160,13 @@
             </div>
           </div>
         </div>
+        <% end %>
       </div>
     </section>
+    <% end %>
 
-    <section class="tab-pane fade" id="relatorios" role="tabpanel" aria-labelledby="relatorios-tab">
+    <% if @abas.key?("relatorios") %>
+    <section class="tab-pane fade<%= aba_ativa.call("relatorios") %>" id="relatorios" role="tabpanel" aria-labelledby="relatorios-tab">
       <div class="row">
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
@@ -170,9 +183,12 @@
         </div>
       </div>
     </section>
+    <% end %>
 
-    <section class="tab-pane fade" id="manutencao" role="tabpanel" aria-labelledby="manutencao-tab">
+    <% if @abas.key?("manutencao") %>
+    <section class="tab-pane fade<%= aba_ativa.call("manutencao") %>" id="manutencao" role="tabpanel" aria-labelledby="manutencao-tab">
       <div class="row">
+        <% if pode_acessar?("sistger_imports") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">
             <div class="card-body">
@@ -187,8 +203,10 @@
             </div>
           </div>
         </div>
+        <% end %>
       </div>
     </section>
+    <% end %>
   </div>
 <% else %>
   <div class="row justify-content-center mt-5">

@@ -1,4 +1,30 @@
 module ApplicationHelper
+  # A link to a route the signed-in user may not open (Novo, Exibir, Editar,
+  # Excluir, Encerrar...) is left out, so each screen only offers what the
+  # admin checked in the user's cadastro. See Permissao.
+  def link_to(*args, &block)
+    url, html_options = block ? args.first(2) : args[1, 2]
+    rota_permitida?(url, html_options) ? super : "".html_safe
+  end
+
+  def rota_permitida?(url, html_options = nil)
+    return true if url.nil? || admin_signed_in? || !user_signed_in? || current_user.acesso_total?
+
+    uri = URI.parse(url_for(url))
+    return true if uri.host.present? && uri.host != request.host
+    return true unless uri.path.to_s.start_with?("/")
+
+    metodo = html_options.is_a?(Hash) ? (html_options[:method] || html_options.dig(:data, :method)) : nil
+    metodo = (metodo || :get).to_s.downcase
+    # Lists repeat the same routes with other ids: recognize each shape once.
+    (@rotas_permitidas ||= {}).fetch([uri.path.gsub(/\d+/, "0"), metodo]) do |chave|
+      rota = Rails.application.routes.recognize_path(uri.path, method: metodo)
+      @rotas_permitidas[chave] = !Permissao.controlado?(rota[:controller]) || pode_acessar?(rota[:controller], rota[:action])
+    end
+  rescue ActionController::RoutingError, URI::InvalidURIError
+    true
+  end
+
   # "Último registro: nº 42 — MARIA (código SISTGER 1.234)" for a cadastro
   # list: the record with the highest number (id).
   def ultimo_registro(modelo)

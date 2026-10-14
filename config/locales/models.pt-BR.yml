@@ -213,6 +213,8 @@ pt-BR:
         commission: "Comissão (%)"
         no_commission: "Não pagar comissão"
       user:
+        acesso_total: "Acesso total"
+        permissoes: "Rotas"
         password: "Senha"
         password_confirmation: "Confirmação da senha"
         remember_me: "Lembrar de mim"

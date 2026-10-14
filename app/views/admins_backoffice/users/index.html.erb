@@ -1,0 +1,27 @@
+<h1 class="h3">Usuários</h1>
+<p class="text-muted">Quem entra pelo login de usuários. Cada um só abre as rotas liberadas no seu cadastro; "Copiar" cria um usuário novo com as mesmas rotas.</p>
+<p><%= link_to "Novo usuário", new_admins_backoffice_user_path, class: "btn btn-success btn-sm" %></p>
+
+<table class="table table-sm table-hover">
+  <thead><tr><th>Nome</th><th>E-mail</th><th>Acesso</th><th colspan="3"></th></tr></thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td>
+          <% if user.acesso_total? %>
+            Total
+          <% elsif user.permissoes.empty? %>
+            <span class="text-danger">Nenhuma rota (só a página inicial)</span>
+          <% else %>
+            <%= pluralize(user.permissoes.size, "rota liberada", plural: "rotas liberadas") %>
+          <% end %>
+        </td>
+        <td><%= link_to "Editar", edit_admins_backoffice_user_path(user) %></td>
+        <td><%= link_to "Copiar", new_admins_backoffice_user_path(copiar: user.id) %></td>
+        <td><%= link_to "Excluir", admins_backoffice_user_path(user), method: :delete, data: { confirm: "Tem certeza?" } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
