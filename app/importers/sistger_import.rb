@@ -9,6 +9,11 @@
 # "repassado" agency as free text (their code columns are mostly 0). When
 # no record matches by code, the text in the field is used: an existing
 # record with that name/plate is reused, otherwise one is created.
+#
+# Everything imported belongs to the company imported from SISTGER (the
+# "empresa" step), whichever company the person importing works in, or to
+# that person's company until it's imported. The import reads and writes
+# across companies (DaEmpresa's scope is off).
 class SistgerImport
   NAO_INFORMADO = "Não informado".freeze
 
@@ -118,20 +123,22 @@ class SistgerImport
   # row counts and highest legacy code on each side, to help pick the code
   # range still to import.
   def contagens
-    ETAPAS.to_h do |etapa|
-      coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
-      importados = etapa.modelo.constantize.where.not(coluna => nil) unless etapa.chave == "horarios"
-      if etapa.chave == "horarios" # keyed by hotel + destination, counted by the hotel's code
-        coluna = "hotels.sistger_id"
-        importados = PickupTime.joins(:hotel).where.not(hotels: { sistger_id: nil })
+    sem_escopo_de_empresa do
+      ETAPAS.to_h do |etapa|
+        coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
+        importados = etapa.modelo.constantize.where.not(coluna => nil) unless etapa.chave == "horarios"
+        if etapa.chave == "horarios" # keyed by hotel + destination, counted by the hotel's code
+          coluna = "hotels.sistger_id"
+          importados = PickupTime.joins(:hotel).where.not(hotels: { sistger_id: nil })
+        end
+        if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
+          coluna = "vendors.sistger_id"
+          importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
+        end
+        origem = @fonte.resumo(etapa.from, etapa.codigo)
+        [etapa.chave, { sistger: origem[:total], importados: importados.count,
+                        ultimo_sistger: origem[:ultimo], ultimo_importado: importados.maximum(coluna) }]
       end
-      if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
-        coluna = "vendors.sistger_id"
-        importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
-      end
-      origem = @fonte.resumo(etapa.from, etapa.codigo)
-      [etapa.chave, { sistger: origem[:total], importados: importados.count,
-                      ultimo_sistger: origem[:ultimo], ultimo_importado: importados.maximum(coluna) }]
     end
   end
 
@@ -144,11 +151,14 @@ class SistgerImport
 
   def importar(chave, filtro = Filtro.todos)
     etapa = self.class.etapa(chave)
-    verificar_dependencias(etapa)
-    linhas = ler(etapa, filtro)
     avisos = []
     @detalhes = []
-    gravados = etapa.modelo.constantize.transaction { gravar(chave, linhas.map { |l| mapear(chave, l) }, avisos) }
+    linhas = nil
+    gravados = sem_escopo_de_empresa(chave == "empresa" ? nil : empresa_importada_id) do
+      verificar_dependencias(etapa)
+      linhas = ler(etapa, filtro)
+      etapa.modelo.constantize.transaction { gravar(chave, linhas.map { |l| mapear(chave, l) }, avisos) }
+    end
     Resultado.new(etapa: etapa, filtro: filtro, lidos: linhas.size, gravados: gravados, avisos: avisos, detalhes: @detalhes)
   end
 
@@ -163,6 +173,24 @@ class SistgerImport
   end
 
   private
+
+  # ---- Company -------------------------------------------------------------
+
+  def sem_escopo_de_empresa(empresa_id = nil, &)
+    Current.set(filtrar_empresa: false, so_a_propria_empresa: false, empresa_id: empresa_id, &)
+  end
+
+  def empresa_importada_id
+    Company.unscoped.where.not(sistger_id: nil).order(:sistger_id).pick(:id) || Current.empresa_id or
+      raise Erro, "Importe a empresa antes das outras etapas."
+  end
+
+  # Rows written with upsert_all/insert_all skip callbacks: give them the company.
+  def com_empresa(modelo, linhas)
+    return linhas unless modelo < DaEmpresa
+
+    linhas.map { |linha| linha.merge(company_id: Current.empresa_id) }
+  end
 
   # ---- SQL ---------------------------------------------------------------
 
@@ -308,13 +336,11 @@ class SistgerImport
   end
 
   def upsert(modelo, registros, unique_by: :sistger_id)
-    registros.each_slice(LOTE) { |lote| modelo.upsert_all(lote, unique_by: unique_by) }
+    com_empresa(modelo, registros).each_slice(LOTE) { |lote| modelo.upsert_all(lote, unique_by: unique_by) }
     registros.size
   end
 
   def gravar_ordens(registros, avisos)
-    empresa_id = Company.where.not(sistger_id: nil).order(:sistger_id).pick(:id) or
-      raise Erro, "Importe a empresa antes das ordens de serviço."
     roteiros = Destination.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
     veiculos_codigo = Vehicle.where.not(sistger_id: nil).pluck(:sistger_id, :id).to_h
     # Orders keep the guide's/driver's (short) name as text: match the
@@ -345,7 +371,7 @@ class SistgerImport
     linhas = validos.map do |r|
       r.except(:roteiro, :guia, :motorista, :veiculo, :placa).merge(
         id: r[:sistger_id], destination_id: roteiros[r[:roteiro]], tourguide_id: guias[r[:guia]], driver_id: motoristas[r[:motorista]],
-        vehicle_id: veiculos_codigo[r[:veiculo]] || placas[r[:placa]], company_id: empresa_id
+        vehicle_id: veiculos_codigo[r[:veiculo]] || placas[r[:placa]]
       )
     end
     gravados = upsert(Sorder, linhas)
@@ -430,7 +456,7 @@ class SistgerImport
       r.except(:ordem, :sequencial).merge(sorder_item_id: itens[[r[:ordem], r[:sequencial]]], cash_entry_id: lancamento&.first,
                                           forma_pagamento: lancamento&.last, created_at: agora, updated_at: agora)
     end
-    linhas.each_slice(LOTE) { |lote| SorderItemPayment.insert_all(lote) }
+    com_empresa(SorderItemPayment, linhas).each_slice(LOTE) { |lote| SorderItemPayment.insert_all(lote) }
     linhas.size
   end
 
@@ -521,7 +547,8 @@ class SistgerImport
     ids.merge!(modelo.where(coluna => nomes).pluck(coluna, :id).to_h)
     faltando = nomes - ids.keys
     faltando.each_slice(LOTE) do |lote|
-      modelo.insert_all(lote.map { |nome| { coluna => nome }.merge(extras) }, returning: [coluna, :id]).rows.each do |nome, id|
+      linhas = com_empresa(modelo, lote.map { |nome| { coluna => nome }.merge(extras) })
+      modelo.insert_all(linhas, returning: [coluna, :id]).rows.each do |nome, id|
         ids[nome] = id
       end
     end

@@ -5,6 +5,7 @@
       <h1 class="h3 mb-0">Agetur</h1>
     </div>
     <div class="text-muted small">
+      <%= render 'layouts/empresa_atual' %> ·
       <% if admin_signed_in? %>
         Administrador <%= current_admin.email %> ·
         <%= link_to 'Administração', admins_backoffice_welcome_index_path %> ·

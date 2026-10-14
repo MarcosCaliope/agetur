@@ -1,4 +1,5 @@
 class Agency < ApplicationRecord
+  include DaEmpresa
   include Pesquisavel
   pesquisavel_por :sname, :short_name, :document, :email, :phone, :phone2, :contact, :city
 

@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  company: two
   sorder: two
   comments: MyString
 
 two:
+  company: two
   sorder: two
   comments: MyString

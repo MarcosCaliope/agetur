@@ -2,6 +2,8 @@
 # (#lancar_na_os!) creates the order's passenger item, copies the pax list,
 # fills the vendor commission and moves the down payments over.
 class BookingItem < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :booking
   class NaoLancado < StandardError; end
 
   belongs_to :booking

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_14_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -75,6 +75,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "document"
     t.float "commission"
     t.bigint "vendor_id"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_agencies_on_company_id"
     t.index ["sistger_id"], name: "index_agencies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_agencies_on_state_id"
     t.index ["vendor_id"], name: "index_agencies_on_vendor_id"
@@ -106,7 +108,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "inclusao_automatica", default: true, null: false
+    t.bigint "company_id", null: false
     t.index ["booking_id"], name: "index_booking_items_on_booking_id"
+    t.index ["company_id"], name: "index_booking_items_on_company_id"
     t.index ["data_passeio"], name: "index_booking_items_on_data_passeio"
     t.index ["destination_id"], name: "index_booking_items_on_destination_id"
     t.index ["sorder_item_id"], name: "index_booking_items_on_sorder_item_id"
@@ -128,6 +132,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "usuario"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_bookings_on_company_id"
     t.index ["customer_id"], name: "index_bookings_on_customer_id"
     t.index ["hotel_id"], name: "index_bookings_on_hotel_id"
     t.index ["vendor_id"], name: "index_bookings_on_vendor_id"
@@ -149,6 +155,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.integer "sistger_linha"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_cash_entries_on_company_id"
     t.index ["data"], name: "index_cash_entries_on_data"
     t.index ["sistger_numero", "sistger_linha"], name: "index_cash_entries_on_sistger_numero_and_sistger_linha", unique: true
     t.index ["sorder_id"], name: "index_cash_entries_on_sorder_id"
@@ -210,7 +218,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "billing_phone"
     t.string "billing_phone2"
     t.string "billing_fax"
+    t.bigint "company_id", null: false
     t.index ["billing_state_id"], name: "index_customers_on_billing_state_id"
+    t.index ["company_id"], name: "index_customers_on_company_id"
     t.index ["sistger_id"], name: "index_customers_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_customers_on_state_id"
   end
@@ -232,6 +242,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.float "value_combo_chd"
     t.float "value_net_combo"
     t.float "value_net_combo_chd"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_destinations_on_company_id"
     t.index ["sistger_id"], name: "index_destinations_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_destinations_on_state_id"
   end
@@ -254,6 +266,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "contact"
     t.string "document"
     t.integer "sistger_id"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_drivers_on_company_id"
     t.index ["sistger_id"], name: "index_drivers_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_drivers_on_state_id"
   end
@@ -277,6 +291,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "fax"
     t.string "contact"
     t.string "document"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_hotels_on_company_id"
     t.index ["sistger_id"], name: "index_hotels_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_hotels_on_state_id"
   end
@@ -299,7 +315,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "observacoes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id", null: false
     t.index ["cash_entry_id"], name: "index_payables_on_cash_entry_id"
+    t.index ["company_id"], name: "index_payables_on_company_id"
     t.index ["credor_type", "credor_id"], name: "index_payables_on_credor"
     t.index ["sorder_id"], name: "index_payables_on_sorder_id"
     t.index ["sorder_item_id", "origem"], name: "index_payables_on_sorder_item_id_and_origem"
@@ -313,6 +331,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "hora", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_pickup_times_on_company_id"
     t.index ["destination_id"], name: "index_pickup_times_on_destination_id"
     t.index ["hotel_id", "destination_id"], name: "index_pickup_times_on_hotel_id_and_destination_id", unique: true
     t.index ["hotel_id"], name: "index_pickup_times_on_hotel_id"
@@ -347,8 +367,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "booking_item_id"
+    t.bigint "company_id", null: false
     t.index ["booking_item_id"], name: "index_sorder_item_payments_on_booking_item_id"
     t.index ["cash_entry_id"], name: "index_sorder_item_payments_on_cash_entry_id"
+    t.index ["company_id"], name: "index_sorder_item_payments_on_company_id"
     t.index ["sorder_item_id", "sistger_seq"], name: "index_sorder_item_payments_on_sorder_item_id_and_sistger_seq", unique: true
     t.index ["sorder_item_id"], name: "index_sorder_item_payments_on_sorder_item_id"
   end
@@ -381,7 +403,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.integer "sistger_sequencial"
     t.float "discount"
     t.float "vendor_discount"
+    t.bigint "company_id", null: false
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
+    t.index ["company_id"], name: "index_sorder_items_on_company_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"
     t.index ["hotel_id"], name: "index_sorder_items_on_hotel_id"
     t.index ["sistger_numero", "sistger_sequencial"], name: "index_sorder_items_on_sistger_numero_and_sistger_sequencial", unique: true
@@ -405,7 +429,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.float "valorcombustivel"
     t.float "valoros"
     t.float "valorfinalos"
-    t.bigint "company_id"
+    t.bigint "company_id", null: false
     t.integer "sistger_id"
     t.boolean "encerrada", default: false, null: false
     t.index ["company_id"], name: "index_sorders_on_company_id"
@@ -441,6 +465,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "contact"
     t.string "document"
     t.integer "sistger_id"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_tourguides_on_company_id"
     t.index ["sistger_id"], name: "index_tourguides_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_tourguides_on_state_id"
   end
@@ -456,6 +482,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "name"
     t.boolean "acesso_total", default: false, null: false
     t.string "permissoes", default: [], null: false, array: true
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -482,6 +510,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.integer "licensing_year"
     t.date "acquired_on"
     t.string "insurance_kit"
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_vehicles_on_company_id"
     t.index ["sistger_id"], name: "index_vehicles_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
@@ -523,40 +553,54 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
     t.string "classification"
     t.boolean "active", default: true, null: false
     t.boolean "no_commission", default: false, null: false
+    t.bigint "company_id", null: false
+    t.index ["company_id"], name: "index_vendors_on_company_id"
     t.index ["sistger_id"], name: "index_vendors_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_vendors_on_state_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agencies", "companies"
   add_foreign_key "agencies", "states"
   add_foreign_key "agencies", "vendors"
   add_foreign_key "booking_companions", "bookings", on_delete: :cascade
   add_foreign_key "booking_items", "bookings", on_delete: :cascade
+  add_foreign_key "booking_items", "companies"
   add_foreign_key "booking_items", "destinations"
   add_foreign_key "booking_items", "sorder_items", on_delete: :nullify
+  add_foreign_key "bookings", "companies"
   add_foreign_key "bookings", "customers"
   add_foreign_key "bookings", "hotels"
   add_foreign_key "bookings", "vendors"
+  add_foreign_key "cash_entries", "companies"
   add_foreign_key "cash_entries", "sorder_items", on_delete: :nullify
   add_foreign_key "cash_entries", "sorders", on_update: :cascade, on_delete: :nullify
   add_foreign_key "companies", "states"
+  add_foreign_key "customers", "companies"
   add_foreign_key "customers", "states"
   add_foreign_key "customers", "states", column: "billing_state_id"
+  add_foreign_key "destinations", "companies"
   add_foreign_key "destinations", "states"
+  add_foreign_key "drivers", "companies"
   add_foreign_key "drivers", "states"
+  add_foreign_key "hotels", "companies"
   add_foreign_key "hotels", "states"
   add_foreign_key "payables", "cash_entries", on_delete: :nullify
+  add_foreign_key "payables", "companies"
   add_foreign_key "payables", "sorder_items", on_delete: :cascade
   add_foreign_key "payables", "sorders", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "pickup_times", "companies"
   add_foreign_key "pickup_times", "destinations", on_delete: :cascade
   add_foreign_key "pickup_times", "hotels", on_delete: :cascade
   add_foreign_key "sorder_item_companions", "customers"
   add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_item_payments", "booking_items", on_delete: :cascade
   add_foreign_key "sorder_item_payments", "cash_entries", on_delete: :nullify
+  add_foreign_key "sorder_item_payments", "companies"
   add_foreign_key "sorder_item_payments", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_items", "agencies"
+  add_foreign_key "sorder_items", "companies"
   add_foreign_key "sorder_items", "customers"
   add_foreign_key "sorder_items", "hotels"
   add_foreign_key "sorder_items", "sorders", on_update: :cascade
@@ -566,9 +610,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_120000) do
   add_foreign_key "sorders", "drivers"
   add_foreign_key "sorders", "tourguides"
   add_foreign_key "sorders", "vehicles"
+  add_foreign_key "tourguides", "companies"
   add_foreign_key "tourguides", "states"
+  add_foreign_key "users", "companies"
+  add_foreign_key "vehicles", "companies"
   add_foreign_key "vehicles", "states"
   add_foreign_key "vendor_destinations", "destinations", on_delete: :cascade
   add_foreign_key "vendor_destinations", "vendors", on_delete: :cascade
+  add_foreign_key "vendors", "companies"
   add_foreign_key "vendors", "states"
 end

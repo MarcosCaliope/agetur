@@ -12,6 +12,13 @@
   </div>
   <div class="form-row">
     <div class="form-group col-md-6">
+      <%= form.label :company_id %>
+      <%= form.select :company_id, Company.order(:name).pluck(:name, :id), { include_blank: "Nenhuma" }, class: "form-control" %>
+      <small class="form-text text-muted">O usuário só vê e cadastra dados desta empresa. Sem empresa, não vê nenhum dado.</small>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-6">
       <%= form.label :password %>
       <%= form.password_field :password, class: "form-control", autocomplete: "new-password" %>
       <% if user.persisted? %><small class="form-text text-muted">Deixe em branco para manter a senha atual.</small><% end %>

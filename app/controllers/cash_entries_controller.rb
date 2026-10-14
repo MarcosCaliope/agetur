@@ -22,7 +22,7 @@ class CashEntriesController < ApplicationController
     respond_to do |format|
       format.html
       format.pdf do
-        send_data ResumoCaixaPdf.new(@inicio, @fim, Company.first).render, filename: "caixa_#{@inicio}_#{@fim}.pdf",
+        send_data ResumoCaixaPdf.new(@inicio, @fim, empresa_atual).render, filename: "caixa_#{@inicio}_#{@fim}.pdf",
                                                                            type: "application/pdf", disposition: "inline"
       end
     end
@@ -31,7 +31,7 @@ class CashEntriesController < ApplicationController
   # GET /caixa/1/recibo.pdf
   def recibo
     lancamento = CashEntry.find(params[:id])
-    send_data ReciboCaixaPdf.new(lancamento, Company.first).render, filename: "recibo_#{lancamento.id}.pdf",
+    send_data ReciboCaixaPdf.new(lancamento, empresa_atual).render, filename: "recibo_#{lancamento.id}.pdf",
                                                                      type: "application/pdf", disposition: "inline"
   end
 

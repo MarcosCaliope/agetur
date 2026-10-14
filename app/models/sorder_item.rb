@@ -1,4 +1,6 @@
 class SorderItem < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :sorder
   belongs_to :sorder
   belongs_to :customer, optional: true
   belongs_to :hotel, optional: true

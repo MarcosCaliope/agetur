@@ -6,13 +6,13 @@ class AdminsBackoffice::UsersController < AdminsBackofficeController
   before_action :set_grupos, only: %i[new create edit update]
 
   def index
-    @users = User.order(:email)
+    @users = User.includes(:company).order(:email)
   end
 
   # ?copiar=ID starts from another user's routes.
   def new
     modelo = User.find_by(id: params[:copiar])
-    @user = User.new(acesso_total: modelo&.acesso_total || false, permissoes: modelo&.permissoes || [])
+    @user = User.new(company_id: modelo&.company_id, acesso_total: modelo&.acesso_total || false, permissoes: modelo&.permissoes || [])
   end
 
   def edit; end
@@ -53,6 +53,6 @@ class AdminsBackoffice::UsersController < AdminsBackofficeController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation, :acesso_total, permissoes: [])
+    params.require(:user).permit(:name, :email, :password, :password_confirmation, :company_id, :acesso_total, permissoes: [])
   end
 end

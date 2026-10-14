@@ -2,6 +2,7 @@
 # tblAgendamentos): who, where they stay, the vendor who sold it, the pax
 # list and the tours (BookingItem), each later placed in a service order.
 class Booking < ApplicationRecord
+  include DaEmpresa
   belongs_to :customer, optional: true
   belongs_to :hotel, optional: true
   belongs_to :vendor

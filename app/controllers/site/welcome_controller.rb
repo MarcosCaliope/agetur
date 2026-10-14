@@ -4,7 +4,7 @@ class Site::WelcomeController < SiteController
   # The home page is public; the dashboard's figures are only loaded for a
   # signed-in account.
   def index
-    @empresa = Company.first
+    @empresa = empresa_atual || Company.first
     return unless user_signed_in? || admin_signed_in?
 
     # Only the cadastros the user may them list.

@@ -18,6 +18,7 @@
           <%= link_to 'Usuários', admins_backoffice_users_path %>
         </div>
         <div class="text-muted small">
+          <%= render 'layouts/empresa_atual' %> ·
           <%= current_admin.email %> · <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
         </div>
       </nav>

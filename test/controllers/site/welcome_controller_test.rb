@@ -47,7 +47,7 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
       "Hotéis" => [hotels_path, Hotel], "Vendedores" => [vendors_path, Vendor],
       "Veículos" => [vehicles_path, Vehicle], "Motoristas" => [drivers_path, Driver],
       "Guias" => [tourguides_path, Tourguide], "Roteiros" => [destinations_path, Destination],
-      "Empresa" => [companies_path, Company]
+      "Empresa" => [companies_path, Company.where(id: users(:one).company_id)]
     }.each do |nome, (path, model)|
       assert_select "#cadastros .card", text: /#{nome}/ do
         assert_select ".dashboard-total", text: model.count.to_s

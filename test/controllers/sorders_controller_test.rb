@@ -142,7 +142,7 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
 
   test "should show validation errors in Portuguese" do
     post sorders_url, params: { sorder: { sobservacoes: "sem dados" } }
-    assert_select "#error_explanation h2", text: "Não foi possível gravar ordem de serviço: 5 erros"
+    assert_select "#error_explanation h2", text: "Não foi possível gravar ordem de serviço: 4 erros"
     assert_select "#error_explanation li", text: "Roteiro é obrigatório(a)"
     assert_select "input[type=submit][value=?]", "Criar Ordem de serviço"
   end

@@ -1,4 +1,5 @@
 class Destination < ApplicationRecord
+  include DaEmpresa
   include Pesquisavel
   pesquisavel_por :description
 

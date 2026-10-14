@@ -6,6 +6,10 @@ class Company < ApplicationRecord
   LOGO_MAX_SIZE = 2.megabytes
 
   belongs_to :state
+  has_many :users, dependent: :nullify
+
+  # A user sees only their own company (an admin sees them all).
+  default_scope { where(id: Current.empresa_id) if Current.so_a_propria_empresa }
 
   # Uploaded logos. The legacy string columns logoentrada/logoform (a file
   # name under public/) are kept only as a fallback for older records.

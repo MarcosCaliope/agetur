@@ -1,6 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  company: two
   description: MyString
   distance: 1
   valuenormal: 1.5
@@ -12,6 +13,7 @@ one:
   state: two
 
 two:
+  company: two
   description: MyString
   distance: 1
   valuenormal: 1.5

@@ -12,7 +12,6 @@ class SordersController < ApplicationController
   before_action :set_hotel_options, only: [:new, :create, :edit, :update]
   before_action :set_vendor_options, only: [:new, :create, :edit, :update]
   before_action :set_agency_options, only: [:new, :create, :edit, :update]
-  before_action :set_company_options, only: [:new, :create, :edit, :update]
 
   #before_action :sorder_params, only: [:show, :edit, :update, :destroy]
   before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
@@ -180,13 +179,10 @@ class SordersController < ApplicationController
     def set_agency_options
       @agency_options = Agency.all.pluck(:sname, :id)
     end
-    def set_company_options
-      @company_options = Company.all.pluck(:name, :id)
-    end
 
     # Only allow a list of trusted parameters through.
     def sorder_params
-      params.require(:sorder).permit(:data, :sobservacoes, :destination_id, :tourguide_id, :driver_id, :vehicle_id, :company_id,
+      params.require(:sorder).permit(:data, :sobservacoes, :destination_id, :tourguide_id, :driver_id, :vehicle_id,
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,

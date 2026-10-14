@@ -12,13 +12,13 @@
   <% end %>
 
   <div class="jumbotron">
-    <td><%= company_logo_tag sorder.company, :formulario %>
+    <td><%= company_logo_tag sorder.company || empresa_atual, :formulario %>
     <p>
     <%= form.label :ordem %>
     <%= form.text_field :id, disabled: true , size:2 %>
 
-    <%= form.label :Empresa %>
-    <%= form.select( "company_id", @company_options, { include_blank: "Selecione" }) %>
+    <%# The order belongs to the company being worked in (DaEmpresa). %>
+    <strong>Empresa:</strong> <%= (sorder.company || empresa_atual)&.name %>
     <%= form.label :data %>
     <%= form.date_field :data %>
     <%= form.label :Destino %>

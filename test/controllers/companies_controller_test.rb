@@ -1,8 +1,10 @@
 require 'test_helper'
 
 class CompaniesControllerTest < ActionDispatch::IntegrationTest
+  # Companies are managed by an admin; a user only sees their own (see
+  # EmpresasTest).
   setup do
-    sign_in users(:one)
+    sign_in admins(:one)
     @company = companies(:one)
   end
 

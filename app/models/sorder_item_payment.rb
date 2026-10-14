@@ -6,6 +6,8 @@
 # A down payment taken on a booked tour has only booking_item; it gets the
 # sorder_item when the tour is placed in an order (BookingItem#lancar_na_os!).
 class SorderItemPayment < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :sorder_item
   belongs_to :sorder_item, optional: true
   belongs_to :booking_item, optional: true
   belongs_to :cash_entry, optional: true

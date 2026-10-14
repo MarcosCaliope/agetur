@@ -102,7 +102,7 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
 
   test "cadastro pages link back to the home page" do
     sign_in users(:one)
-    [new_agency_path, new_sorder_path, edit_company_path(companies(:one)), customers_path, showcomis_path].each do |path|
+    [new_agency_path, new_sorder_path, edit_company_path(companies(:two)), customers_path, showcomis_path].each do |path|
       get path
       assert_select "nav a[href=?]", root_path, { text: "Início" }, "#{path} should link to Início"
     end

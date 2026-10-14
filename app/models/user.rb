@@ -5,6 +5,9 @@ class User < ApplicationRecord
   devise :database_authenticatable,
          :recoverable, :rememberable, :validatable
 
+  # The company whose data the user sees (DaEmpresa). Without one, none.
+  belongs_to :company, optional: true
+
   before_validation :limpar_permissoes
 
   # The routes (Permissao keys) the user may open, or all of them with

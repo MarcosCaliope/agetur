@@ -1,4 +1,5 @@
 class Customer < ApplicationRecord
+  include DaEmpresa
   include Pesquisavel
   pesquisavel_por :nome, :document, :email, :phone, :phone2, :contact, :city
 

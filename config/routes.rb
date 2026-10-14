@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   namespace :admins_backoffice do
     get 'welcome/index'
     resources :users, path: "usuarios", except: :show
+    patch 'empresa', to: 'empresas#update', as: :empresa
   end
   
   devise_for :users

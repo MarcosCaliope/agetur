@@ -1,0 +1,10 @@
+<%# The company the page's data belongs to; an admin can switch it. %>
+<% if admin_signed_in? %>
+  <%= form_with url: admins_backoffice_empresa_path, method: :patch, local: true, class: "form-inline d-inline-flex empresa-atual no-print" do %>
+    <label for="empresa_id" class="small text-muted mr-1">Empresa:</label>
+    <%= select_tag :empresa_id, options_from_collection_for_select(Company.order(:name), :id, :name, empresa_atual&.id),
+          class: "form-control form-control-sm", onchange: "this.form.requestSubmit()" %>
+  <% end %>
+<% elsif user_signed_in? %>
+  <span class="small text-muted empresa-atual">Empresa: <%= empresa_atual&.name || "nenhuma" %></span>
+<% end %>

@@ -1,6 +1,8 @@
 # Pickup time of a destination's tour at a hotel (SISTGER's
 # tblHorarioPasseios), suggested for bookings and order passengers.
 class PickupTime < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :hotel
   belongs_to :hotel
   belongs_to :destination
 

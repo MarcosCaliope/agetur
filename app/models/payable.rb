@@ -3,6 +3,8 @@
 # posts an exit in the cash book, and a commission payment also counts as
 # paid on the passenger item.
 class Payable < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :sorder
   TIPOS = {
     "comissao_vendedor" => "Comissão de vendedor", "comissao_repasse" => "Comissão de repasse",
     "custo_os" => "Custo da OS", "avulsa" => "Conta avulsa"

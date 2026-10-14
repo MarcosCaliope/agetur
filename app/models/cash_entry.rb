@@ -2,6 +2,8 @@
 # passenger payment or a paid bill come and go with them (see #automatico?);
 # the others are typed in the Caixa screen.
 class CashEntry < ApplicationRecord
+  include DaEmpresa
+  da_empresa via: :sorder
   TIPOS = { "E" => "Entrada", "S" => "Saída" }.freeze
   FORMAS = { "D" => "Dinheiro", "O" => "PIX", "C" => "Cartão de débito", "R" => "Cartão de crédito", "T" => "Transferência" }.freeze
   CATEGORIAS = ["Recebimento de passeio", "Pagamento de conta", "Suprimento", "Sangria", "Despesa", "Outros"].freeze

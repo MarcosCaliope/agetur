@@ -369,4 +369,12 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_equal({ sistger: 4, importados: 0, ultimo_sistger: 4, ultimo_importado: nil }, @import.contagens["ordens"])
     assert_nil @import.contagens["passageiros"], "passengers come with their orders"
   end
+
+  test "imported records belong to the company imported from SISTGER" do
+    importador = SistgerImport.new(@fonte)
+    importador.importar("empresa")
+    empresa = Company.find_by!(sistger_id: 1)
+    Current.set(empresa_id: companies(:two).id, filtrar_empresa: true) { importador.importar("clientes") }
+    assert_equal [empresa.id], Customer.unscoped.where.not(sistger_id: nil).distinct.pluck(:company_id)
+  end
 end

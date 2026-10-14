@@ -1,17 +1,21 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 # :one/:two may open every route; :consulta only a few; :sem_rotas none.
+# All but :sem_rotas work in company :two, which owns the other fixtures.
 
 one:
+  company: two
   email: user_one@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
   acesso_total: true
 
 two:
+  company: two
   email: user_two@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
   acesso_total: true
 
 consulta:
+  company: two
   name: Consulta
   email: consulta@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>

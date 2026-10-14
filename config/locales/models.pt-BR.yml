@@ -6,6 +6,8 @@ pt-BR:
     address: "Endereço"
     city: "Cidade"
     comments: "Observações"
+    company: "Empresa"
+    company_id: "Empresa"
     contact: "Contato"
     document: "CPF/CNPJ"
     created_at: "Criado em"
@@ -102,6 +104,9 @@ pt-BR:
         Valordiaria: "Valor da diária"
       sorder/sorder_items:
         vendor: "Vendedor do passageiro"
+        customer: "Cliente do passageiro"
+        hotel: "Hotel do passageiro"
+        agency: "Agência de repasse do passageiro"
       sorder/sorder_items/companions:
         snome: "Nome na lista pax"
       sorder:
@@ -215,6 +220,8 @@ pt-BR:
       user:
         acesso_total: "Acesso total"
         permissoes: "Rotas"
+        company: "Empresa"
+        company_id: "Empresa"
         password: "Senha"
         password_confirmation: "Confirmação da senha"
         remember_me: "Lembrar de mim"
