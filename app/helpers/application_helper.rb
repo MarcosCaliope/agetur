@@ -25,6 +25,10 @@ module ApplicationHelper
     true
   end
 
+  def sim_nao(valor)
+    valor ? "Sim" : "Não"
+  end
+
   # "Último registro: nº 42 — MARIA (código SISTGER 1.234)" for a cadastro
   # list: the record with the highest number (id).
   def ultimo_registro(modelo)

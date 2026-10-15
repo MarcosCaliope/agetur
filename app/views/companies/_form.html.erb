@@ -57,11 +57,6 @@
   </div>
 
   <div class="field">
-    <%= form.label :osdupla %>
-    <%= form.number_field :osdupla %>
-  </div>
-
-  <div class="field">
     <%= form.label :email %>
     <%= form.text_field :email %>
   </div>
@@ -89,25 +84,19 @@
     <%= form.number_field :iretorno %>
   </div>
 
-  <div class="field">
-    <%= form.label :osshowcan %>
-    <%= form.number_field :osshowcan %>
-  </div>
-
-  <div class="field">
-    <%= form.label :osshowcanrel %>
-    <%= form.number_field :osshowcanrel %>
-  </div>
-
-  <div class="field">
-    <%= form.label :osshowrep %>
-    <%= form.number_field :osshowrep %>
-  </div>
-
-  <div class="field">
-    <%= form.label :osincludechdcalc %>
-    <%= form.text_field :osincludechdcalc %>
-  </div>
+  <fieldset class="field">
+    <legend class="h6">Opções da OS</legend>
+    <% Company::OPCOES_OS.each do |campo| %>
+      <div class="form-check">
+        <%= form.check_box campo, { class: "form-check-input" }, 1, 0 %>
+        <%= form.label campo, class: "form-check-label" %>
+      </div>
+    <% end %>
+    <div class="form-check">
+      <%= form.check_box :osincludechdcalc, { class: "form-check-input" }, "S", "N" %>
+      <%= form.label :osincludechdcalc, class: "form-check-label" %>
+    </div>
+  </fieldset>
 
   <div class="field">
     <%= form.label :comments %>

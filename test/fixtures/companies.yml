@@ -17,7 +17,7 @@ one:
   osshowcan: 1
   osshowcanrel: 1
   osshowrep: 1
-  osincludechdcalc: MyString
+  osincludechdcalc: S
   comments: MyString
 
 two:
@@ -37,5 +37,5 @@ two:
   osshowcan: 1
   osshowcanrel: 1
   osshowrep: 1
-  osincludechdcalc: MyString
+  osincludechdcalc: S
   comments: MyString

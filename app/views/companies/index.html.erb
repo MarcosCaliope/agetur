@@ -40,17 +40,17 @@
         <td><%= company.city %></td>
         <td><%= company.state.uf %></td>
         <td><%= company.osmodel %></td>
-        <td><%= company.osdupla %></td>
+        <td><%= sim_nao(company.os_dupla?) %></td>
         <td><%= company.email %></td>
         <td><%= company.site %></td>
         <td><%= company_logo_tag company, :formulario, height: 25 %></td>
         <td><%= company_logo_tag company, :entrada, height: 25 %></td>
 
         <td><%= company.iretorno %></td>
-        <td><%= company.osshowcan %></td>
-        <td><%= company.osshowcanrel %></td>
-        <td><%= company.osshowrep %></td>
-        <td><%= company.osincludechdcalc %></td>
+        <td><%= sim_nao(company.exibir_cancelados_na_os?) %></td>
+        <td><%= sim_nao(company.exibir_cancelados_no_relatorio?) %></td>
+        <td><%= sim_nao(company.exibir_repasse_na_os?) %></td>
+        <td><%= sim_nao(company.incluir_chd_no_calculo?) %></td>
         <td><%= company.comments %></td>
         <td><%= link_to 'Exibir', company %></td>
         <td><%= link_to 'Editar', edit_company_path(company) %></td>

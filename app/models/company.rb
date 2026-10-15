@@ -24,6 +24,16 @@ class Company < ApplicationRecord
 
   after_save :remover_logos_marcados
 
+  # SISTGER's yes/no settings for service orders (tblFilial). The integer
+  # ones hold 1/0; osincludechdcalc holds "S"/"N".
+  OPCOES_OS = %i[osdupla osshowcan osshowcanrel osshowrep].freeze
+
+  def os_dupla? = osdupla == 1
+  def exibir_cancelados_na_os? = osshowcan == 1
+  def exibir_cancelados_no_relatorio? = osshowcanrel == 1
+  def exibir_repasse_na_os? = osshowrep == 1
+  def incluir_chd_no_calculo? = osincludechdcalc == "S"
+
   # The image to show for a logo (:entrada or :formulario): the upload, or a
   # legacy file name that actually exists under public/. nil when neither.
   def logo(tipo)

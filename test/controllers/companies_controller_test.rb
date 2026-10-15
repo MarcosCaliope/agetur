@@ -94,4 +94,20 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     get company_url(@company)
     assert_match "06.123", response.body
   end
+
+  test "the OS options are checkboxes" do
+    get edit_company_url(@company)
+    Company::OPCOES_OS.each { |campo| assert_select "input[type=checkbox][name='company[#{campo}]'][value='1']" }
+    assert_select "input[type=checkbox][name='company[osincludechdcalc]'][value='S']"
+
+    patch company_url(@company), params: { company: { osdupla: "0", osshowcan: "1", osshowcanrel: "0", osshowrep: "1", osincludechdcalc: "N" } }
+    @company.reload
+    assert_equal [0, 1, 0, 1, "N"], [@company.osdupla, @company.osshowcan, @company.osshowcanrel, @company.osshowrep, @company.osincludechdcalc]
+    assert_equal [false, true, false, true, false],
+                 [@company.os_dupla?, @company.exibir_cancelados_na_os?, @company.exibir_cancelados_no_relatorio?,
+                  @company.exibir_repasse_na_os?, @company.incluir_chd_no_calculo?]
+
+    get company_url(@company)
+    assert_match "Exibir cancelados na OS:</strong>\n  Sim", response.body
+  end
 end
