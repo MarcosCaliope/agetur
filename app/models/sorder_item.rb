@@ -17,7 +17,8 @@ class SorderItem < ApplicationRecord
   accepts_nested_attributes_for :companions, reject_if: ->(atributos) { atributos["snome"].blank? }, allow_destroy: true
 
   # How the passenger pays (SISTGER's sFormaPagto), printed by order model 3.
-  FORMAS_PAGAMENTO = { "D" => "Dinheiro", "Q" => "Cheque", "C" => "Cartão", "P" => "Cartão parcelado" }.freeze
+  # PIX isn't in SISTGER; it takes the cash book's key for it ("O", CashEntry::FORMAS).
+  FORMAS_PAGAMENTO = { "D" => "Dinheiro", "O" => "PIX", "Q" => "Cheque", "C" => "Cartão", "P" => "Cartão parcelado" }.freeze
 
   # scancelado is "S"/"N"; items saved before the column existed are blank
   # and count as not cancelled.

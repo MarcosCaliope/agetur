@@ -66,8 +66,9 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     item = @sorder.sorder_items.create!(snomepax: "Maria")
     get edit_sorder_url(@sorder)
     assert_select "select[name$='[forma_pagamento]'] option[value='P']", text: "Cartão parcelado"
-    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id, forma_pagamento: "D" } } } }
-    assert_equal "Dinheiro", item.reload.nome_forma_pagamento
+    assert_select "select[name$='[forma_pagamento]'] option[value='O']", text: "PIX"
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id, forma_pagamento: "O" } } } }
+    assert_equal "PIX", item.reload.nome_forma_pagamento
   end
 
   test "a user sees paid amounts read-only" do
