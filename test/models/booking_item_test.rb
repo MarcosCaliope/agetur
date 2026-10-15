@@ -134,6 +134,13 @@ class BookingItemTest < ActiveSupport::TestCase
     assert_equal [260, 60, 1, 1], [@booking.total, @booking.pago, @booking.pax_sugerido, @booking.chd_sugerido]
   end
 
+  test "suggested pax leaves out colo" do
+    @booking.companions.create!(snome: "Adulto")
+    @booking.companions.create!(snome: "Bebê", chd: true, colo: true)
+    @booking.companions.create!(snome: "Colo adulto", colo: true)
+    assert_equal [2, 1], [@booking.reload.pax_sugerido, @booking.chd_sugerido]
+  end
+
   test "can add the passenger to the customer register" do
     booking = Booking.create!(data: Date.current, snome: "Novo Cliente", vendor: vendors(:one), documenttype: "CPF", document: "111",
                               telefone: "85 1", cadastrar_cliente: true)

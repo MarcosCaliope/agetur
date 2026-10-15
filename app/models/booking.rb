@@ -29,9 +29,10 @@ class Booking < ApplicationRecord
     SorderItemPayment.where(booking_item_id: items.ativos.select(:id)).sum(:valor)
   end
 
-  # The holder plus the pax list, as SISTGER counts them for a new tour.
-  def pax_sugerido = 1 + companions.reject(&:chd).size
-  def chd_sugerido = companions.count(&:chd)
+  # The holder plus the pax list, counted like an order item's list
+  # (SorderItem#contar_lista_pax): colo counts as neither PAX nor CHD.
+  def pax_sugerido = 1 + companions.count { |pessoa| !pessoa.chd? && !pessoa.colo? }
+  def chd_sugerido = companions.count { |pessoa| pessoa.chd? && !pessoa.colo? }
 
   private
 
