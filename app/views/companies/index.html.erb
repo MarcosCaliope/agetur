@@ -39,7 +39,7 @@
         <td><%= company.phone %></td>
         <td><%= company.city %></td>
         <td><%= company.state.uf %></td>
-        <td><%= company.osmodel %></td>
+        <td><%= SorderExportPdf.modelo_da(company) %></td>
         <td><%= sim_nao(company.os_dupla?) %></td>
         <td><%= company.email %></td>
         <td><%= company.site %></td>

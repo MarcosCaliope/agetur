@@ -109,5 +109,10 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
 
     get company_url(@company)
     assert_match "Exibir cancelados na OS:</strong>\n  Sim", response.body
+
+    get edit_company_url(@company)
+    assert_select "select[name='company[osmodel]'] option[value='7']", text: /^7 - /
+    patch company_url(@company), params: { company: { osmodel: "3" } }
+    assert_equal 3, @company.reload.osmodel
   end
 end

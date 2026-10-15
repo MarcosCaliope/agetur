@@ -36,4 +36,28 @@ class SorderExportPdfTest < ActiveSupport::TestCase
     @ativo.update!(snomepax: "Maria 😀 Ōno")
     assert_operator pdf.render.bytesize, :>, 0
   end
+
+  test "the company's model picks the layout, else model 6" do
+    @empresa.update!(osmodel: 7)
+    assert_equal 7, pdf.modelo
+    @empresa.update!(osmodel: 0)
+    assert_equal 6, pdf.modelo
+    @empresa.update!(osmodel: nil)
+    assert_equal 6, pdf.modelo
+  end
+
+  test "every model renders, with what each one prints" do
+    @ativo.update!(forma_pagamento: "Q", comments: "COMBO", customer: customers(:two))
+    SorderExportPdf::MODELOS.each_key do |modelo|
+      documento = SorderExportPdf.new(@sorder.reload, modelo: modelo)
+      assert_operator documento.render.bytesize, :>, 0, "modelo #{modelo}"
+    end
+    item = @ativo.reload
+    modelo5 = SorderExportPdf.new(@sorder, modelo: 5)
+    assert_equal ActiveSupport::NumberHelper.number_to_delimited(customers(:two).sistger_id || customers(:two).id, delimiter: "."),
+                 modelo5.send(:valor_da_coluna, :cod_cliente, item)
+    modelo7 = SorderExportPdf.new(@sorder, modelo: 7)
+    assert_equal 0, modelo7.send(:valor_da_coluna, :colo, item)
+    assert_equal "Cheque", item.nome_forma_pagamento
+  end
 end

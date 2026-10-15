@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_15_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_15_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -411,6 +411,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_15_120000) do
     t.float "discount"
     t.float "vendor_discount"
     t.bigint "company_id", null: false
+    t.string "forma_pagamento", limit: 1
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
     t.index ["company_id"], name: "index_sorder_items_on_company_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"

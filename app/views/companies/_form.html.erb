@@ -53,7 +53,9 @@
 
   <div class="field">
     <%= form.label :osmodel %>
-    <%= form.number_field :osmodel %>
+    <%= form.select :osmodel, SorderExportPdf::NOMES.invert, { include_blank: "Padrão (#{SorderExportPdf::NOMES[SorderExportPdf::PADRAO]})" },
+          class: "form-control" %>
+    <small class="form-text text-muted">Layout do PDF da ordem de serviço, como os modelos de impressão do SISTGER.</small>
   </div>
 
   <div class="field">

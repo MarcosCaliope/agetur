@@ -86,7 +86,7 @@ class SistgerImport
               colunas: "iNumero, iSequencial, iCodCliente, sNomeCliente, iCodHotel, sHotel, sNumeroApto, iNumeroPax, iNumeroCHD, " \
                        "sHora, sTelefone, nValor, nValorPago, iCodVendedor, nValorComissao, nValorRecVendedor, iCodRepassado, " \
                        "sRepassado, nValorComissaoRepassado, nValorPagoRepasse, sFlgCancelado, sTipoDoc, sNumeroDoc, " \
-                       "nDesconto, nDescontoVendedor, CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes"),
+                       "nDesconto, nDescontoVendedor, sFormaPagto, CAST(sObservacoes AS nvarchar(4000)) AS sObservacoes"),
     Etapa.new(chave: "recebimentos", nome: "Recebimentos", tabela: "tblOrdemServicoPagtos", modelo: "SorderItemPayment",
               codigo: "iNumero", ordem: "iNumero, iSql, iSeq",
               colunas: "iNumero, iSql, iSeq, sDescri, cValor, data, sUsuario, iNumeroCXA"),
@@ -291,6 +291,7 @@ class SistgerImport
         amountcomissionrep: numero(l["nValorComissaoRepassado"]), amountcomissionreppay: numero(l["nValorPagoRepasse"]),
         scancelado: texto(l["sFlgCancelado"]) == "S" ? "S" : "N",
         discount: numero(l["nDesconto"]), vendor_discount: numero(l["nDescontoVendedor"]),
+        forma_pagamento: SorderItem::FORMAS_PAGAMENTO.key?(texto(l["sFormaPagto"])) ? texto(l["sFormaPagto"]) : nil,
         comments: texto(l["sObservacoes"]) }
     when "lista_pax"
       { ordem: l["iNumero"], sequencial: l["iSequencial"], sistger_seq_adicional: l["iSeqAdicional"], cliente: l["iClienteAdc"],

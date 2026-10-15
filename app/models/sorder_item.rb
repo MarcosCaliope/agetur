@@ -16,10 +16,14 @@ class SorderItem < ApplicationRecord
                         dependent: :delete_all
   accepts_nested_attributes_for :companions, reject_if: ->(atributos) { atributos["snome"].blank? }, allow_destroy: true
 
+  # How the passenger pays (SISTGER's sFormaPagto), printed by order model 3.
+  FORMAS_PAGAMENTO = { "D" => "Dinheiro", "Q" => "Cheque", "C" => "Cartão", "P" => "Cartão parcelado" }.freeze
+
   # scancelado is "S"/"N"; items saved before the column existed are blank
   # and count as not cancelled.
   scope :ativos, -> { where(scancelado: [nil, "", "N"]) }
 
+  validates :forma_pagamento, inclusion: { in: FORMAS_PAGAMENTO.keys }, allow_blank: true
   validate :vendedor_ativo, if: -> { vendor_id.present? && vendor_id_changed? }
 
   # Like SISTGER: a blank time takes the tour's pickup time at the hotel.
@@ -29,6 +33,8 @@ class SorderItem < ApplicationRecord
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "scancelado", "sorder_id", "vendor_id"]
   end
+
+  def nome_forma_pagamento = FORMAS_PAGAMENTO[forma_pagamento]
 
   def cancelado?
     scancelado == "S"

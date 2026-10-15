@@ -239,7 +239,7 @@ class SordersController < ApplicationController
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,
-      :discount, :vendor_discount, :amountcomission, :amountcomissionrep, :snomepax, :scancelado, :done, :_destroy,
+      :discount, :vendor_discount, :amountcomission, :amountcomissionrep, :snomepax, :scancelado, :forma_pagamento, :done, :_destroy,
       *(PAGOS if admin_signed_in?),
       companions_attributes: [:id, :snome, :documenttype, :document, :chd, :colo, :_destroy]])
     end

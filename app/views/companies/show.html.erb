@@ -41,7 +41,7 @@
 
 <p>
   <strong>Modelo da OS:</strong>
-  <%= @company.osmodel %>
+  <%= SorderExportPdf::NOMES[SorderExportPdf.modelo_da(@company)] %>
 </p>
 
 <p>

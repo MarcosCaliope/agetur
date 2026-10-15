@@ -102,7 +102,8 @@ class SistgerImportTest < ActiveSupport::TestCase
       "nValor" => BigDecimal("400"), "nValorPago" => BigDecimal("100"), "iCodVendedor" => 2348, "nValorComissao" => BigDecimal("40"),
       "nValorRecVendedor" => BigDecimal("10"), "iCodRepassado" => agencia_codigo, "sRepassado" => agencia,
       "nValorComissaoRepassado" => BigDecimal("20"), "nValorPagoRepasse" => nil, "sFlgCancelado" => cancelado,
-      "sTipoDoc" => "RG  ", "sNumeroDoc" => "000", "sObservacoes" => "COMBO", "nDesconto" => BigDecimal("5"), "nDescontoVendedor" => nil }
+      "sTipoDoc" => "RG  ", "sNumeroDoc" => "000", "sObservacoes" => "COMBO", "nDesconto" => BigDecimal("5"), "nDescontoVendedor" => nil,
+      "sFormaPagto" => "C" }
   end
 
   def caixa(numero, descricao:, total:, ordem: 0, seq: 0, tipo: "E", forma: "D", doc: nil)
@@ -265,6 +266,7 @@ class SistgerImportTest < ActiveSupport::TestCase
                  [jorge.snomepax, jorge.hotel.sname, jorge.agency_id, jorge.customer.nome, jorge.vendor.sname, jorge.scancelado]
     assert_equal "COMBO", jorge.comments
     assert_equal [40.0, 10.0, 20.0, 5.0, 295.0], [jorge.amountcomission, jorge.amountcomissionpay, jorge.amountcomissionrep, jorge.discount, jorge.total_passeio]
+    assert_equal "Cartão", jorge.nome_forma_pagamento
 
     leandro = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 2)
     assert_equal ["BRASIL TROPICAL", "NOVA AGENCIA", "S"], [leandro.hotel.sname, Agency.find(leandro.agency_id).sname, leandro.scancelado]

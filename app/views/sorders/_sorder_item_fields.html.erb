@@ -56,6 +56,8 @@
 
         <%= f.label :Cancelado %>
         <%= f.select :scancelado, ["N", "S"] %>
+        <%= f.label :forma_pagamento, "Forma de pagamento" %>
+        <%= f.select :forma_pagamento, SorderItem::FORMAS_PAGAMENTO.invert, { include_blank: true } %>
         <p>
         <%= f.label :obs %>
         <%= f.text_field :comments , size:130%>

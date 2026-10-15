@@ -62,6 +62,14 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_equal [40.0, 10.0, 2.0], [item.reload.amountpay, item.amountcomissionpay, item.amountcomissionreppay]
   end
 
+  test "saves the passenger's payment form" do
+    item = @sorder.sorder_items.create!(snomepax: "Maria")
+    get edit_sorder_url(@sorder)
+    assert_select "select[name$='[forma_pagamento]'] option[value='P']", text: "Cartão parcelado"
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id, forma_pagamento: "D" } } } }
+    assert_equal "Dinheiro", item.reload.nome_forma_pagamento
+  end
+
   test "a user sees paid amounts read-only" do
     @sorder.sorder_items.create!(snomepax: "Maria", amount: 100)
     get edit_sorder_url(@sorder)

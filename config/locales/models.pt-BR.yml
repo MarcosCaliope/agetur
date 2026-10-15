@@ -119,6 +119,7 @@ pt-BR:
         vehicle: "Veículo"
       sorder_item:
         vendor: "Vendedor"
+        forma_pagamento: "Forma de pagamento"
         sorder: "Ordem de serviço"
         sorder_id: "Ordem de serviço"
         companions: "Lista pax"
