@@ -9,9 +9,11 @@
       <% if admin_signed_in? %>
         Administrador <%= current_admin.email %> ·
         <%= link_to 'Administração', admins_backoffice_welcome_index_path %> ·
+        <%= link_to 'Minha senha', minha_senha_path %> ·
         <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
       <% else %>
         <%= current_user.email %> ·
+        <%= link_to 'Minha senha', minha_senha_path %> ·
         <%= link_to 'Sair', destroy_user_session_path, method: :delete %>
       <% end %>
     </div>

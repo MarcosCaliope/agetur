@@ -5,7 +5,7 @@
 #
 # Only controllers that run the permission check are listed: ApplicationController
 # subclasses, minus Devise, the public site, the back-offices and the header's
-# company switch.
+# company switch and the own-password screen.
 module Permissao
   Item = Struct.new(:chave, :rotulo, :rotas)
   Grupo = Struct.new(:controller, :rotulo, :itens)
@@ -13,7 +13,7 @@ module Permissao
   MESMA_ACAO = { "new" => "create", "edit" => "update" }.freeze
   MESMA_CHAVE = { "payables#pagamento" => "payables#pagar" }.freeze
   ORDEM = %w[index show create update destroy].freeze
-  LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController].freeze
+  LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController, SenhasController].freeze
 
   module_function
 

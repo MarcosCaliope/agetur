@@ -225,8 +225,10 @@ pt-BR:
         acesso_empresa: "Empresa"
         password: "Senha"
         password_confirmation: "Confirmação da senha"
+        current_password: "Senha atual"
         remember_me: "Lembrar de mim"
       admin:
         password: "Senha"
         password_confirmation: "Confirmação da senha"
+        current_password: "Senha atual"
         remember_me: "Lembrar de mim"

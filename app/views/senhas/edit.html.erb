@@ -1,0 +1,24 @@
+<div class="container py-4" style="max-width: 32rem;">
+  <h1 class="h3">Alterar senha</h1>
+  <p class="text-muted"><%= @conta.email %></p>
+
+  <%= form_with(model: @conta, scope: :conta, url: minha_senha_path, method: :patch, local: true) do |form| %>
+    <%= render "shared/erros", registro: @conta %>
+    <div class="form-group">
+      <%= form.label :current_password, @conta.class.human_attribute_name(:current_password) %>
+      <%= form.password_field :current_password, class: "form-control", autocomplete: "current-password", required: true %>
+    </div>
+    <div class="form-group">
+      <%= form.label :password, "Nova senha" %>
+      <%= form.password_field :password, class: "form-control", autocomplete: "new-password", required: true %>
+      <small class="form-text text-muted">Mínimo de <%= Devise.password_length.min %> caracteres.</small>
+    </div>
+    <div class="form-group">
+      <%= form.label :password_confirmation, @conta.class.human_attribute_name(:password_confirmation) %>
+      <%= form.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", required: true %>
+    </div>
+
+    <%= form.submit "Alterar senha", class: "btn btn-primary" %>
+    <%= link_to "Voltar", root_path, class: "btn btn-link" %>
+  <% end %>
+</div>

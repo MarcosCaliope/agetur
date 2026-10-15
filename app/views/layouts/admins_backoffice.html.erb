@@ -19,7 +19,7 @@
         </div>
         <div class="text-muted small">
           <%= render 'layouts/empresa_atual' %> ·
-          <%= current_admin.email %> · <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
+          <%= current_admin.email %> · <%= link_to 'Minha senha', minha_senha_path %> · <%= link_to 'Sair', destroy_admin_session_path, method: :delete %>
         </div>
       </nav>
       <%= render 'layouts/flash' %>
