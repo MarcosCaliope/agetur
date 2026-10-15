@@ -28,6 +28,8 @@ bin/rails test:system                            # Capybara/Selenium (Selenium M
 
 No linter (rubocop etc.) is configured.
 
+`bin/rails dev:setup` (`lib/tasks/dev.rake`) drops and recreates the development database, then creates `admin@admin.com` and `user@user.com` (password `123456`). It doesn't seed states. The user it creates has no company and no routes, so it only sees the home page.
+
 ## Database
 
 Local settings live in `.env` (gitignored, loaded by `dotenv-rails` in development/test; template in `.env.example`), so `bin/rails server`/`test` need no exported variables. PostgreSQL via `pg`. `config/database.yml` reads `AGETUR_DATABASE_HOST` (default `localhost`), `AGETUR_DATABASE_USERNAME` (default `agetur`) and `AGETUR_DATABASE_PASSWORD` from the environment. Databases are `agetur_{development,test,production}`. `db/schema.rb` is `ActiveRecord::Schema[7.2]` and was regenerated natively against Postgres. The legacy `service_orders`/`service_order_items` tables are gone.
