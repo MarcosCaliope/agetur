@@ -1,7 +1,11 @@
 class SordersController < ApplicationController
+  # Paid amounts are moved by passenger payments and commission payments;
+  # only an admin may correct them in the form.
+  PAGOS = %i[amountpay amountcomissionpay amountcomissionreppay].freeze
+
 # No Before Action nós adicionamos também o export para que ele consiga pegar o agreement correto  
 
-  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export, :encerrar, :reabrir]
+  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export, :encerrar, :reabrir, :editando]
   before_action :exigir_ordem_aberta, only: [:edit, :update, :destroy]
   before_action :set_destination_options, only: [:new, :create, :edit, :update]
   before_action :set_tourguide_options, only: [:new, :create, :edit, :update]
@@ -82,6 +86,20 @@ class SordersController < ApplicationController
 
   # GET /sorders/1/edit
   def edit
+    @sorder.registrar_edicao!(usuario_atual)
+    @outros_editando = @sorder.outros_editando(usuario_atual)
+  end
+
+  # PATCH /sorders/1/editando: the open edit form says it's still open and
+  # learns who else is editing. DELETE: the form was left.
+  def editando
+    if request.delete?
+      @sorder.encerrar_edicao!(usuario_atual)
+      head :no_content
+    else
+      @sorder.registrar_edicao!(usuario_atual)
+      render json: { outros: @sorder.outros_editando(usuario_atual).map { |edicao| descrever_edicao(edicao) } }
+    end
   end
 
   # POST /sorders
@@ -103,14 +121,44 @@ class SordersController < ApplicationController
   # PATCH/PUT /sorders/1
   # PATCH/PUT /sorders/1.json
   def update
+    # The version the form was opened with (Sorder#lock_version): the row is
+    # locked and a save over someone else's change is refused.
+    versao = params.dig(:sorder, :lock_version).presence&.to_i
+    salvo = false
+    Sorder.transaction do
+      @sorder.lock!
+      raise ActiveRecord::StaleObjectError.new(@sorder, "update") if versao && versao != @sorder.lock_version
+
+      salvo = @sorder.update(sorder_params)
+      raise ActiveRecord::Rollback unless salvo
+    end
     respond_to do |format|
-      if @sorder.update(sorder_params)
+      if salvo
+        @sorder.encerrar_edicao!(usuario_atual)
         format.html { redirect_to @sorder, notice: com_agendamentos('Ordem de serviço atualizada com sucesso.') }
         format.json { render :show, status: :ok, location: @sorder }
       else
         format.html { render :edit }
         format.json { render json: @sorder.errors, status: :unprocessable_entity }
       end
+    end
+  rescue ActiveRecord::StaleObjectError
+    # Someone else saved the order, or took a payment on it, since this form
+    # was opened. The form comes back as typed, still with the old version.
+    @conflito = true
+    begin
+      @sorder.assign_attributes(sorder_params)
+    rescue ActiveRecord::RecordNotFound # a passenger it lists was removed
+    end
+    @sorder.lock_version = versao
+    @outros_editando = @sorder.outros_editando(usuario_atual)
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = "Esta ordem de serviço foi alterada por outro usuário enquanto você editava, e suas alterações não foram " \
+                            "gravadas. Abra a ordem de novo para ver a versão atual e refaça as alterações."
+        render :edit, status: :conflict
+      end
+      format.json { render json: { error: "Ordem alterada por outro usuário." }, status: :conflict }
     end
   end
 
@@ -140,6 +188,11 @@ class SordersController < ApplicationController
        ("Vinculados ao agendamento: #{nomes[:vinculado].to_sentence}." if resultado[:vinculado]),
        ("Agendados não incluídos: #{nomes[:erro].to_sentence}." if resultado[:erro])].compact.join(" ")
     end
+
+    def descrever_edicao(edicao)
+      "#{edicao.usuario} (desde #{I18n.l(edicao.visto_em, format: '%H:%M')})"
+    end
+    helper_method :descrever_edicao
 
     # A closed order (SISTGER's iFlgAberto) can't be changed until reopened.
     def exigir_ordem_aberta
@@ -186,7 +239,8 @@ class SordersController < ApplicationController
       :valorguia, :valormotorista, :valorpedagio, :valordespesas, :valorcombustivel, :valoros, :valorfinalos,
       sorder_items_attributes: [:id, :sorder, :comments, :customer_id, :documenttype, :document, :hotel_id, :apto, 
       :vendor_id, :agency_id, :phone, :qtdepax, :qtdechd, :hour, :amount,
-      :amountpay, :discount, :vendor_discount, :amountcomission, :amountcomissionpay, :amountcomissionrep, :amountcomissionreppay, :snomepax, :scancelado, :done, :_destroy,
+      :discount, :vendor_discount, :amountcomission, :amountcomissionrep, :snomepax, :scancelado, :done, :_destroy,
+      *(PAGOS if admin_signed_in?),
       companions_attributes: [:id, :snome, :documenttype, :document, :chd, :colo, :_destroy]])
     end
 end

@@ -47,12 +47,14 @@ class SorderItemPayment < ApplicationRecord
     return unless sorder_item
 
     sorder_item.update_columns(amountpay: (sorder_item.amountpay.to_f + valor).round(2))
+    Sorder.nova_versao!(sorder_item.sorder_id)
   end
 
   def tirar_do_pago
     return unless sorder_item
 
     sorder_item.update_columns(amountpay: (sorder_item.amountpay.to_f - valor).round(2))
+    Sorder.nova_versao!(sorder_item.sorder_id)
   end
 
   def lancar_caixa

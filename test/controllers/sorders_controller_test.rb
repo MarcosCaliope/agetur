@@ -47,7 +47,97 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
           amountcomission: 30, amountcomissionpay: 10, amountcomissionrep: 5, amountcomissionreppay: 2, scancelado: "N" } } } }
     end
     item = Sorder.last.sorder_items.first
-    assert_equal ["Maria", 10.0, 5.0, 2.0, "N"], [item.snomepax, item.amountcomissionpay, item.amountcomissionrep, item.amountcomissionreppay, item.scancelado]
+    assert_equal ["Maria", 30.0, 5.0, "N"], [item.snomepax, item.amountcomission, item.amountcomissionrep, item.scancelado]
+    assert_equal [nil, nil, nil], [item.amountpay, item.amountcomissionpay, item.amountcomissionreppay],
+                 "paid amounts come from payments, not from a user's form"
+  end
+
+  test "an admin may correct paid amounts in the form" do
+    sign_in admins(:one)
+    item = @sorder.sorder_items.create!(snomepax: "Maria", amount: 100)
+    get edit_sorder_url(@sorder)
+    assert_select "input[name$='[amountpay]']:not([readonly])"
+    patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id, amountpay: 40, amountcomissionpay: 10,
+                                                                                       amountcomissionreppay: 2 } } } }
+    assert_equal [40.0, 10.0, 2.0], [item.reload.amountpay, item.amountcomissionpay, item.amountcomissionreppay]
+  end
+
+  test "a user sees paid amounts read-only" do
+    @sorder.sorder_items.create!(snomepax: "Maria", amount: 100)
+    get edit_sorder_url(@sorder)
+    assert_select "input[name$='[amountpay]'][readonly]"
+    assert_select "input[name$='[amountcomissionpay]'][readonly]"
+  end
+
+  test "a form opened before a payment can't write over it" do
+    item = @sorder.sorder_items.create!(snomepax: "Maria", amount: 100)
+    get edit_sorder_url(@sorder)
+    versao = css_select("input[name='sorder[lock_version]']").first["value"]
+
+    item.pagamentos.create!(data: Date.current, valor: 40, forma_pagamento: "D")
+    patch sorder_url(@sorder), params: { sorder: { lock_version: versao, sobservacoes: "Mudança antiga",
+                                                   sorder_items_attributes: { "0" => { id: item.id, snomepax: "Maria Antiga" } } } }
+    assert_response :conflict
+    assert_match "alterada por outro usuário", flash[:alert]
+    assert_select "input[name='sorder[lock_version]'][value='#{versao}']", 1, "the form keeps the old version"
+    assert_select "input[value='Maria Antiga']", 1, "what was typed comes back"
+    assert_equal ["Maria", 40.0], [item.reload.snomepax, item.amountpay]
+    assert_not_equal "Mudança antiga", @sorder.reload.sobservacoes
+  end
+
+  test "two forms of the same order: the second save is refused" do
+    get edit_sorder_url(@sorder)
+    versao = css_select("input[name='sorder[lock_version]']").first["value"]
+
+    patch sorder_url(@sorder), params: { sorder: { lock_version: versao, sobservacoes: "Primeiro" } }
+    assert_redirected_to sorder_url(@sorder)
+    patch sorder_url(@sorder), params: { sorder: { lock_version: versao, sobservacoes: "Segundo" } }
+    assert_response :conflict
+    assert_equal "Primeiro", @sorder.reload.sobservacoes
+
+    get edit_sorder_url(@sorder)
+    patch sorder_url(@sorder), params: { sorder: { lock_version: css_select("input[name='sorder[lock_version]']").first["value"],
+                                                   sobservacoes: "Segundo" } }
+    assert_redirected_to sorder_url(@sorder)
+    assert_equal "Segundo", @sorder.reload.sobservacoes
+  end
+
+  test "editing a passenger or a pax list moves the order's version" do
+    item = @sorder.sorder_items.create!(snomepax: "Maria")
+    assert_changes -> { @sorder.reload.lock_version } do
+      item.update!(companions_attributes: [{ snome: "Ana" }])
+    end
+    assert_changes -> { @sorder.reload.lock_version } do
+      item.destroy!
+    end
+  end
+
+  test "shows who else has the order's form open" do
+    sign_in users(:two)
+    get edit_sorder_url(@sorder)
+    sign_in users(:one)
+
+    get edit_sorder_url(@sorder)
+    assert_select ".outros-editando:not([hidden]) .nomes", text: /#{users(:two).email}/
+    get sorder_url(@sorder)
+    assert_select ".alert-warning", text: /Em edição agora por #{users(:two).email}/
+
+    patch editando_sorder_url(@sorder), as: :json
+    assert_equal 1, response.parsed_body["outros"].size
+
+    travel SorderEdicao::VALIDADE + 1.minute do
+      patch editando_sorder_url(@sorder), as: :json
+      assert_empty response.parsed_body["outros"], "a form not heard from for a while counts as closed"
+    end
+
+    sign_in users(:two)
+    delete editando_sorder_url(@sorder)
+    assert_response :no_content
+    assert_equal [users(:one).email], @sorder.edicoes.pluck(:usuario)
+    patch sorder_url(@sorder), params: { sorder: { sobservacoes: "Salvo" } }
+    sign_in users(:one)
+    patch sorder_url(@sorder), params: { sorder: { sobservacoes: "Salvo" } }
+    assert_empty @sorder.edicoes.reload, "saving ends the edit"
   end
 
   test "should save the pax list of a passenger and show it on the order and its PDF" do

@@ -1,7 +1,8 @@
 # The routes a User can be allowed, read from config/routes.rb so a new screen
 # shows up in the user form by itself. A permission is "controller#action";
 # new/edit share the key of create/update (the form and its submit are one
-# permission), and payables' pagamento screen shares pagar's.
+# permission), payables' pagamento screen shares pagar's, and the order
+# form's "still editing" signal shares update's.
 #
 # Only controllers that run the permission check are listed: ApplicationController
 # subclasses, minus Devise, the public site, the back-offices and the header's
@@ -11,7 +12,7 @@ module Permissao
   Grupo = Struct.new(:controller, :rotulo, :itens)
 
   MESMA_ACAO = { "new" => "create", "edit" => "update" }.freeze
-  MESMA_CHAVE = { "payables#pagamento" => "payables#pagar" }.freeze
+  MESMA_CHAVE = { "payables#pagamento" => "payables#pagar", "sorders#editando" => "sorders#update" }.freeze
   ORDEM = %w[index show create update destroy].freeze
   LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController, SenhasController].freeze
 

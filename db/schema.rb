@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_14_180000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_15_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -338,6 +338,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_180000) do
     t.index ["hotel_id"], name: "index_pickup_times_on_hotel_id"
   end
 
+  create_table "sorder_edicoes", force: :cascade do |t|
+    t.bigint "sorder_id", null: false
+    t.string "usuario", null: false
+    t.datetime "visto_em", null: false
+    t.index ["sorder_id", "usuario"], name: "index_sorder_edicoes_on_sorder_id_and_usuario", unique: true
+  end
+
   create_table "sorder_item_companions", force: :cascade do |t|
     t.bigint "sorder_item_id", null: false
     t.bigint "customer_id"
@@ -432,6 +439,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_180000) do
     t.bigint "company_id", null: false
     t.integer "sistger_id"
     t.boolean "encerrada", default: false, null: false
+    t.integer "lock_version", default: 0, null: false
     t.index ["company_id"], name: "index_sorders_on_company_id"
     t.index ["destination_id"], name: "index_sorders_on_destination_id"
     t.index ["driver_id"], name: "index_sorders_on_driver_id"
@@ -594,6 +602,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_14_180000) do
   add_foreign_key "pickup_times", "companies"
   add_foreign_key "pickup_times", "destinations", on_delete: :cascade
   add_foreign_key "pickup_times", "hotels", on_delete: :cascade
+  add_foreign_key "sorder_edicoes", "sorders", on_update: :cascade, on_delete: :cascade
   add_foreign_key "sorder_item_companions", "customers"
   add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade
   add_foreign_key "sorder_item_payments", "booking_items", on_delete: :cascade

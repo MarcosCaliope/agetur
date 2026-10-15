@@ -103,6 +103,7 @@ class BookingItem < ApplicationRecord
     CashEntry.where(id: pagamentos.select(:cash_entry_id)).update_all(sorder_id: item.sorder_id, sorder_item_id: item.id)
     pagamentos.update_all(sorder_item_id: item.id)
     item.update_columns(amountpay: pagamentos.sum(:valor).to_f) if item.amountpay.to_f.zero?
+    Sorder.nova_versao!(item.sorder_id)
     update!(sorder_item: item)
     item
   end

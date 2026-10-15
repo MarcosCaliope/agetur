@@ -95,6 +95,10 @@
   </table>
 
   <div class="no-print">
+    <% editando = @sorder.edicoes.ativas.order(:visto_em).map { |edicao| descrever_edicao(edicao) } %>
+    <% if editando.any? %>
+      <div class="alert alert-warning">Em edição agora por <%= editando.to_sentence %>.</div>
+    <% end %>
     <%= link_to '[Voltar]', sorders_path %>
     <% if @sorder.encerrada? %>
       <%= link_to '[Reabrir OS]', reabrir_sorder_path(@sorder), method: :patch,

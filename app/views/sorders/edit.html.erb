@@ -1,3 +1,15 @@
+<%# Who else has this form open; edicao_ordem.js keeps it current. %>
+<div id="edicao-ordem" data-url="<%= editando_sorder_path(@sorder) %>">
+  <div class="alert alert-warning outros-editando"<%= " hidden" if @outros_editando.empty? %>>
+    <strong>Atenção:</strong> esta ordem está sendo editada agora por
+    <span class="nomes"><%= @outros_editando.map { |edicao| descrever_edicao(edicao) }.to_sentence %></span>.
+    Se vocês dois salvarem, as alterações de quem salvar por último serão recusadas.
+  </div>
+</div>
+<% if @conflito %>
+  <p><%= link_to "Abrir a versão atual da ordem", edit_sorder_path(@sorder), class: "btn btn-warning", data: { sair_sem_salvar: true } %></p>
+<% end %>
+
 <%= render 'form', sorder: @sorder %>
 
 <%= link_to 'Exibir', @sorder %> |

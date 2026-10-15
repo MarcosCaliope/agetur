@@ -114,6 +114,7 @@ class Payable < ApplicationRecord
     return unless coluna && sorder_item
 
     sorder_item.update_columns(coluna => (sorder_item[coluna].to_f + valor).round(2))
+    Sorder.nova_versao!(sorder_item.sorder_id)
   end
 
   private

@@ -1,4 +1,5 @@
-<%= form_with(model: sorder, local: true) do |form| %>
+<%= form_with(model: sorder, local: true, data: { avisar_alteracoes: true }) do |form| %>
+  <%= form.hidden_field :lock_version if sorder.persisted? %>
   <% if sorder.errors.any? %>
     <div id="error_explanation">
       <h2><%= t("errors.template.header", model: sorder.model_name.human.downcase, count: sorder.errors.count) %></h2>

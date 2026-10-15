@@ -7,6 +7,13 @@ class Sorder < ApplicationRecord
     belongs_to :driver
     belongs_to :vehicle
     has_many :payables
+    has_many :edicoes, class_name: "SorderEdicao", dependent: :delete_all
+
+    # lock_version counts changes to the order, its passengers and their
+    # payments. Only the edit form checks it (SordersController#update), so
+    # Rails' own optimistic locking, which would check every save, is off.
+    self.lock_optimistically = false
+    before_update { self.lock_version += 1 }
 
     # Costs of an order that become bills when it's closed: column, origem, description, creditor.
     CUSTOS = [
@@ -72,6 +79,25 @@ class Sorder < ApplicationRecord
       rescue BookingItem::NaoLancado => e
         [:erro, passeio, e.message]
       end
+    end
+
+    # Who has the edit form open (SorderEdicao), to warn the others.
+    def registrar_edicao!(usuario)
+      SorderEdicao.upsert({ sorder_id: id, usuario: usuario, visto_em: Time.current }, unique_by: %i[sorder_id usuario])
+    end
+
+    def encerrar_edicao!(usuario)
+      edicoes.where(usuario: usuario).delete_all
+    end
+
+    def outros_editando(usuario)
+      edicoes.ativas.where.not(usuario: usuario).order(:visto_em)
+    end
+
+    # Changes to passengers and their payments move the version too, so a
+    # form opened before them can't write over them.
+    def self.nova_versao!(id)
+      unscoped.where(id: id).update_all("lock_version = lock_version + 1")
     end
 
     def self.nome_comparavel(nome)

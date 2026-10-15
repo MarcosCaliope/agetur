@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       get 'export'
       patch 'encerrar'
       patch 'reabrir'
+      match 'editando', via: %i[patch delete]
     end
   end
 

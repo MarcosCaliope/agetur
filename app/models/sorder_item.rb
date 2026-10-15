@@ -2,6 +2,9 @@ class SorderItem < ApplicationRecord
   include DaEmpresa
   da_empresa via: :sorder
   belongs_to :sorder
+  # Any change to a passenger moves the order's version (Sorder.nova_versao!).
+  after_save { Sorder.nova_versao!(sorder_id) }
+  after_destroy { Sorder.nova_versao!(sorder_id) }
   belongs_to :customer, optional: true
   belongs_to :hotel, optional: true
   belongs_to :vendor, optional: true

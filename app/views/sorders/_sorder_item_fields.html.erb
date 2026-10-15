@@ -1,3 +1,5 @@
+<%# Paid amounts are moved by payments; only an admin corrects them here (SordersController::PAGOS). %>
+<% pago = { size: 7, readonly: !admin_signed_in?, title: ("Lançado pelos recebimentos e pagamentos de comissão" unless admin_signed_in?) } %>
 <table class="table table-hover">
     <div class="nested-fields">
         <%= f.label :ID %>
@@ -20,7 +22,7 @@
         <%= f.label :Valor_Passeio %>
         <%= f.text_field :amount , size:7%>
         <%= f.label :Pago %>
-        <%= f.text_field :amountpay , size:7%>
+        <%= f.text_field :amountpay, **pago %>
         <%= f.label :discount, "Desconto" %>
         <%= f.text_field :discount , size:6%>
         <%= f.label :vendor_discount, "Desc. vendedor" %>
@@ -43,14 +45,14 @@
         <%= f.label :Comissão %>
         <%= f.text_field :amountcomission , size:7%>
         <%= f.label :amountcomissionpay, "Pago" %>
-        <%= f.text_field :amountcomissionpay , size:7%>
+        <%= f.text_field :amountcomissionpay, **pago %>
         </div>
         <%= f.label :Repassado %>
         <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
         <%= f.label :amountcomissionrep, "Comissão" %>
         <%= f.text_field :amountcomissionrep , size:7%>
         <%= f.label :amountcomissionreppay, "Pago" %>
-        <%= f.text_field :amountcomissionreppay , size:7%>
+        <%= f.text_field :amountcomissionreppay, **pago %>
 
         <%= f.label :Cancelado %>
         <%= f.select :scancelado, ["N", "S"] %>
@@ -63,7 +65,9 @@
           <%= f.fields_for :companions do |companion| %>
             <%= render "companion_fields", f: companion %>
           <% end %>
-          <%= link_to_add_association "[Adicionar à lista pax]", f, :companions %>
+          <%# Inserted right before this link, inside .lista-pax (lista_pax.js counts the rows there). %>
+          <%= link_to_add_association "[Adicionar à lista pax]", f, :companions,
+                data: { association_insertion_node: "this", association_insertion_method: "before" } %>
         </div>
 
         <%= link_to_remove_association('X', f, class: "btn btn-danger") %>
