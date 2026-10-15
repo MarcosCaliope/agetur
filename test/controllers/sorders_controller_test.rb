@@ -56,6 +56,7 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
                                "1" => { snome: "", documenttype: "", chd: "0", colo: "0" } } } } } }
     item = @sorder.sorder_items.find_by!(snomepax: "Titular")
     assert_equal ["Ana (RG 123, CHD)"], item.companions.map(&:descricao), "a row without a name is ignored"
+    assert_equal [1, 1], [item.qtdepax, item.qtdechd], "the list sets the quantities"
 
     get edit_sorder_url(@sorder)
     assert_select "input[value=Ana]"
@@ -68,6 +69,7 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     patch sorder_url(@sorder), params: { sorder: { sorder_items_attributes: { "0" => { id: item.id,
       companions_attributes: { "0" => { id: companion.id, _destroy: "1" } } } } } }
     assert_empty item.companions.reload
+    assert_equal [1, 0], [item.reload.qtdepax, item.qtdechd]
   end
 
   test "should hide cancelled passengers and show totals" do

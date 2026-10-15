@@ -5,6 +5,24 @@ class SorderItemTest < ActiveSupport::TestCase
     @sorder = sorders(:two)
   end
 
+  test "changing the pax list recounts PAX and CHD, colo doesn't count" do
+    item = @sorder.sorder_items.create!(snomepax: "Titular", qtdepax: 4, qtdechd: 1)
+    assert_equal [4, 1], [item.qtdepax, item.qtdechd], "without a list the typed quantities stay"
+
+    item.update!(companions_attributes: [{ snome: "Adulto" }, { snome: "Criança", chd: true }, { snome: "Bebê", chd: true, colo: true }])
+    assert_equal [2, 1], [item.reload.qtdepax, item.qtdechd]
+
+    item.update!(qtdepax: 5, comments: "obs")
+    assert_equal 5, item.reload.qtdepax, "a save that doesn't touch the list keeps the typed quantity"
+
+    crianca = item.companions.find_by!(snome: "Criança")
+    item.update!(companions_attributes: [{ id: crianca.id, snome: "Criança", chd: false }])
+    assert_equal [3, 0], [item.reload.qtdepax, item.qtdechd]
+
+    item.update!(companions_attributes: item.companions.map { |pessoa| { id: pessoa.id, _destroy: "1" } })
+    assert_equal [1, 0], [item.reload.qtdepax, item.qtdechd]
+  end
+
   test "comissao_a_pagar subtracts commission already paid" do
     item = SorderItem.new(amountcomission: 30.0, amountcomissionpay: 10.0)
     assert_equal 20.0, item.comissao_a_pagar

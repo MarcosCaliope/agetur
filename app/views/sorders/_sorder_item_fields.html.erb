@@ -58,7 +58,7 @@
         <%= f.label :obs %>
         <%= f.text_field :comments , size:130%>
 
-        <div class="ml-3 my-2">
+        <div class="ml-3 my-2 lista-pax">
           <strong>Lista pax</strong>
           <%= f.fields_for :companions do |companion| %>
             <%= render "companion_fields", f: companion %>

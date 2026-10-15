@@ -21,6 +21,7 @@ class SorderItem < ApplicationRecord
 
   # Like SISTGER: a blank time takes the tour's pickup time at the hotel.
   before_validation { self.hour = PickupTime.hora_para(hotel_id, sorder&.destination_id) if hour.blank? }
+  before_save :contar_lista_pax, if: :lista_pax_alterada?
 
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "scancelado", "sorder_id", "vendor_id"]
@@ -52,6 +53,19 @@ class SorderItem < ApplicationRecord
   end
 
   private
+
+  # Like SISTGER's checkPax: when the pax list changes, the holder counts as
+  # one PAX and each person on the list as a PAX or a CHD; colo doesn't
+  # count. Items whose list isn't touched keep the typed quantities.
+  def contar_lista_pax
+    lista = companions.reject { |pessoa| pessoa.marked_for_destruction? || pessoa.colo? }
+    self.qtdepax = 1 + lista.count { |pessoa| !pessoa.chd? }
+    self.qtdechd = lista.count(&:chd?)
+  end
+
+  def lista_pax_alterada?
+    companions.target.any? { |pessoa| pessoa.new_record? || pessoa.changed? || pessoa.marked_for_destruction? }
+  end
 
   def devolver_sinais_ao_agendamento
     BookingItem.where(sorder_item_id: id).update_all(inclusao_automatica: false) # don't pull it back in by itself
