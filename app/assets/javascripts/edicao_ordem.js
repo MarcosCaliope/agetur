@@ -34,7 +34,7 @@
     var modal = $("#modal-sair-da-ordem");
     if (!modal.length) {
       modal = $(
-        '<div class="modal fade" id="modal-sair-da-ordem" tabindex="-1" role="dialog" aria-labelledby="modal-sair-da-ordem-titulo">' +
+        '<div class="modal" id="modal-sair-da-ordem" tabindex="-1" role="dialog" aria-labelledby="modal-sair-da-ordem-titulo">' +
         '<div class="modal-dialog" role="document"><div class="modal-content">' +
         '<div class="modal-header"><h5 class="modal-title" id="modal-sair-da-ordem-titulo">Alterações não gravadas</h5></div>' +
         '<div class="modal-body">Há alterações nesta ordem de serviço que ainda não foram gravadas. O que deseja fazer?</div>' +

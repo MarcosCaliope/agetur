@@ -23,10 +23,12 @@ bin/rails db:seed
 bin/rails test                                   # everything except system tests (models, controllers, importers, integration)
 bin/rails test test/models/sorder_test.rb        # single file
 bin/rails test test/models/sorder_test.rb:12     # single test at line 12
-bin/rails test:system                            # Capybara/Selenium (Selenium Manager resolves the driver)
+bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
 ```
 
 No linter (rubocop etc.) is configured.
+
+System tests (`test/system/`) cover only what needs a browser: the order form's JavaScript (`sorder_form_test.rb`). CRUD is covered by the controller tests. Selenium Manager downloads Chrome and chromedriver to `~/.cache/selenium`. `ApplicationSystemTestCase` passes that Chrome's path itself, because Rails resolves only chromedriver's path, and that makes Selenium skip the browser lookup. On WSL, Chrome needs `libnss3 libnspr4 libasound2t64` installed.
 
 `bin/rails dev:setup` (`lib/tasks/dev.rake`) drops and recreates the development database, then creates `admin@admin.com` and `user@user.com` (password `123456`). It doesn't seed states. The user it creates has no company and no routes, so it only sees the home page.
 
