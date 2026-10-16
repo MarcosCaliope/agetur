@@ -11,6 +11,21 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index shows each order's PAX and CHD from its active passengers" do
+    sorder = sorders(:two)
+    sorder.sorder_items.update_all(qtdepax: 2, qtdechd: 1, scancelado: "N")
+    sorder.sorder_items.first.update_columns(scancelado: "S")
+    ativos = sorder.sorder_items.ativos.count
+
+    get sorders_url
+    assert_response :success
+    assert_select "tr", text: /#{sorder.destination.description}/ do |linhas|
+      linha = linhas.find { |tr| tr.at_css("td")&.text.to_s.strip.start_with?(sorder.id.to_s) }
+      celulas = linha.css("td").map { |td| td.text.strip }
+      assert_equal [(2 * ativos).to_s, ativos.to_s], celulas[5, 2]
+    end
+  end
+
   test "should get new" do
     get new_sorder_url
     assert_response :success

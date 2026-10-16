@@ -24,10 +24,15 @@ class SordersController < ApplicationController
   def index
     @q = Sorder.ransack(params[:q])
     @sorders = @q.result
-    
+
     #@sorders = Sorder.all
     respond_to do |format|
-      format.html
+      format.html do
+        # PAX/CHD of the active passengers, one query for the whole list.
+        @pax = SorderItem.ativos.where(sorder_id: @sorders.select(:id))
+          .group(:sorder_id).pluck(:sorder_id, Arel.sql("SUM(qtdepax)"), Arel.sql("SUM(qtdechd)"))
+          .to_h { |id, pax, chd| [id, [pax.to_i, chd.to_i]] }
+      end
       format.pdf do
         #pdf = Prawn::Document.new
         pdf = SorderPdf.new (@sorders)
