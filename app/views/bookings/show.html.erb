@@ -68,12 +68,12 @@
             <% end %>
           <% end %>
           <%= link_to (passeio.lancado? ? "Recebimentos" : "Sinal"), booking_item_recebimentos_path(b, passeio) %>
-          <%= link_to "Editar", edit_booking_item_path(b, passeio) %>
+          <%= icone_link :editar, edit_booking_item_path(b, passeio) %>
           <% if passeio.lancado? %>
             <%= link_to "Retirar da OS", retirar_booking_item_path(b, passeio), method: :patch,
                   data: { confirm: "Retirar o passageiro da OS? Os sinais voltam para o agendamento." } %>
           <% else %>
-            <%= link_to "Excluir", booking_item_path(b, passeio), method: :delete,
+            <%= icone_link :excluir, booking_item_path(b, passeio), method: :delete,
                   data: { confirm: passeio.pagamentos.any? ? "Excluir o passeio e os sinais dele (e seus lançamentos no caixa)?" : "Tem certeza?" } %>
           <% end %>
         </td>

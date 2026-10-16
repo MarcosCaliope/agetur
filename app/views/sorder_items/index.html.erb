@@ -15,9 +15,9 @@
       <tr>
         <td><%= sorder_item.sorder %></td>
         <td><%= sorder_item.comments %></td>
-        <td><%= link_to 'Exibir', sorder_item %></td>
-        <td><%= link_to 'Editar', edit_sorder_item_path(sorder_item) %></td>
-        <td><%= link_to 'Excluir', sorder_item, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, sorder_item %></td>
+        <td><%= icone_link :editar, edit_sorder_item_path(sorder_item) %></td>
+        <td><%= icone_link :excluir, sorder_item, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

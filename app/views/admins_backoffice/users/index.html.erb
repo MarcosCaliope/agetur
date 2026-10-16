@@ -25,9 +25,9 @@
             <%= pluralize(user.permissoes.size, "rota liberada", plural: "rotas liberadas") %>
           <% end %>
         </td>
-        <td><%= link_to "Editar", edit_admins_backoffice_user_path(user) %></td>
+        <td><%= icone_link :editar, edit_admins_backoffice_user_path(user) %></td>
         <td><%= link_to "Copiar", new_admins_backoffice_user_path(copiar: user.id) %></td>
-        <td><%= link_to "Excluir", admins_backoffice_user_path(user), method: :delete, data: { confirm: "Tem certeza?" } %></td>
+        <td><%= icone_link :excluir, admins_backoffice_user_path(user), method: :delete, data: { confirm: "Tem certeza?" } %></td>
       </tr>
     <% end %>
   </tbody>

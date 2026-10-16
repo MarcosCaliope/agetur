@@ -31,9 +31,9 @@
         <td><%= vehicle.city %></td>
         <td><%= vehicle.state.uf %></td>
         <td><%= vehicle.comments %></td>
-        <td><%= link_to 'Exibir', vehicle %></td>
-        <td><%= link_to 'Editar', edit_vehicle_path(vehicle) %></td>
-        <td><%= link_to 'Excluir', vehicle, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, vehicle %></td>
+        <td><%= icone_link :editar, edit_vehicle_path(vehicle) %></td>
+        <td><%= icone_link :excluir, vehicle, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

@@ -52,9 +52,9 @@
         <td><%= sim_nao(company.exibir_repasse_na_os?) %></td>
         <td><%= sim_nao(company.incluir_chd_no_calculo?) %></td>
         <td><%= company.comments %></td>
-        <td><%= link_to 'Exibir', company %></td>
-        <td><%= link_to 'Editar', edit_company_path(company) %></td>
-        <td><%= link_to 'Excluir', company, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, company %></td>
+        <td><%= icone_link :editar, edit_company_path(company) %></td>
+        <td><%= icone_link :excluir, company, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

@@ -46,10 +46,10 @@
         <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.tourguide.sname%></td>
 
-        <td class="no-print"><%= link_to 'Exibir', sorder %></td>
+        <td class="no-print"><%= icone_link :exibir, sorder %></td>
         <% unless sorder.encerrada? %>
-          <td class="no-print"><%= link_to 'Editar', edit_sorder_path(sorder) %></td>
-          <td class="no-print"><%= link_to 'Excluir', sorder, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+          <td class="no-print"><%= icone_link :editar, edit_sorder_path(sorder) %></td>
+          <td class="no-print"><%= icone_link :excluir, sorder, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
         <% end %>
       </tr>
     <% end %>

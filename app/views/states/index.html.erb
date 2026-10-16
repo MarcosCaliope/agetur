@@ -15,9 +15,9 @@
       <tr>
         <td><%= state.uf %></td>
         <td><%= state.name %></td>
-        <td><%= link_to 'Exibir', state %></td>
-        <td><%= link_to 'Editar', edit_state_path(state) %></td>
-        <td><%= link_to 'Excluir', state, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, state %></td>
+        <td><%= icone_link :editar, edit_state_path(state) %></td>
+        <td><%= icone_link :excluir, state, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

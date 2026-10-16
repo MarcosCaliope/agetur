@@ -26,9 +26,9 @@
         <td><%= tourguide.phone %></td>
         <td><%= tourguide.contact %></td>
         <td><%= [tourguide.city, tourguide.state&.uf].compact_blank.join(" / ") %></td>
-        <td><%= link_to 'Exibir', tourguide %></td>
-        <td><%= link_to 'Editar', edit_tourguide_path(tourguide) %></td>
-        <td><%= link_to 'Excluir', tourguide, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, tourguide %></td>
+        <td><%= icone_link :editar, edit_tourguide_path(tourguide) %></td>
+        <td><%= icone_link :excluir, tourguide, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

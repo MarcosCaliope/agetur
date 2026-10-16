@@ -19,3 +19,7 @@
 @media print {
   .no-print { display: none; }
 }
+
+/* Exibir/Editar/Excluir icons in list rows (ApplicationHelper#icone_link). */
+.icone-acao { display: inline-block; margin: 0 .2rem; }
+.icone-acao svg { vertical-align: -.125em; }

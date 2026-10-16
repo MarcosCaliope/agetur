@@ -17,4 +17,18 @@ class ApplicationHelperTest < ActionView::TestCase
     Vendor.delete_all
     assert_includes ultimo_registro(Vendor), "Último registro: nenhum"
   end
+
+  def admin_signed_in? = true
+
+  test "icone_link shows an icon with the action as tooltip and hidden label" do
+    html = icone_link(:excluir, "/vendors/1", method: :delete, data: { confirm: "Tem certeza?" })
+    link = Nokogiri::HTML.fragment(html).at("a")
+    assert_equal "/vendors/1", link["href"]
+    assert_equal "Excluir", link["title"]
+    assert_equal "delete", link["data-method"]
+    assert_equal "Tem certeza?", link["data-confirm"]
+    assert_includes link["class"], "text-danger"
+    assert link.at("svg[aria-hidden=true]")
+    assert_equal "Excluir", link.at("span.sr-only").text
+  end
 end

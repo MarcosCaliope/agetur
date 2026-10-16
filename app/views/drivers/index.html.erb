@@ -26,9 +26,9 @@
         <td><%= driver.phone %></td>
         <td><%= driver.contact %></td>
         <td><%= [driver.city, driver.state&.uf].compact_blank.join(" / ") %></td>
-        <td><%= link_to 'Exibir', driver %></td>
-        <td><%= link_to 'Editar', edit_driver_path(driver) %></td>
-        <td><%= link_to 'Excluir', driver, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, driver %></td>
+        <td><%= icone_link :editar, edit_driver_path(driver) %></td>
+        <td><%= icone_link :excluir, driver, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

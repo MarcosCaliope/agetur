@@ -33,9 +33,9 @@
         <td><%= destination.valuecard %></td>
         <td><%= destination.valuecardchd %></td>
         <td><%= destination.state.uf %></td>
-        <td><%= link_to 'Exibir', destination %></td>
-        <td><%= link_to 'Editar', edit_destination_path(destination) %></td>
-        <td><%= link_to 'Excluir', destination, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= icone_link :exibir, destination %></td>
+        <td><%= icone_link :editar, edit_destination_path(destination) %></td>
+        <td><%= icone_link :excluir, destination, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>
