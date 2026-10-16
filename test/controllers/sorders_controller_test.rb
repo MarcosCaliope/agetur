@@ -9,6 +9,8 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get sorders_url
     assert_response :success
+    assert_select "th", text: "Observações", count: 0
+    assert_select "th", "Passageiros"
   end
 
   test "should get new" do

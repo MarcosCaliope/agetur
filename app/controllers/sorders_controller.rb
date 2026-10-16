@@ -24,7 +24,9 @@ class SordersController < ApplicationController
   def index
     @q = Sorder.ransack(params[:q])
     @sorders = @q.result
-    
+    # PAX + CHD of the active items, per order (one query instead of one per row)
+    @passageiros = SorderItem.ativos.where(sorder_id: @sorders.select(:id))
+                             .group(:sorder_id).sum("COALESCE(qtdepax, 0) + COALESCE(qtdechd, 0)")
     #@sorders = Sorder.all
     respond_to do |format|
       format.html
