@@ -24,7 +24,10 @@ class SordersController < ApplicationController
   def index
     @q = Sorder.ransack(params[:q])
     @sorders = @q.result
-    
+    # PAX/CHD of each listed order (active items only, like Sorder#total_pax)
+    @pax_por_ordem = SorderItem.ativos.where(sorder_id: @sorders.select(:id)).group(:sorder_id)
+                               .pluck(:sorder_id, Arel.sql("SUM(qtdepax)"), Arel.sql("SUM(qtdechd)"))
+                               .to_h { |id, pax, chd| [id, [pax.to_i, chd.to_i]] }
     #@sorders = Sorder.all
     respond_to do |format|
       format.html
