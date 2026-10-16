@@ -27,7 +27,9 @@ class SordersController < ApplicationController
     
     #@sorders = Sorder.all
     respond_to do |format|
-      format.html
+      format.html do
+        @pax = SorderItem.ativos.where(sorder_id: @sorders.select(:id)).group(:sorder_id).sum(:qtdepax)
+      end
       format.pdf do
         #pdf = Prawn::Document.new
         pdf = SorderPdf.new (@sorders)

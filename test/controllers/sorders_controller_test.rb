@@ -11,6 +11,17 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index shows each order's PAX, leaving out cancelled passengers" do
+    ordem = sorders(:two)
+    ordem.sorder_items.update_all(qtdepax: 2, scancelado: "N")
+    ordem.sorder_items.create!(qtdepax: 5, scancelado: "S")
+
+    get sorders_url
+    assert_select "tr", text: /\A\s*#{ordem.id}\b/ do
+      assert_select "td.text-right", (2 * ordem.sorder_items.ativos.count).to_s
+    end
+  end
+
   test "should get new" do
     get new_sorder_url
     assert_response :success

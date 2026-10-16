@@ -33,6 +33,7 @@
       <th>Destino</th>
       <th>Observações</th>
       <th>Guia</th>
+      <th class="text-right">PAX</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -45,6 +46,7 @@
         <td><%= sorder.destination.description%></td>
         <td><%= sorder.sobservacoes %></td>
         <td><%= sorder.tourguide.sname%></td>
+        <td class="text-right"><%= @pax.fetch(sorder.id, 0) %></td>
 
         <td class="no-print"><%= link_to 'Exibir', sorder %></td>
         <% unless sorder.encerrada? %>
