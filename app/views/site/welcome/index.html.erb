@@ -216,6 +216,21 @@
           </div>
         </div>
         <% end %>
+        <% if pode_acessar?("agendamentos_por_usuario") %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Agendamentos por usuário</h2>
+              <p class="text-muted small mb-0">
+                Passageiros lançados nas ordens do período, agrupados por quem os lançou, com o total de cada usuário.
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir relatório', agendamentos_por_usuario_path, class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+        <% end %>
       </div>
     </section>
     <% end %>

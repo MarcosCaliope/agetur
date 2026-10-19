@@ -1,0 +1,67 @@
+<% relatorio = @relatorio %>
+<h1>Agendamentos por usuário</h1>
+
+<%= form_with url: agendamentos_por_usuario_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= label_tag :inicio, "OS de", class: "mr-1" %>
+  <%= date_field_tag :inicio, relatorio.inicio, class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, relatorio.fim, class: "form-control form-control-sm mr-2" %>
+  <%= select_tag :usuario, options_for_select(relatorio.usuarios, relatorio.usuario), include_blank: "Todos os usuários",
+        class: "form-control form-control-sm mr-2", aria: { label: "Usuário" } %>
+  <div class="form-check mr-2">
+    <%= check_box_tag :cancelados, "1", relatorio.cancelados?, class: "form-check-input" %>
+    <%= label_tag :cancelados, "Incluir cancelados", class: "form-check-label" %>
+  </div>
+  <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm mr-1" %>
+  <%= link_to "PDF", agendamentos_por_usuario_path(relatorio.params_url.merge(format: :pdf)), target: "_blank",
+        class: "btn btn-outline-secondary btn-sm mr-1" %>
+  <button type="button" onclick="print()" class="btn btn-outline-secondary btn-sm">Imprimir</button>
+<% end %>
+
+<h5><%= relatorio.titulo %></h5>
+
+<table class="table table-sm table-hover agendamentos-por-usuario">
+  <thead>
+    <tr>
+      <th>Data OS</th>
+      <th>OS</th>
+      <th>Roteiro</th>
+      <th>Passageiro</th>
+      <th>Hotel</th>
+      <th>Data gravação</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if relatorio.itens.empty? %>
+      <tr><td colspan="6" class="text-muted">Nenhum passageiro lançado por usuário no período.</td></tr>
+    <% end %>
+    <% relatorio.grupos.each do |usuario, itens| %>
+      <tr class="table-secondary"><th colspan="6"><%= usuario %></th></tr>
+      <% itens.each do |item| %>
+        <tr class="<%= "text-muted" if item.cancelado? %>">
+          <td><%= l(item.sorder.data.to_date) %></td>
+          <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+          <td><%= item.sorder.destination&.description %></td>
+          <td><%= item.nome_passageiro %><%= " (cancelado)" if item.cancelado? %></td>
+          <td><%= item.hotel&.sname %></td>
+          <td><%= l(AgendamentosPorUsuario.gravado_em(item)) %></td>
+        </tr>
+      <% end %>
+      <tr class="font-weight-bold">
+        <td colspan="6">Total do usuário: <%= itens.size %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <% if relatorio.itens.any? %>
+    <tfoot>
+      <tr class="font-weight-bold"><td colspan="6">Total geral: <%= relatorio.itens.size %></td></tr>
+    </tfoot>
+  <% end %>
+</table>
+
+<% if relatorio.sem_usuario.positive? %>
+  <p class="text-muted small">
+    <%= pluralize(relatorio.sem_usuario, "passageiro", plural: "passageiros") %> do período sem usuário registrado
+    (lançados antes de o sistema gravar quem lança, ou importados do SISTGER).
+  </p>
+<% end %>

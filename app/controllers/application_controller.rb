@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
     return unless admin_signed_in? || user_signed_in?
 
     Current.filtrar_empresa = true
+    Current.usuario = usuario_atual
     if escolhe_empresa?
       Current.empresa_id = Company.where(id: session[:empresa_id]).pick(:id) || Company.order(:id).pick(:id)
     else

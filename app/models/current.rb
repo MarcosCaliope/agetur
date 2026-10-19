@@ -5,6 +5,8 @@
 #   request (console, seeds, tests that don't set it).
 # so_a_propria_empresa: a User also sees only their own Company record; an
 #   admin sees and manages them all.
+# usuario: the signed-in account's e-mail, recorded on the order passengers
+#   it creates (SorderItem#usuario).
 class Current < ActiveSupport::CurrentAttributes
-  attribute :empresa_id, :filtrar_empresa, :so_a_propria_empresa
+  attribute :empresa_id, :filtrar_empresa, :so_a_propria_empresa, :usuario
 end

@@ -62,4 +62,10 @@ class SorderItemTest < ActiveSupport::TestCase
     assert_equal "Maria", SorderItem.new(snomepax: "Maria", customer: customers(:one)).nome_passageiro
     assert_equal customers(:one).nome, SorderItem.new(customer: customers(:one)).nome_passageiro
   end
+
+  test "records the signed-in account that creates it, unless one is given" do
+    Current.usuario = "ana@example.com"
+    assert_equal "ana@example.com", sorders(:one).sorder_items.create!(snomepax: "Bia").usuario
+    assert_equal "caio@example.com", sorders(:one).sorder_items.create!(snomepax: "Caio", usuario: "caio@example.com").usuario
+  end
 end

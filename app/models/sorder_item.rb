@@ -12,6 +12,7 @@ class SorderItem < ApplicationRecord
   # Down payments taken on a booking go back to it when the item is removed.
   before_destroy :devolver_sinais_ao_agendamento, prepend: true
   has_many :pagamentos, -> { order(:data, :id) }, class_name: "SorderItemPayment", dependent: :destroy
+  has_one :booking_item # the booked tour it was placed from, if any
   has_many :companions, -> { order(:sistger_seq_adicional, :id) }, class_name: "SorderItemCompanion", inverse_of: :sorder_item,
                         dependent: :delete_all
   accepts_nested_attributes_for :companions, reject_if: ->(atributos) { atributos["snome"].blank? }, allow_destroy: true
@@ -30,6 +31,9 @@ class SorderItem < ApplicationRecord
   # Like SISTGER: a blank time takes the tour's pickup time at the hotel.
   before_validation { self.hour = PickupTime.hora_para(hotel_id, sorder&.destination_id) if hour.blank? }
   before_save :contar_lista_pax, if: :lista_pax_alterada?
+  # Who placed it in the order (the "Agendamentos por usuário" report); a
+  # booked tour brings its booking's user (BookingItem#dados_para_ordem).
+  before_create { self.usuario ||= Current.usuario }
 
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "scancelado", "sorder_id", "vendor_id"]

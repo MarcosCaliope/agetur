@@ -5,6 +5,7 @@
 pt-BR:
   permissoes:
     controllers:
+      agendamentos_por_usuario: "Agendamentos por usuário"
       booking_item_payments: "Agendamentos — sinais recebidos"
       booking_items: "Agendamentos — passeios"
       commission_payments: "Pagamento de comissões"
@@ -33,6 +34,8 @@ pt-BR:
       relacao_ordens:
         index: "Abrir"
       resumo_operacional:
+        index: "Abrir"
+      agendamentos_por_usuario:
         index: "Abrir"
       payables:
         pagar: "Pagar"

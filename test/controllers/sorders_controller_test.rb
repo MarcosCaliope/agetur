@@ -65,6 +65,7 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     end
     item = Sorder.last.sorder_items.first
     assert_equal ["Maria", 30.0, 5.0, "N"], [item.snomepax, item.amountcomission, item.amountcomissionrep, item.scancelado]
+    assert_equal users(:one).email, item.usuario, "records who placed the passenger"
     assert_equal [nil, nil, nil], [item.amountpay, item.amountcomissionpay, item.amountcomissionreppay],
                  "paid amounts come from payments, not from a user's form"
   end

@@ -93,7 +93,7 @@ class BookingItem < ApplicationRecord
     b = booking
     { snomepax: b.snome, customer_id: b.customer_id, documenttype: b.documenttype, document: b.document, hotel_id: b.hotel_id,
       apto: b.apto, phone: b.telefone, vendor_id: b.vendor_id, qtdepax: qtdepax, qtdechd: qtdechd, hour: hora, amount: valor,
-      amountcomission: comissao_prevista, comments: observacao, scancelado: "N" }
+      amountcomission: comissao_prevista, comments: observacao, scancelado: "N", usuario: b.usuario }
   end
 
   # The order's passenger takes over the booking's pax list (unless it has

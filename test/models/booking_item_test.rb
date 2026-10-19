@@ -146,4 +146,10 @@ class BookingItemTest < ActiveSupport::TestCase
                               telefone: "85 1", cadastrar_cliente: true)
     assert_equal ["Novo Cliente", "111", "85 1"], [booking.customer.nome, booking.customer.document, booking.customer.phone]
   end
+
+  test "the passenger placed in the order keeps the booking's user" do
+    @booking.update!(usuario: "gloria@example.com")
+    Current.usuario = "outro@example.com"
+    assert_equal "gloria@example.com", @passeio.lancar_na_os!(@ordem).usuario
+  end
 end
