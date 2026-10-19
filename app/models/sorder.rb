@@ -22,6 +22,14 @@ class Sorder < ApplicationRecord
       [:valordespesas, "despesas", "Despesas", nil]
     ].freeze
 
+    # {order id => [PAX, CHD]} of the active passengers, summed in one query
+    # for a whole list. Orders without passengers are missing.
+    def self.totais_pax(sorders)
+        SorderItem.ativos.where(sorder_id: sorders.select(:id)).group(:sorder_id)
+          .pluck(:sorder_id, Arel.sql("COALESCE(SUM(qtdepax), 0)"), Arel.sql("COALESCE(SUM(qtdechd), 0)"))
+          .to_h { |id, pax, chd| [id, [pax, chd]] }
+    end
+
     def total_pax
         sorder_items.ativos.sum(:qtdepax)
     end

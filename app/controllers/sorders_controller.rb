@@ -27,12 +27,7 @@ class SordersController < ApplicationController
     
     #@sorders = Sorder.all
     respond_to do |format|
-      format.html do
-        # PAX/CHD of the active passengers, summed in one query for the whole list.
-        @totais_pax = SorderItem.ativos.where(sorder_id: @sorders.select(:id)).group(:sorder_id)
-          .pluck(:sorder_id, Arel.sql("COALESCE(SUM(qtdepax), 0)"), Arel.sql("COALESCE(SUM(qtdechd), 0)"))
-          .to_h { |id, pax, chd| [id, [pax, chd]] }
-      end
+      format.html { @totais_pax = Sorder.totais_pax(@sorders) }
       format.pdf do
         #pdf = Prawn::Document.new
         pdf = SorderPdf.new (@sorders)
