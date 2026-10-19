@@ -26,8 +26,6 @@ bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
 ```
 
-No linter (rubocop etc.) is configured.
-
 System tests (`test/system/`) cover only what needs a browser: the order form's JavaScript (`sorder_form_test.rb`). CRUD is covered by the controller tests. Selenium Manager downloads Chrome and chromedriver to `~/.cache/selenium`. `ApplicationSystemTestCase` passes that Chrome's path itself, because Rails resolves only chromedriver's path, and that makes Selenium skip the browser lookup. On WSL, Chrome needs `libnss3 libnspr4 libasound2t64` installed.
 
 `bin/rails dev:setup` (`lib/tasks/dev.rake`) drops and recreates the development database, then creates `admin@admin.com` and `user@user.com` (password `123456`). It doesn't seed states. The user it creates has no company and no routes, so it only sees the home page.
@@ -42,7 +40,7 @@ Test fixtures are interdependent. Controller tests destroy the `:one` fixture of
 
 ## Git history
 
-Work happens on `main` (tracking `origin/main`). The Rails 7.2 history was merged into it via PR #1 (merge commit `9772fec`). Before that, `origin/main` was a separate 2022 history (Rails 6.1/MySQL) sharing no commits with this one. Its commission work was ported in `a002710`, and merge commit `8dfdf7e` (`-s ours`, tree unchanged) links the two histories. The 2022 commits, including a committed `config/master.key` and `node_modules/`/`tmp/`, remain in history. Never force-push `main`.
+Work happens on `main`. Its history includes a committed `config/master.key` (plus `node_modules/` and `tmp/`) from an older 2022 line of commits, so treat that key as exposed. Never force-push `main`, not even to purge them.
 
 ## Architecture
 
