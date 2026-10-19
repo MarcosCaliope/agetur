@@ -25,6 +25,13 @@ module ApplicationHelper
     true
   end
 
+  # Icon-only link (Font Awesome 4, from the gentelella theme); the title is the tooltip and the accessible name.
+  def link_icone(icone, titulo, url, html_options = {})
+    link_to url, html_options.merge(title: titulo, "aria-label": titulo) do
+      tag.i(class: "fa fa-#{icone}", "aria-hidden": true)
+    end
+  end
+
   def sim_nao(valor)
     valor ? "Sim" : "Não"
   end

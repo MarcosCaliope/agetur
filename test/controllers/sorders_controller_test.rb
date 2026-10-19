@@ -11,6 +11,13 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the list links to each order through icons" do
+    get sorders_url
+    assert_select "a[title=Exibir][href=?] i.fa-eye", sorder_path(@sorder)
+    assert_select "a[title=Editar][href=?] i.fa-pencil", edit_sorder_path(@sorder)
+    assert_select "a[title=Excluir][data-method=delete][href=?] i.fa-trash", sorder_path(@sorder)
+  end
+
   test "the list shows each order's PAX and CHD, without cancelled passengers" do
     sorder = sorders(:two)
     sorder.sorder_items.update_all(qtdepax: 0, qtdechd: 0)
