@@ -25,7 +25,7 @@ class Site::WelcomeController < SiteController
     visiveis = {
       "cadastros" => @cadastros.any?,
       "processos" => %w[sorders bookings cash_entries payables txt].any? { |controller| pode_acessar?(controller) },
-      "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments"),
+      "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments") || pode_acessar?("relacao_ordens"),
       "manutencao" => pode_acessar?("sistger_imports")
     }
     @abas = ABAS.select { |aba, _| visiveis[aba] }
@@ -33,6 +33,7 @@ class Site::WelcomeController < SiteController
     hoje = Time.zone.today
     @ordens_total = Sorder.count
     @ordens_hoje = Sorder.where(data: hoje.all_day).count
+    @ordens_mes = Sorder.where(data: hoje.all_month).count
     @ordens_proximas = Sorder.where(data: hoje.tomorrow.beginning_of_day..(hoje + 7).end_of_day).count
 
     @agendamentos_pendentes = BookingItem.pendentes.where(data_passeio: hoje..).count

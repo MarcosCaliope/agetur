@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     resources :recebimentos, controller: "sorder_item_payments", only: %i[index create destroy]
   end
   get 'showcomis', to: 'sorder_items#showcomis'
+  get 'relatorios/ordens', to: 'relacao_ordens#index', as: :relacao_ordens
   get 'comissoes/pagamento', to: 'commission_payments#index', as: :pagamento_comissoes
   post 'comissoes/pagamento', to: 'commission_payments#create'
   resources :sorders do

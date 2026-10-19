@@ -1,0 +1,120 @@
+<% relacao = @relacao %>
+<h1>Relação de ordens</h1>
+
+<%= form_with url: relacao_ordens_path, method: :get, local: true, class: "no-print mb-3" do %>
+  <div class="form-row">
+    <div class="form-group col-sm-6 col-md-2">
+      <%= label_tag :inicio, "OS de" %>
+      <%= date_field_tag :inicio, relacao.inicio, class: "form-control form-control-sm" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-2">
+      <%= label_tag :fim, "até" %>
+      <%= date_field_tag :fim, relacao.fim, class: "form-control form-control-sm" %>
+    </div>
+    <% RelacaoOrdens::FILTROS.each do |nome, (_, _, _, rotulo)| %>
+      <div class="form-group col-sm-6 col-md-2">
+        <%= label_tag nome, rotulo %>
+        <%= select_tag nome, options_for_select(@opcoes[nome], relacao.filtro(nome)), include_blank: "Todos",
+              class: "form-control form-control-sm" %>
+      </div>
+    <% end %>
+  </div>
+  <div class="form-row align-items-end">
+    <div class="form-group col-sm-6 col-md-3">
+      <%= label_tag :modo, "Tipo" %>
+      <%= select_tag :modo, options_for_select(RelacaoOrdens::MODOS.invert, relacao.modo), class: "form-control form-control-sm" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-2">
+      <%= label_tag :agrupar, "Agrupar por" %>
+      <%= select_tag :agrupar, options_for_select(RelacaoOrdens::AGRUPAMENTOS.invert, relacao.agrupar), class: "form-control form-control-sm" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-2">
+      <%= label_tag :situacao, "Situação" %>
+      <%= select_tag :situacao, options_for_select(RelacaoOrdens::SITUACOES.invert, relacao.situacao), class: "form-control form-control-sm" %>
+    </div>
+    <div class="form-group col-sm-6 col-md-2">
+      <div class="form-check">
+        <%= check_box_tag :cancelados, "1", relacao.cancelados?, class: "form-check-input" %>
+        <%= label_tag :cancelados, "Incluir cancelados", class: "form-check-label" %>
+      </div>
+    </div>
+    <div class="form-group col-md-3">
+      <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm" %>
+      <%= link_to "PDF", relacao_ordens_path(relacao.params_url.merge(format: :pdf)), target: "_blank", class: "btn btn-outline-secondary btn-sm" %>
+      <button type="button" onclick="print()" class="btn btn-outline-secondary btn-sm">Imprimir</button>
+    </div>
+  </div>
+<% end %>
+
+<h5><%= relacao.titulo %></h5>
+<% if relacao.descricao_filtros.present? %>
+  <p class="text-muted small"><%= relacao.descricao_filtros %></p>
+<% end %>
+
+<% colunas = relacao.analitico? ? %w[OS Data Roteiro Passageiro Hotel Vendedor] : %w[OS Data Roteiro Guia Motorista Veículo] %>
+
+<table class="table table-sm table-hover relacao-ordens">
+  <thead>
+    <tr>
+      <% colunas.each do |coluna| %><th><%= coluna %></th><% end %>
+      <th class="text-right">PAX</th>
+      <th class="text-right">CHD</th>
+      <th class="text-right">Valor</th>
+      <th class="text-right">Recebido</th>
+      <th class="text-right">A receber</th>
+      <th class="text-right">Comissão</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if relacao.itens.empty? %>
+      <tr><td colspan="12" class="text-muted">Nenhuma ordem com estes filtros.</td></tr>
+    <% end %>
+    <% relacao.grupos.each do |titulo, itens| %>
+      <% if titulo %>
+        <tr class="table-secondary"><th colspan="12"><%= RelacaoOrdens::AGRUPAMENTOS[relacao.agrupar] %>: <%= titulo %></th></tr>
+      <% end %>
+      <% if relacao.analitico? %>
+        <% itens.each do |item| %>
+          <tr class="<%= "text-muted" if item.cancelado? %>">
+            <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+            <td><%= l(item.sorder.data.to_date) %></td>
+            <td><%= item.sorder.destination&.description %></td>
+            <td><%= item.nome_passageiro %><%= " (cancelado)" if item.cancelado? %></td>
+            <td><%= item.hotel&.sname %></td>
+            <td><%= item.vendor&.sname %></td>
+            <%= render "valores", totais: RelacaoOrdens.totais([item]) %>
+          </tr>
+        <% end %>
+      <% else %>
+        <% relacao.linhas(itens).each do |linha| %>
+          <% sorder = linha.sorder %>
+          <tr>
+            <td><%= link_to sorder.id, sorder_path(sorder) %></td>
+            <td><%= l(sorder.data.to_date) %></td>
+            <td><%= sorder.destination&.description %></td>
+            <td><%= sorder.tourguide&.sname %></td>
+            <td><%= sorder.driver&.sname %></td>
+            <td><%= sorder.vehicle&.license %></td>
+            <%= render "valores", totais: RelacaoOrdens.totais(linha.itens) %>
+          </tr>
+        <% end %>
+      <% end %>
+      <% if titulo %>
+        <tr class="font-weight-bold">
+          <td colspan="6" class="text-right">Subtotal <%= titulo %></td>
+          <%= render "valores", totais: RelacaoOrdens.totais(itens) %>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+  <% if relacao.itens.any? %>
+    <tfoot>
+      <tr class="font-weight-bold">
+        <th colspan="6" class="text-right">
+          Total: <%= pluralize(relacao.ordens, "ordem", plural: "ordens") %>
+        </th>
+        <%= render "valores", totais: relacao.totais %>
+      </tr>
+    </tfoot>
+  <% end %>
+</table>

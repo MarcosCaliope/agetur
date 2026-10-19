@@ -79,5 +79,6 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
     assert_select "#relatorios .dashboard-total", text: "R$ 20,00"
     assert_select "#relatorios a[href=?]", showcomis_path
+    assert_select "#relatorios a[href=?]", relacao_ordens_path, text: "Abrir relatório"
   end
 end
