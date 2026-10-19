@@ -20,7 +20,7 @@ bin/rails console
 bin/rails db:create db:migrate    # or db:schema:load
 bin/rails db:seed
 
-bin/rails test                                   # everything except system tests (models, controllers, importers, integration)
+bin/rails test                                   # everything except system tests (models, controllers, importers, pdfs, helpers)
 bin/rails test test/models/sorder_test.rb        # single file
 bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
@@ -131,6 +131,15 @@ Previews honor the filter. Chosen steps always run in dependency order.
 - Use `empresa_atual` (a helper) for "the company of this page", never `Company.first`. The order form has no company select; an order belongs to the company being worked in.
 - Outside a request (console, seeds) nothing is filtered and `company_id` must be given. Tests set `Current.empresa_id` to `companies(:two)` in `test_helper.rb`, and every fixture belongs to `:two`. Users `:one`/`:two`/`:consulta` work in it, `:sem_rotas` has none. Add `company: two` to new fixtures.
 - `upsert_all`/`insert_all` skip callbacks, so pass `company_id` yourself. The SISTGER import runs with the scope off (`sem_escopo_de_empresa`) and writes everything to the company imported from SISTGER, or to the importer's company until that one is imported.
+
+### Adding a cadastro
+
+The conventions in this file each apply to a new cadastro. Together:
+- **Model:** a required `company_id` with `include DaEmpresa`. Declare the search columns with `pesquisavel_por`. Add `self.ransackable_attributes` if the list is filtered. Add a `sistger_id` column if SISTGER will import it. Give the model and its attributes Portuguese names in `config/locales/models.pt-BR.yml`.
+- **Index view:** `shared/_pesquisa`, a "Código" column and `ultimo_registro(Model)`. Teach `descricao_registro` the name column if it isn't `sname`.
+- **Permissions:** routes show up in the user form by themselves. Label custom actions in `config/locales/permissoes.pt-BR.yml`.
+- **Dashboard:** add a card, with its count, in `Site::WelcomeController` and its view, behind `pode_acessar?`.
+- **Tests:** `sign_in users(:one)` in controller tests. Fixtures get `company: two`, and references to another resource point at its `:two` fixture.
 
 ### Misc
 
