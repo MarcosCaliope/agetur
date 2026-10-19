@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   end
   get 'showcomis', to: 'sorder_items#showcomis'
   get 'relatorios/ordens', to: 'relacao_ordens#index', as: :relacao_ordens
+  get 'relatorios/resumo-operacional', to: 'resumo_operacional#index', as: :resumo_operacional
   get 'comissoes/pagamento', to: 'commission_payments#index', as: :pagamento_comissoes
   post 'comissoes/pagamento', to: 'commission_payments#create'
   resources :sorders do

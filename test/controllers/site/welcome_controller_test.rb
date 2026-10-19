@@ -80,5 +80,6 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "#relatorios .dashboard-total", text: "R$ 20,00"
     assert_select "#relatorios a[href=?]", showcomis_path
     assert_select "#relatorios a[href=?]", relacao_ordens_path, text: "Abrir relatório"
+    assert_select "#relatorios a[href=?]", resumo_operacional_path, text: "Abrir relatório"
   end
 end

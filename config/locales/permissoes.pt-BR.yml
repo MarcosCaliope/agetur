@@ -9,6 +9,7 @@ pt-BR:
       booking_items: "Agendamentos — passeios"
       commission_payments: "Pagamento de comissões"
       relacao_ordens: "Relação de ordens"
+      resumo_operacional: "Resumo operacional"
       sistger_imports: "Importação do SISTGER"
       sorder_item_payments: "Passageiros — recebimentos"
       sorder_items: "Passageiros"
@@ -30,6 +31,8 @@ pt-BR:
       commission_payments:
         create: "Pagar comissões"
       relacao_ordens:
+        index: "Abrir"
+      resumo_operacional:
         index: "Abrir"
       payables:
         pagar: "Pagar"

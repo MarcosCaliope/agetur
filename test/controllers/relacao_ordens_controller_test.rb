@@ -1,6 +1,8 @@
 require "test_helper"
 
 class RelacaoOrdensControllerTest < ActionDispatch::IntegrationTest
+  include TextoDoPdf
+
   setup do
     sign_in users(:one)
     vendors(:one).update!(sname: "Vendedor Um")
@@ -18,13 +20,6 @@ class RelacaoOrdensControllerTest < ActionDispatch::IntegrationTest
     @buzios.sorder_items.create!(snomepax: "Cancelada", vendor: vendors(:one), qtdepax: 3, amount: 70, scancelado: "S")
     @arraial.sorder_items.create!(snomepax: "Caio", vendor: vendors(:one), qtdepax: 1, amount: 80, amountpay: 80, amountcomission: 8)
     @periodo = { inicio: "2026-10-01", fim: "2026-10-31" }
-  end
-
-  # Prawn writes each line as hex strings split by kerning: [<4d79> -15 <537472>] TJ.
-  def texto_do_pdf(pdf)
-    pdf.b.scan(/\[(.*?)\] TJ/).map do |(partes)|
-      partes.scan(/<(\h*)>/).map { |(hex)| [hex].pack("H*") }.join.force_encoding("Windows-1252").encode("UTF-8")
-    end.join("\n")
   end
 
   test "lists one line per order in the period, with totals that leave cancelled passengers out" do

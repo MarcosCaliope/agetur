@@ -1,0 +1,73 @@
+<% resumo = @resumo %>
+<h1>Resumo operacional</h1>
+
+<%= form_with url: resumo_operacional_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= label_tag :inicio, "OS de", class: "mr-1" %>
+  <%= date_field_tag :inicio, resumo.inicio, class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, resumo.fim, class: "form-control form-control-sm mr-2" %>
+  <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm mr-1" %>
+  <%= link_to "PDF", resumo_operacional_path(inicio: resumo.inicio, fim: resumo.fim, format: :pdf), target: "_blank",
+        class: "btn btn-outline-secondary btn-sm mr-1" %>
+  <button type="button" onclick="print()" class="btn btn-outline-secondary btn-sm">Imprimir</button>
+<% end %>
+
+<h5><%= resumo.titulo %></h5>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover resumo-operacional small">
+    <thead>
+      <tr>
+        <th>OS / Guia</th>
+        <th>Data</th>
+        <th>Destino</th>
+        <th>Veículo</th>
+        <% Sorder::CUSTOS.each do |_, _, nome, _| %>
+          <th class="text-right"><%= nome %></th>
+        <% end %>
+        <th class="text-right">Valor OS</th>
+        <th class="text-right">Comissões</th>
+        <th class="text-right">Despesas</th>
+        <th class="text-right">Total O.S.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if resumo.linhas.empty? %>
+        <tr><td colspan="<%= 8 + Sorder::CUSTOS.size %>" class="text-muted">Nenhuma ordem no período.</td></tr>
+      <% end %>
+      <% resumo.linhas.each do |linha| %>
+        <% sorder = linha.sorder %>
+        <tr>
+          <td>
+            <%= link_to sorder.id, sorder_path(sorder) %>
+            <div class="text-muted"><%= sorder.tourguide&.sname %></div>
+          </td>
+          <td><%= l(sorder.data.to_date) %></td>
+          <td><%= sorder.destination&.description %></td>
+          <td><%= sorder.vehicle&.license %></td>
+          <% Sorder::CUSTOS.each do |coluna, *| %>
+            <td class="text-right"><%= number_to_currency(linha.custo(coluna)) %></td>
+          <% end %>
+          <td class="text-right"><%= number_to_currency(linha.valor) %></td>
+          <td class="text-right"><%= number_to_currency(linha.comissoes) %></td>
+          <td class="text-right"><%= number_to_currency(linha.despesas) %></td>
+          <td class="text-right font-weight-bold<%= " text-danger" if linha.total.negative? %>"><%= number_to_currency(linha.total) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <% if resumo.linhas.any? %>
+      <% totais = resumo.totais %>
+      <tfoot>
+        <tr class="font-weight-bold">
+          <td colspan="<%= 4 + Sorder::CUSTOS.size %>" class="text-right">
+            Total: <%= pluralize(resumo.linhas.size, "ordem", plural: "ordens") %>
+          </td>
+          <td class="text-right"><%= number_to_currency(totais[:valor]) %></td>
+          <td class="text-right"><%= number_to_currency(totais[:comissoes]) %></td>
+          <td class="text-right"><%= number_to_currency(totais[:despesas]) %></td>
+          <td class="text-right"><%= number_to_currency(totais[:total]) %></td>
+        </tr>
+      </tfoot>
+    <% end %>
+  </table>
+</div>

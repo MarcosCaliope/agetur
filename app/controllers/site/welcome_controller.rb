@@ -25,7 +25,8 @@ class Site::WelcomeController < SiteController
     visiveis = {
       "cadastros" => @cadastros.any?,
       "processos" => %w[sorders bookings cash_entries payables txt].any? { |controller| pode_acessar?(controller) },
-      "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments") || pode_acessar?("relacao_ordens"),
+      "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments") || pode_acessar?("relacao_ordens") ||
+                      pode_acessar?("resumo_operacional"),
       "manutencao" => pode_acessar?("sistger_imports")
     }
     @abas = ABAS.select { |aba, _| visiveis[aba] }
