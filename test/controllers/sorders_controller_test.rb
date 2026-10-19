@@ -11,6 +11,16 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the list shows each order's PAX and CHD, without cancelled passengers" do
+    sorder = sorders(:two)
+    sorder.sorder_items.update_all(qtdepax: 0, qtdechd: 0)
+    sorder.sorder_items.create!(snomepax: "Ana", qtdepax: 3, qtdechd: 1)
+    sorder.sorder_items.create!(snomepax: "Bia", qtdepax: 2, qtdechd: 2, scancelado: "S")
+    get sorders_url
+    linha = css_select("tbody tr").find { |tr| tr.at_css("td").text.strip.start_with?(sorder.id.to_s) }
+    assert_equal %w[3 1], linha.css("td")[5..6].map { |td| td.text.strip }
+  end
+
   test "should get new" do
     get new_sorder_url
     assert_response :success
