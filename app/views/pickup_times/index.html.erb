@@ -4,15 +4,17 @@
 <p class="no-print"><%= link_to "Novo horário", new_pickup_time_path, class: "btn btn-success btn-sm" %></p>
 
 <table class="table table-sm table-hover">
-  <thead><tr><th>Hotel</th><th>Roteiro</th><th>Hora</th><th colspan="2"></th></tr></thead>
+  <thead><tr><th>Hotel</th><th>Roteiro</th><th>Hora</th><th></th></tr></thead>
   <tbody>
     <% @pickup_times.each do |horario| %>
       <tr>
         <td><%= horario.hotel.sname %></td>
         <td><%= horario.destination.description %></td>
         <td><%= horario.hora %></td>
-        <td><%= link_icone "pencil", "Editar", edit_pickup_time_path(horario) %></td>
-        <td><%= link_icone "trash", "Excluir", horario, method: :delete, class: "text-danger", data: { confirm: "Tem certeza?" } %></td>
+        <td class="text-nowrap">
+          <%= link_icone "pencil", "Editar", edit_pickup_time_path(horario) %>
+          <%= link_icone "trash", "Excluir", horario, method: :delete, class: "ml-2 text-danger", data: { confirm: "Tem certeza?" } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

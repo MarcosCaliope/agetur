@@ -14,7 +14,7 @@
       <th>Cidade</th>
       <th>Comissão (%)</th>
       <th>Situação</th>
-      <th colspan="4"></th>
+      <th colspan="2"></th>
     </tr>
   </thead>
 
@@ -29,10 +29,12 @@
         <td><%= [vendor.city, vendor.state&.uf].compact_blank.join(" / ") %></td>
         <td><%= vendor.no_commission ? "Não paga" : vendor.commission %></td>
         <td><%= vendor.active ? "Ativo" : "Inativo" %></td>
-        <td><%= link_icone 'eye', 'Exibir', vendor %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_vendor_path(vendor) %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', vendor %>
+          <%= link_icone 'pencil', 'Editar', edit_vendor_path(vendor), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', vendor, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
         <td><%= link_to 'Comissões', vendor_comissoes_path(vendor) %></td>
-        <td><%= link_icone 'trash', 'Excluir', vendor, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

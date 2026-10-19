@@ -16,7 +16,7 @@
       <th>Cartão</th>
       <th>Cartão CHD</th>
       <th>UF</th>
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -33,9 +33,11 @@
         <td><%= destination.valuecard %></td>
         <td><%= destination.valuecardchd %></td>
         <td><%= destination.state.uf %></td>
-        <td><%= link_icone 'eye', 'Exibir', destination %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_destination_path(destination) %></td>
-        <td><%= link_icone 'trash', 'Excluir', destination, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', destination %>
+          <%= link_icone 'pencil', 'Editar', edit_destination_path(destination), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', destination, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

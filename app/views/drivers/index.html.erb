@@ -13,7 +13,7 @@
       <th>Contato</th>
       <th>Cidade</th>
       
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -26,9 +26,11 @@
         <td><%= driver.phone %></td>
         <td><%= driver.contact %></td>
         <td><%= [driver.city, driver.state&.uf].compact_blank.join(" / ") %></td>
-        <td><%= link_icone 'eye', 'Exibir', driver %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_driver_path(driver) %></td>
-        <td><%= link_icone 'trash', 'Excluir', driver, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', driver %>
+          <%= link_icone 'pencil', 'Editar', edit_driver_path(driver), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', driver, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

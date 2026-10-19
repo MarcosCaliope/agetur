@@ -13,7 +13,7 @@
       <th>Contato</th>
       <th>Cidade</th>
       
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -26,9 +26,11 @@
         <td><%= tourguide.phone %></td>
         <td><%= tourguide.contact %></td>
         <td><%= [tourguide.city, tourguide.state&.uf].compact_blank.join(" / ") %></td>
-        <td><%= link_icone 'eye', 'Exibir', tourguide %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_tourguide_path(tourguide) %></td>
-        <td><%= link_icone 'trash', 'Excluir', tourguide, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', tourguide %>
+          <%= link_icone 'pencil', 'Editar', edit_tourguide_path(tourguide), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', tourguide, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

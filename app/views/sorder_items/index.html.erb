@@ -6,7 +6,7 @@
     <tr>
       <th>Ordem de serviço</th>
       <th>Observações</th>
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -15,9 +15,11 @@
       <tr>
         <td><%= sorder_item.sorder %></td>
         <td><%= sorder_item.comments %></td>
-        <td><%= link_icone 'eye', 'Exibir', sorder_item %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_sorder_item_path(sorder_item) %></td>
-        <td><%= link_icone 'trash', 'Excluir', sorder_item, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', sorder_item %>
+          <%= link_icone 'pencil', 'Editar', edit_sorder_item_path(sorder_item), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', sorder_item, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

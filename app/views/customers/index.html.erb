@@ -14,7 +14,7 @@
       <th>Observações</th>
       <th>Cidade</th>
       <th>UF</th>
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -28,9 +28,11 @@
         <td><%= customer.document %></td>
         <td><%= customer.comments %></td>
         <td><%= customer.city %></td>
-        <td><%= link_icone 'eye', 'Exibir', customer %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_customer_path(customer) %></td>
-        <td><%= link_icone 'trash', 'Excluir', customer, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', customer %>
+          <%= link_icone 'pencil', 'Editar', edit_customer_path(customer), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', customer, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>

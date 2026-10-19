@@ -3,7 +3,7 @@
 <p><%= link_to "Novo usuário", new_admins_backoffice_user_path, class: "btn btn-success btn-sm" %></p>
 
 <table class="table table-sm table-hover">
-  <thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Acesso</th><th colspan="3"></th></tr></thead>
+  <thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Acesso</th><th colspan="2"></th></tr></thead>
   <tbody>
     <% @users.each do |user| %>
       <tr>
@@ -25,9 +25,11 @@
             <%= pluralize(user.permissoes.size, "rota liberada", plural: "rotas liberadas") %>
           <% end %>
         </td>
-        <td><%= link_icone "pencil", "Editar", edit_admins_backoffice_user_path(user) %></td>
+        <td class="text-nowrap">
+          <%= link_icone "pencil", "Editar", edit_admins_backoffice_user_path(user) %>
+          <%= link_icone "trash", "Excluir", admins_backoffice_user_path(user), method: :delete, class: "ml-2 text-danger", data: { confirm: "Tem certeza?" } %>
+        </td>
         <td><%= link_to "Copiar", new_admins_backoffice_user_path(copiar: user.id) %></td>
-        <td><%= link_icone "trash", "Excluir", admins_backoffice_user_path(user), method: :delete, class: "text-danger", data: { confirm: "Tem certeza?" } %></td>
       </tr>
     <% end %>
   </tbody>

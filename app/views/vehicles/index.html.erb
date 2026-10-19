@@ -15,7 +15,7 @@
       <th>Cidade</th>
       <th>UF</th>
       <th>Observações</th>
-      <th colspan="3"></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -31,9 +31,11 @@
         <td><%= vehicle.city %></td>
         <td><%= vehicle.state.uf %></td>
         <td><%= vehicle.comments %></td>
-        <td><%= link_icone 'eye', 'Exibir', vehicle %></td>
-        <td><%= link_icone 'pencil', 'Editar', edit_vehicle_path(vehicle) %></td>
-        <td><%= link_icone 'trash', 'Excluir', vehicle, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
+        <td class="text-nowrap">
+          <%= link_icone 'eye', 'Exibir', vehicle %>
+          <%= link_icone 'pencil', 'Editar', edit_vehicle_path(vehicle), class: 'ml-2' %>
+          <%= link_icone 'trash', 'Excluir', vehicle, method: :delete, class: 'ml-2 text-danger', data: { confirm: 'Tem certeza?' } %>
+        </td>
       </tr>
     <% end %>
   </tbody>
