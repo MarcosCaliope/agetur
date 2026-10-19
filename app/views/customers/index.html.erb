@@ -28,9 +28,9 @@
         <td><%= customer.document %></td>
         <td><%= customer.comments %></td>
         <td><%= customer.city %></td>
-        <td><%= link_to 'Exibir', customer %></td>
-        <td><%= link_to 'Editar', edit_customer_path(customer) %></td>
-        <td><%= link_to 'Excluir', customer, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= link_icone 'eye', 'Exibir', customer %></td>
+        <td><%= link_icone 'pencil', 'Editar', edit_customer_path(customer) %></td>
+        <td><%= link_icone 'trash', 'Excluir', customer, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

@@ -11,8 +11,8 @@
         <td><%= horario.hotel.sname %></td>
         <td><%= horario.destination.description %></td>
         <td><%= horario.hora %></td>
-        <td><%= link_to "Editar", edit_pickup_time_path(horario) %></td>
-        <td><%= link_to "Excluir", horario, method: :delete, data: { confirm: "Tem certeza?" } %></td>
+        <td><%= link_icone "pencil", "Editar", edit_pickup_time_path(horario) %></td>
+        <td><%= link_icone "trash", "Excluir", horario, method: :delete, class: "text-danger", data: { confirm: "Tem certeza?" } %></td>
       </tr>
     <% end %>
   </tbody>

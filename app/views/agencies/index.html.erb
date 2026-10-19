@@ -27,9 +27,9 @@
         <td><%= agency.contact %></td>
         <td><%= [agency.city, agency.state&.uf].compact_blank.join(" / ") %></td>
         <td><%= agency.commission %></td>
-        <td><%= link_to 'Exibir', agency %></td>
-        <td><%= link_to 'Editar', edit_agency_path(agency) %></td>
-        <td><%= link_to 'Excluir', agency, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= link_icone 'eye', 'Exibir', agency %></td>
+        <td><%= link_icone 'pencil', 'Editar', edit_agency_path(agency) %></td>
+        <td><%= link_icone 'trash', 'Excluir', agency, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

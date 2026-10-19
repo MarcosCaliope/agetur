@@ -23,7 +23,7 @@
         <td><%= pagamento.usuario %></td>
         <td><%= pagamento.cash_entry ? link_to("nº #{pagamento.cash_entry_id}", cash_entries_path(inicio: pagamento.cash_entry.data)) : "—" %></td>
         <td class="text-right">
-          <%= link_to "Excluir", booking_item_recebimento_path(b, @item, pagamento), method: :delete,
+          <%= link_icone "trash", "Excluir", booking_item_recebimento_path(b, @item, pagamento), method: :delete, class: "text-danger",
                 data: { confirm: pagamento.cash_entry ? "Excluir o sinal e o lançamento dele no caixa?" : "Tem certeza?" } %>
         </td>
       </tr>

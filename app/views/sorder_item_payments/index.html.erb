@@ -50,7 +50,7 @@
         </td>
         <td class="text-right">
           <% unless ordem.encerrada? %>
-            <%= link_to "Excluir", sorder_item_recebimento_path(item, pagamento), method: :delete,
+            <%= link_icone "trash", "Excluir", sorder_item_recebimento_path(item, pagamento), method: :delete, class: "text-danger",
                   data: { confirm: pagamento.cash_entry ? "Excluir o recebimento e o lançamento dele no caixa?" : "Tem certeza?" } %>
           <% end %>
         </td>

@@ -37,9 +37,9 @@
         <td><%= hotel.contact %></td>
         <td><%= [hotel.city, hotel.state&.uf].compact_blank.join(" / ") %></td>
         <td class="no-print"><%= hotel.Valordiaria %></td>
-        <td class="no-print"><%= link_to 'Exibir', hotel %></td>
-        <td class="no-print"><%= link_to 'Editar', edit_hotel_path(hotel) %></td>
-        <td class="no-print"><%= link_to 'Excluir', hotel, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td class="no-print"><%= link_icone 'eye', 'Exibir', hotel %></td>
+        <td class="no-print"><%= link_icone 'pencil', 'Editar', edit_hotel_path(hotel) %></td>
+        <td class="no-print"><%= link_icone 'trash', 'Excluir', hotel, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

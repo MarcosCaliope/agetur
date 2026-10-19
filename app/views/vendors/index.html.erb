@@ -29,10 +29,10 @@
         <td><%= [vendor.city, vendor.state&.uf].compact_blank.join(" / ") %></td>
         <td><%= vendor.no_commission ? "Não paga" : vendor.commission %></td>
         <td><%= vendor.active ? "Ativo" : "Inativo" %></td>
-        <td><%= link_to 'Exibir', vendor %></td>
-        <td><%= link_to 'Editar', edit_vendor_path(vendor) %></td>
+        <td><%= link_icone 'eye', 'Exibir', vendor %></td>
+        <td><%= link_icone 'pencil', 'Editar', edit_vendor_path(vendor) %></td>
         <td><%= link_to 'Comissões', vendor_comissoes_path(vendor) %></td>
-        <td><%= link_to 'Excluir', vendor, method: :delete, data: { confirm: 'Tem certeza?' } %></td>
+        <td><%= link_icone 'trash', 'Excluir', vendor, method: :delete, class: 'text-danger', data: { confirm: 'Tem certeza?' } %></td>
       </tr>
     <% end %>
   </tbody>

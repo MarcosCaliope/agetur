@@ -11,7 +11,7 @@ class AgenciesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Agências"
     assert_select "th", text: "Nome"
-    assert_select "a", text: "Editar"
+    assert_select "a[title=Editar] i.fa-pencil"
     assert_select "a[data-confirm=?]", "Tem certeza?"
     assert_select "a", text: "Nova Agência"
   end
