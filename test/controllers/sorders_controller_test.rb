@@ -62,6 +62,11 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_equal [40.0, 10.0, 2.0], [item.reload.amountpay, item.amountcomissionpay, item.amountcomissionreppay]
   end
 
+  test "the edit form has the submit button at the top and at the bottom" do
+    get edit_sorder_url(@sorder)
+    assert_select "form input[type=submit][value='Atualizar Ordem de serviço']", 2
+  end
+
   test "saves the passenger's payment form" do
     item = @sorder.sorder_items.create!(snomepax: "Maria")
     get edit_sorder_url(@sorder)

@@ -12,6 +12,11 @@
     </div>
   <% end %>
 
+  <%# Also at the top: orders with many passengers make a long form. %>
+  <div class="actions mb-2">
+    <%= form.submit %>
+  </div>
+
   <div class="jumbotron">
     <td><%= company_logo_tag sorder.company || empresa_atual, :formulario %>
     <p>
