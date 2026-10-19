@@ -26,7 +26,7 @@ bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
 ```
 
-`test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`.
+No linter or formatter is configured (no RuboCop/Brakeman in the Gemfile). `test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`.
 
 System tests (`test/system/`) cover only what needs a browser: the order form's JavaScript (`sorder_form_test.rb`). CRUD is covered by the controller tests. Selenium Manager downloads Chrome and chromedriver to `~/.cache/selenium`. `ApplicationSystemTestCase` passes that Chrome's path itself, because Rails resolves only chromedriver's path, and that makes Selenium skip the browser lookup. On WSL, Chrome needs `libnss3 libnspr4 libasound2t64` installed.
 
@@ -129,7 +129,7 @@ Previews honor the filter. Chosen steps always run in dependency order.
 
 The conventions in this file each apply to a new cadastro. Together:
 - **Model:** a required `company_id` with `include DaEmpresa`. Declare the search columns with `pesquisavel_por`. Add `self.ransackable_attributes` if the list is filtered. Add a `sistger_id` column if SISTGER will import it. Give the model and its attributes Portuguese names in `config/locales/models.pt-BR.yml`.
-- **Index view:** `shared/_pesquisa`, a "Código" column and `ultimo_registro(Model)`. Teach `descricao_registro` the name column if it isn't `sname`.
+- **Index view:** `shared/_pesquisa`, a "Código" column and `ultimo_registro(Model)`. Teach `descricao_registro` the name column if it isn't `sname`. Row links (show/edit/delete and similar) go in one column as Font Awesome icons via `link_icone(icone, titulo, url, html_options)`, spaced with `class: "ml-2"`. Tests find them with `assert_select "a[title=...] i.fa-..."`.
 - **Permissions:** routes show up in the user form by themselves. Label custom actions in `config/locales/permissoes.pt-BR.yml`.
 - **Dashboard:** add a card, with its count, in `Site::WelcomeController` and its view, behind `pode_acessar?`.
 - **Tests:** `sign_in users(:one)` in controller tests. Fixtures get `company: two`, and references to another resource point at its `:two` fixture.
