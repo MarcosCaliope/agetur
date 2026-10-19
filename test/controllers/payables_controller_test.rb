@@ -36,6 +36,10 @@ class PayablesControllerTest < ActionDispatch::IntegrationTest
     get edit_payable_url(@conta)
     assert_redirected_to payables_url
 
+    get payables_url(situacao: "pagas")
+    assert_select "a[title=Recibo] i.fa-file-pdf-o"
+    assert_select "a[title=Estornar][data-method=patch][href=?] i.fa-undo", estornar_payable_path(@conta)
+
     assert_difference("CashEntry.count", -1) { patch estornar_payable_url(@conta) }
     assert_not @conta.reload.pago?
   end

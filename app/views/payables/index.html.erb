@@ -52,14 +52,14 @@
         <td class="no-print text-nowrap">
           <% if conta.pago? %>
             <% if conta.cash_entry_id %>
-              <%= link_to "Recibo", recibo_cash_entry_path(conta.cash_entry_id, format: :pdf), target: "_blank" %>
+              <%= link_icone "file-pdf-o", "Recibo", recibo_cash_entry_path(conta.cash_entry_id, format: :pdf), target: "_blank", class: "mr-2" %>
             <% end %>
             <% lote = conta.lote.size %>
-            <%= link_to "Estornar", estornar_payable_path(conta), method: :patch,
+            <%= link_icone "undo", "Estornar", estornar_payable_path(conta), method: :patch, class: "text-warning",
                   data: { confirm: lote.positive? ? "Esta conta foi paga em lote com outras #{lote}: o estorno desfaz o lote inteiro e retira a saída do caixa. Continuar?" : "Estornar o pagamento e retirar a saída do caixa?" } %>
           <% else %>
             <%= link_to "Pagar", pagamento_payable_path(conta), class: "btn btn-outline-success btn-sm" %>
-            <%= link_icone "pencil", "Editar", edit_payable_path(conta) %>
+            <%= link_icone "pencil", "Editar", edit_payable_path(conta), class: "ml-2" %>
             <%= link_icone "trash", "Excluir", conta, method: :delete, class: "ml-2 text-danger", data: { confirm: "Tem certeza?" } %>
           <% end %>
         </td>

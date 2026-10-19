@@ -41,6 +41,10 @@ class CashEntriesControllerTest < ActionDispatch::IntegrationTest
     item = sorders(:one).sorder_items.create!(snomepax: "Ana", amount: 100)
     entrada = item.pagamentos.create!(data: Date.current, valor: 40, forma_pagamento: "D").cash_entry
 
+    get cash_entries_url(inicio: entrada.data)
+    assert_select "a[title=Recibo] i.fa-file-pdf-o"
+    assert_select "a[title=Recebimento][href=?] i.fa-money", sorder_item_recebimentos_path(item)
+
     get edit_cash_entry_url(entrada)
     assert_redirected_to cash_entries_url(inicio: entrada.data)
     assert_no_difference("CashEntry.count") { delete cash_entry_url(entrada) }
