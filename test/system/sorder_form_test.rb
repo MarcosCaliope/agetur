@@ -1,6 +1,7 @@
 require "application_system_test_case"
 
-# The order form's JavaScript: lista_pax.js and edicao_ordem.js.
+# The order form's JavaScript: lista_pax.js, edicao_ordem.js and the
+# "Pagar comissão" menu (Bootstrap dropdown + rails-ujs).
 class SorderFormTest < ApplicationSystemTestCase
   setup do
     @sorder = sorders(:one)
@@ -58,5 +59,19 @@ class SorderFormTest < ApplicationSystemTestCase
     click_on "Voltar"
     assert_current_path sorders_path, ignore_query: true
     assert_equal ["outra@example.com"], @sorder.edicoes.reload.pluck(:usuario)
+  end
+
+  test "pays a passenger's vendor commission from the form" do
+    @item.update!(vendor: vendors(:one), amountcomission: 25)
+    visit edit_sorder_path(@sorder)
+    click_on "Pagar comissão"
+    assert_difference("CashEntry.count") do
+      accept_confirm(/Pagar hoje R\$ 25,00 de comissão/) { click_on "PIX" }
+      assert_text "lançada no caixa"
+    end
+    assert_current_path edit_sorder_path(@sorder)
+    assert_equal ["O", 25], [CashEntry.last.forma_pagamento, CashEntry.last.valor]
+    assert_equal 25, @item.reload.amountcomissionpay
+    assert_no_button "Pagar comissão"
   end
 end

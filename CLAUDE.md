@@ -46,7 +46,7 @@ Work happens on `main`. Its history includes a committed `config/master.key` (pl
 
 ## Architecture
 
-Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views plus jbuilder JSON views. There is no API layer, no background jobs and no service objects; the only extra layer is `app/pdfs/`. Frontend is Sprockets (CoffeeScript + SCSS per controller under `app/assets/`), Turbolinks, Bootstrap 4/jQuery from `package.json` via yarn, and a vendored `public/templates/gentelella/` admin theme. There is no `app/javascript`/importmap.
+Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views plus jbuilder JSON views. There is no API layer, no background jobs and no service objects; the only extra layer is `app/pdfs/`. Frontend is Sprockets (CoffeeScript + SCSS per controller under `app/assets/`), Turbolinks, Bootstrap 4 (`bootstrap.bundle`, so Popper is included and dropdowns work)/jQuery from `package.json` via yarn, and a vendored `public/templates/gentelella/` admin theme. There is no `app/javascript`/importmap.
 
 ### Orders: `Sorder` / `SorderItem`
 
@@ -68,7 +68,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 Ported from SISTGER's `frmLancamentoOS` (sources in `D:\SISTGER\OS-Fontes`). Each model's header comment documents its part.
 - A `SorderItemPayment` moves `amountpay` by its own value and never recomputes a sum, because imported items carry a paid amount without detailed payments. It also posts its `CashEntry` unless `lancar_no_caixa` is off.
 - Cash entries made by a payment or a paid bill are `automatico?` and change only from their origin. `valor` is always positive and `tipo` (`E`/`S`) signs it.
-- Closing an order (`Sorder#encerrar!`) turns what's left of its commissions and costs into `Payable`s. Closing again updates the open bills (`Payable.de_comissao`) instead of duplicating them, and `reabrir!` drops the unpaid ones. `pagar!`/`estornar!` post or undo the cash exit and the item's paid commission. `/comissoes/pagamento` pays in batch without closing the order.
+- Closing an order (`Sorder#encerrar!`) turns what's left of its commissions and costs into `Payable`s. Closing again updates the open bills (`Payable.de_comissao`) instead of duplicating them, and `reabrir!` drops the unpaid ones. `pagar!`/`estornar!` post or undo the cash exit and the item's paid commission. `/comissoes/pagamento` pays in batch without closing the order. The order form's "Pagar comissão" menu (per passenger, one link per payment form) posts there with `retorno=ordem` to pay one vendor commission today and return to the order.
 - A closed order (`encerrada`) refuses edit/update/destroy and new payments.
 
 ### Agendamentos

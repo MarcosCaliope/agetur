@@ -28,6 +28,19 @@ class CommissionPaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "Nenhuma comissão a pagar com estes filtros."
   end
 
+  test "pays one passenger from the order form and goes back to it" do
+    assert_difference("CashEntry.count") do
+      post pagamento_comissoes_url(tipo: "comissao_vendedor", sorder_id: @ordem.id, credor_id: vendors(:one).id, itens: [@ana.id],
+                                   data: "2026-10-09", forma_pagamento: "O", retorno: "ordem")
+    end
+    saida = CashEntry.last
+    assert_redirected_to edit_sorder_url(@ordem)
+    assert_equal [30, "S", "O", Date.new(2026, 10, 9)], [saida.valor, saida.tipo, saida.forma_pagamento, saida.data]
+    assert_equal [40.0, 0.0], [@ana.reload.amountcomissionpay, @bia.reload.amountcomissionpay.to_f]
+    follow_redirect!
+    assert_select ".alert-success", text: /Comissão de R\$ 30,00 paga a .* e lançada no caixa \(saída nº #{saida.id}\)/
+  end
+
   test "pays the checked commissions and links the creditor's receipt" do
     assert_difference("CashEntry.count") do
       post pagamento_comissoes_url, params: { tipo: "comissao_vendedor", inicio: "2026-10-01", fim: "2026-10-31",

@@ -247,6 +247,19 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", export_sorder_path(@sorder), text: "Exportar PDF"
   end
 
+  test "the edit form pays the vendor commission left on a passenger" do
+    ana = @sorder.sorder_items.create!(snomepax: "Ana", vendor: vendors(:one), amountcomission: 40, amountcomissionpay: 10)
+    @sorder.sorder_items.create!(snomepax: "Paga", vendor: vendors(:one), amountcomission: 20, amountcomissionpay: 20)
+    @sorder.sorder_items.create!(snomepax: "Cancelada", vendor: vendors(:one), amountcomission: 20, scancelado: "S")
+
+    get edit_sorder_url(@sorder)
+    assert_select "button", text: /Pagar comissão/, count: 1
+    assert_select "a.dropdown-item[data-method=post][href=?]", pagamento_comissoes_path(
+      tipo: "comissao_vendedor", sorder_id: @sorder.id, credor_id: vendors(:one).id, itens: [ana.id], data: Time.zone.today,
+      forma_pagamento: "O", retorno: "ordem"
+    ), text: "PIX"
+  end
+
   test "should not link to export on new" do
     get new_sorder_url
     assert_select "a", text: "Exportar PDF", count: 0

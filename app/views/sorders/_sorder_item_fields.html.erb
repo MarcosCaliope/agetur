@@ -46,6 +46,23 @@
         <%= f.text_field :amountcomission , size:7%>
         <%= f.label :amountcomissionpay, "Pago" %>
         <%= f.text_field :amountcomissionpay, **pago %>
+        <% if f.object.comissao_a_pagar? %>
+          <%# Pays the commission left today, with a cash exit (CommissionPaymentsController#create). %>
+          <% a_pagar = number_to_currency(f.object.comissao_a_pagar) %>
+          <div class="dropdown d-inline-block">
+            <button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+              Pagar comissão
+            </button>
+            <div class="dropdown-menu">
+              <% CashEntry::FORMAS.each do |forma, nome| %>
+                <%= link_to nome, pagamento_comissoes_path(tipo: "comissao_vendedor", sorder_id: f.object.sorder_id, credor_id: f.object.vendor_id,
+                                                           itens: [f.object.id], data: Time.zone.today, forma_pagamento: forma, retorno: "ordem"),
+                      method: :post, class: "dropdown-item",
+                      data: { confirm: "Pagar hoje #{a_pagar} de comissão a #{f.object.vendor.sname} (#{nome})? A saída é lançada no caixa." } %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
         </div>
         <%= f.label :Repassado %>
         <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>

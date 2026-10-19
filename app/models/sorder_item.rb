@@ -51,6 +51,12 @@ class SorderItem < ApplicationRecord
     amountcomission.to_f - amountcomissionpay.to_f
   end
 
+  # Whether the commission payment screen (CommissionPaymentsController)
+  # lists this passenger's vendor commission.
+  def comissao_a_pagar?
+    persisted? && !cancelado? && vendor.present? && !vendor.no_commission && comissao_a_pagar >= 0.01
+  end
+
   # Commission still to be paid to the agency it was passed to.
   def comissao_repasse_a_pagar
     amountcomissionrep.to_f - amountcomissionreppay.to_f

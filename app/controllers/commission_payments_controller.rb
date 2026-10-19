@@ -11,7 +11,8 @@ class CommissionPaymentsController < ApplicationController
     @recibos = CashEntry.where(id: Array(params[:recibos])).order(:id)
   end
 
-  # POST /comissoes/pagamento with itens[] (passenger ids), data, forma_pagamento
+  # POST /comissoes/pagamento with itens[] (passenger ids), data, forma_pagamento.
+  # retorno=ordem (the order form's "Pagar comissão") goes back to that order.
   def create
     ids = Array(params[:itens]).map(&:to_i)
     @data = (Date.iso8601(params[:data].to_s) rescue nil)
@@ -24,8 +25,14 @@ class CommissionPaymentsController < ApplicationController
       contas.each(&:save!)
       Payable.pagar_em_lote!(contas, data: @data, forma_pagamento: params[:forma_pagamento], usuario: usuario_atual)
     end
-    redirect_to pagamento_comissoes_path(filtros.merge(recibos: saidas.map(&:id))),
-                notice: "#{escolhidos.size} comissão(ões) paga(s) em #{saidas.size} saída(s) no caixa."
+    if da_ordem?
+      saida = saidas.first
+      redirect_to edit_sorder_path(params[:sorder_id]),
+                  notice: "Comissão de #{helpers.number_to_currency(saida.valor)} paga a #{saida.requerente} e lançada no caixa (saída nº #{saida.id})."
+    else
+      redirect_to pagamento_comissoes_path(filtros.merge(recibos: saidas.map(&:id))),
+                  notice: "#{escolhidos.size} comissão(ões) paga(s) em #{saidas.size} saída(s) no caixa."
+    end
   rescue ActiveRecord::RecordInvalid => e
     voltar("Pagamento não feito: #{e.record.errors.full_messages.to_sentence}")
   end
@@ -68,8 +75,12 @@ class CommissionPaymentsController < ApplicationController
   end
   helper_method :filtros
 
+  def da_ordem?
+    params[:retorno] == "ordem" && params[:sorder_id].present?
+  end
+
   def voltar(mensagem)
-    redirect_to pagamento_comissoes_path(filtros), alert: mensagem
+    redirect_to (da_ordem? ? edit_sorder_path(params[:sorder_id]) : pagamento_comissoes_path(filtros)), alert: mensagem
   end
 
   def data_param(nome)
