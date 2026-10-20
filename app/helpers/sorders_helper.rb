@@ -35,7 +35,7 @@ module SordersHelper
   def alteracao_auditada(auditoria, campo, (antes, depois))
     if auditoria.acao == "excluiu"
       valor_auditado(auditoria, campo, antes)
-    elsif antes.nil? && auditoria.acao != "alterou"
+    elsif antes.nil? && !auditoria.alteracao?
       valor_auditado(auditoria, campo, depois)
     else
       "#{valor_auditado(auditoria, campo, antes)} → #{valor_auditado(auditoria, campo, depois)}"

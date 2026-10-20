@@ -66,4 +66,28 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to sorder_items_url
   end
+
+  test "a cancelled passenger is brought back into its order" do
+    @sorder_item.update!(scancelado: "S")
+
+    patch reativar_sorder_item_url(@sorder_item)
+
+    assert_redirected_to sorder_url(@sorder_item.sorder)
+    assert_not @sorder_item.reload.cancelado?
+  end
+
+  test "a passenger with payments can't be deleted for good, nor anything in a closed order" do
+    @sorder_item.update!(amount: 100)
+    @sorder_item.pagamentos.create!(data: Date.current, valor: 30, forma_pagamento: "D")
+    assert_no_difference("SorderItem.count") { delete sorder_item_url(@sorder_item) }
+    assert_match "cancele-o em vez de excluir", flash[:alert]
+
+    outro = sorder_items(:two)
+    outro.update!(scancelado: "S")
+    outro.sorder.update!(encerrada: true)
+    assert_no_difference("SorderItem.count") { delete sorder_item_url(outro) }
+    patch reativar_sorder_item_url(outro)
+    assert outro.reload.cancelado?
+    assert_redirected_to sorder_url(outro.sorder)
+  end
 end

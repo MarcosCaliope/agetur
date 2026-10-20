@@ -44,6 +44,14 @@ class SorderItem < ApplicationRecord
 
   def auditoria_descricao = nome_passageiro
 
+  # Whether it can be deleted for good (SorderItemsController#destroy), and
+  # not only cancelled: nothing was received or paid on it, it didn't come
+  # from a booked tour, and a SISTGER import wouldn't bring it back.
+  def excluivel?
+    pagamentos.none? && amountcomissionpay.to_f.zero? && amountcomissionreppay.to_f.zero? && booking_item.nil? &&
+      sistger_numero.nil?
+  end
+
   def cancelado?
     scancelado == "S"
   end
@@ -76,6 +84,13 @@ class SorderItem < ApplicationRecord
   end
 
   private
+
+  # Cancelling and bringing back are named in the history.
+  def acao_auditada
+    return "alterou" unless saved_change_to_scancelado? && [scancelado_before_last_save, scancelado].include?("S")
+
+    cancelado? ? "cancelou" : "reativou"
+  end
 
   # A deleted passenger's history also keeps its pax list.
   def atributos_auditados_na_exclusao

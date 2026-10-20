@@ -1,5 +1,6 @@
 class SorderItemsController < ApplicationController
-  before_action :set_sorder_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_sorder_item, only: [:show, :edit, :update, :destroy, :reativar]
+  before_action :exigir_ordem_aberta, only: [:destroy, :reativar]
   # GET /sorder_items
   # GET /sorder_items.json
   def index
@@ -56,17 +57,39 @@ class SorderItemsController < ApplicationController
     end
   end
 
+  # PATCH /sorder_items/1/reativar: brings a cancelled passenger back into
+  # its order (SISTGER's "recuperar excluídos").
+  def reativar
+    @sorder_item.update!(scancelado: "N")
+    redirect_to @sorder_item.sorder, notice: "Passageiro #{@sorder_item.nome_passageiro} reativado na ordem de serviço."
+  end
+
   # DELETE /sorder_items/1
   # DELETE /sorder_items/1.json
+  # Only for a passenger with nothing tied to it (SorderItem#excluivel?);
+  # any other is cancelled instead, in the order form.
   def destroy
+    unless @sorder_item.excluivel?
+      mensagem = "Este passageiro tem recebimentos, comissão paga, agendamento ou veio do SISTGER: cancele-o em vez de excluir."
+      respond_to do |format|
+        format.html { redirect_back_or_to sorder_items_url, alert: mensagem }
+        format.json { render json: { error: mensagem }, status: :unprocessable_entity }
+      end
+      return
+    end
+
     @sorder_item.destroy
     respond_to do |format|
-      format.html { redirect_to sorder_items_url, notice: 'Passageiro excluído com sucesso.' }
+      format.html { redirect_back_or_to sorder_items_url, notice: 'Passageiro excluído com sucesso.' }
       format.json { head :no_content }
     end
   end
 
   private
+    def exigir_ordem_aberta
+      redirect_to @sorder_item.sorder, alert: "Ordem de serviço encerrada: reabra para alterar." if @sorder_item.sorder.encerrada?
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_sorder_item
       @sorder_item = SorderItem.find(params[:id])

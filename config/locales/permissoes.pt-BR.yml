@@ -46,6 +46,7 @@ pt-BR:
         create: "Importar"
       sorder_items:
         showcomis: "Relatório de comissões"
+        reativar: "Reativar cancelado"
       sorders:
         export: "Exportar PDF"
         historico: "Histórico (auditoria)"

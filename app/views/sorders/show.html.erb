@@ -94,6 +94,49 @@
     </tbody>
   </table>
 
+  <% cancelados = @sorder_item.where(scancelado: "S").order(:id) %>
+  <% if cancelados.any? %>
+    <details class="no-print mb-3">
+      <summary>Passageiros cancelados (<%= cancelados.size %>)</summary>
+      <table class="table table-sm table-hover mt-2">
+        <thead>
+          <tr>
+            <th>Passageiro</th>
+            <th>PAX</th>
+            <th>CHD</th>
+            <th>Valor</th>
+            <th>Pago</th>
+            <th>Vendedor</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cancelados.each do |item| %>
+            <tr>
+              <td><%= item.nome_passageiro %></td>
+              <td><%= item.qtdepax %></td>
+              <td><%= item.qtdechd %></td>
+              <td><%= number_to_currency(item.amount.to_f) %></td>
+              <td><%= number_to_currency(item.amountpay.to_f) %></td>
+              <td><%= item.vendor&.sname %></td>
+              <td class="text-nowrap">
+                <% unless @sorder.encerrada? %>
+                  <%= link_icone "undo", "Reativar", reativar_sorder_item_path(item), method: :patch,
+                        data: { confirm: "Reativar #{item.nome_passageiro} nesta OS?" } %>
+                  <% if item.excluivel? %>
+                    <%= link_icone "trash", "Excluir definitivamente", item, method: :delete, class: "ml-2 text-danger",
+                          data: { confirm: "Excluir #{item.nome_passageiro} definitivamente? Não será possível reativar." } %>
+                  <% end %>
+                <% end %>
+                <%= link_icone "money", "Recebimentos", sorder_item_recebimentos_path(item), class: "ml-2" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </details>
+  <% end %>
+
   <div class="no-print">
     <% editando = @sorder.edicoes.ativas.order(:visto_em).map { |edicao| descrever_edicao(edicao) } %>
     <% if editando.any? %>

@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   
   resources :companies
   resources :sorder_items do
+    patch 'reativar', on: :member
     resources :recebimentos, controller: "sorder_item_payments", only: %i[index create destroy]
   end
   get 'showcomis', to: 'sorder_items#showcomis'

@@ -3,6 +3,23 @@ class Sorder < ApplicationRecord
     include Auditavel
     has_many :sorder_items #, inverse_of: :sorders
     accepts_nested_attributes_for :sorder_items, reject_if: :all_blank, allow_destroy: true
+
+    # Like SISTGER, removing a saved passenger in the form ("X") cancels it:
+    # it leaves the order with its payments and can be brought back
+    # (SorderItemsController#reativar). A row not saved yet is just dropped.
+    def sorder_items_attributes=(atributos)
+      atributos = atributos.to_h if atributos.respond_to?(:permitted?)
+      # The shapes nested attributes take: {"0" => {...}}, [{...}] or one {...}.
+      if atributos.is_a?(Hash)
+        atributos = atributos.key?("id") || atributos.key?(:id) ? [atributos] : atributos.values
+      end
+      super(atributos.map do |item|
+        item = item.to_h.stringify_keys
+        next item if item["id"].blank? || !ActiveModel::Type::Boolean.new.cast(item["_destroy"])
+
+        item.except("_destroy").merge("scancelado" => "S")
+      end)
+    end
     belongs_to :destination
     belongs_to :tourguide
     belongs_to :driver

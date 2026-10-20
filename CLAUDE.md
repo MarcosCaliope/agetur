@@ -57,6 +57,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - Vendors, hotels, agencies, guides and drivers share one contact block: forms render `shared/_campos_contato` (needs `@state_options`), and show pages render `shared/_detalhes`. Re-imports never overwrite `comments`.
 - Inactive vendors are refused only when newly chosen, so old and imported items stay editable.
 - **Cancelled items:** blank `scancelado` means *not* cancelled. Filter with `SorderItem.ativos`, never `scancelado == "N"`. Totals, the show page and the PDF count only active items.
+- **Removing a passenger cancels it**, like SISTGER: the form's "X" on a saved item sets `scancelado = "S"` (`Sorder#sorder_items_attributes=`), keeping its payments. The form hides cancelled items. The order's page lists them with "Reativar" (`SorderItemsController#reativar`). Deleting one for good (`SorderItemsController#destroy`) is refused unless `SorderItem#excluivel?`: no payments, no commission paid, no booked tour, not imported.
 - **Passenger name:** use `SorderItem#nome_passageiro`. The typed `snomepax` replaced the customer select.
 - **Commissions** (`amountcomission*`, vendor and repasse agency) are payables, not receivables.
 - **Paid amounts** (`SordersController::PAGOS`) are read-only in the form, and only admins may submit them. Payments and commission payments move them.
@@ -87,7 +88,7 @@ Ported from SISTGER's `frmLancamentoOS` (sources in `D:\SISTGER\OS-Fontes`). Eac
 ### Agendamentos
 
 `Booking` (`/agendamentos`) holds booked tours (`BookingItem`) that are later placed in an order.
-- `BookingItem#lancar_na_os!` creates the order's `SorderItem` and moves the pax list, the expected commission and the down payments (with their cash entries) over. `retirar_da_os!`, or deleting that passenger in the order, hands them back.
+- `BookingItem#lancar_na_os!` creates the order's `SorderItem` and moves the pax list, the expected commission and the down payments (with their cash entries) over. `retirar_da_os!` hands them back. Cancelling that passenger in the order keeps them with it.
 - Every successful create/update in `SordersController` runs `Sorder#incluir_agendamentos!`, which pulls in pending tours for that destination and date. A passenger already typed with the same name (ignoring case and accents) is linked instead of duplicated. A tour taken out of an order gets `inclusao_automatica` false, so it doesn't come back by itself.
 - Placed tours and their bookings can't be deleted.
 - A blank time takes `PickupTime.hora_para(hotel, destination)`, for both booked tours and order items.

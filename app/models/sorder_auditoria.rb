@@ -7,6 +7,11 @@ class SorderAuditoria < ApplicationRecord
   include DaEmpresa
   belongs_to :registro, polymorphic: true, optional: true
 
+  # Updates of a record (Auditavel), named after what they did.
+  ALTERACOES = %w[alterou cancelou reativou encerrou reabriu].freeze
+
+  def alteracao? = ALTERACOES.include?(acao)
+
   # Records one action, by the signed-in account (Current.usuario). Called
   # by Auditavel, and by the code that moves an item's paid amounts with
   # update_columns (payments, commission payments, booked tours' down

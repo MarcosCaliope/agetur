@@ -89,7 +89,9 @@
                 data: { association_insertion_node: "this", association_insertion_method: "before" } %>
         </div>
 
-        <%= link_to_remove_association('X', f, class: "btn btn-danger") %>
+        <%# On a saved passenger this cancels it (Sorder#sorder_items_attributes=). %>
+        <%= link_to_remove_association('X', f, class: "btn btn-danger",
+              title: ("Cancela o passageiro ao salvar; ele pode ser reativado na tela da OS" if f.object.persisted?)) %>
         
         <div>
         ________________________________________________________________________________________________________________________________________________________________________________!

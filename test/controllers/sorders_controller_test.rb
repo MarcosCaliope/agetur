@@ -199,7 +199,8 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     @sorder.sorder_items.create!(snomepax: "Desistiu", qtdepax: 3, scancelado: "S")
     get sorder_url(@sorder)
     assert_select "td", text: "Ativo"
-    assert_select "td", text: "Desistiu", count: 0
+    assert_select "table.table-hover:not(.table-sm) td", text: "Desistiu", count: 0
+    assert_select "details td", text: "Desistiu"
     assert_match "Total de PAX:</strong> 2", response.body
   end
 
@@ -321,12 +322,30 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     get historico_sorder_url(@sorder)
     assert_response :success
     linhas = css_select("tbody tr").map { |tr| tr.css("td").map { |td| td.text.squish } }
-    alteracao_item = linhas.find { |linha| linha[2] == "Alterou" && linha[3].start_with?("Passageiro") }
+    alteracao_item = linhas.find { |linha| linha[2] == "Cancelou" && linha[3].start_with?("Passageiro") }
     assert_equal ["user_one@example.com", "Passageiro Bia"], [alteracao_item[1], alteracao_item[3]]
     assert_includes alteracao_item[4], "Valor do passeio: 100,00 → 120,00"
     assert_includes alteracao_item[4], "Hotel: #{hotels(:one).sname} (#{hotels(:one).id}) → #{hotels(:two).sname} (#{hotels(:two).id})"
     assert_includes alteracao_item[4], "Cancelado: (vazio) → Sim"
     assert linhas.any? { |linha| linha[2] == "Alterou" && linha[3] == "Ordem de serviço" && linha[4] == "Observações: MyString → Saída às 8h" }
+  end
+
+  test "cancelled passengers leave the form and are listed on the order's page to be brought back" do
+    ativo = @sorder.sorder_items.create!(snomepax: "Ativo")
+    sem_movimento = @sorder.sorder_items.create!(snomepax: "Digitado errado", scancelado: "S")
+    pago = @sorder.sorder_items.create!(snomepax: "Pagou", amount: 100, scancelado: "S")
+    pago.pagamentos.create!(data: Date.current, valor: 30, forma_pagamento: "D")
+
+    get edit_sorder_url(@sorder)
+    assert_select "input[name$='[snomepax]'][value=?]", "Ativo"
+    assert_select "input[name$='[snomepax]'][value=?]", "Digitado errado", count: 0
+
+    get sorder_url(@sorder)
+    assert_select "details summary", text: "Passageiros cancelados (2)"
+    assert_select "details a[title=Reativar][data-method=patch][href=?]", reativar_sorder_item_path(pago)
+    assert_select "details a[title='Excluir definitivamente'][href=?]", sorder_item_path(sem_movimento)
+    assert_select "details a[title='Excluir definitivamente'][href=?]", sorder_item_path(pago), count: 0
+    assert_not ativo.reload.cancelado?
   end
 
   test "should destroy sorder" do
