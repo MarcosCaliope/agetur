@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   resources :sorders do
     member do
       get 'export'
+      get 'historico'
       patch 'encerrar'
       patch 'reabrir'
       match 'editando', via: %i[patch delete]

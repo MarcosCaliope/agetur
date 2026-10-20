@@ -1,6 +1,7 @@
 class SorderItem < ApplicationRecord
   include DaEmpresa
   da_empresa via: :sorder
+  include Auditavel
   belongs_to :sorder
   # Any change to a passenger moves the order's version (Sorder.nova_versao!).
   after_save { Sorder.nova_versao!(sorder_id) }
@@ -41,6 +42,8 @@ class SorderItem < ApplicationRecord
 
   def nome_forma_pagamento = FORMAS_PAGAMENTO[forma_pagamento]
 
+  def auditoria_descricao = nome_passageiro
+
   def cancelado?
     scancelado == "S"
   end
@@ -73,6 +76,12 @@ class SorderItem < ApplicationRecord
   end
 
   private
+
+  # A deleted passenger's history also keeps its pax list.
+  def atributos_auditados_na_exclusao
+    lista = companions.map(&:descricao).join("; ")
+    lista.present? ? super.merge("lista_pax" => [lista, nil]) : super
+  end
 
   # Like SISTGER's checkPax: when the pax list changes, the holder counts as
   # one PAX and each person on the list as a PAX or a CHD; colo doesn't

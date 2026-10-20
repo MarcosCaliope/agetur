@@ -113,8 +113,12 @@ class Payable < ApplicationRecord
     coluna = { "comissao_vendedor" => :amountcomissionpay, "comissao_repasse" => :amountcomissionreppay }[tipo]
     return unless coluna && sorder_item
 
-    sorder_item.update_columns(coluna => (sorder_item[coluna].to_f + valor).round(2))
+    antes = sorder_item[coluna]
+    sorder_item.update_columns(coluna => (antes.to_f + valor).round(2))
     Sorder.nova_versao!(sorder_item.sorder_id)
+    SorderAuditoria.registrar!(sorder_item, valor.negative? ? "estornou comissão" : "pagou comissão",
+                               { coluna.to_s => [antes, sorder_item[coluna]] }, sorder_id: sorder_item.sorder_id,
+                               descricao: "#{sorder_item.nome_passageiro} — #{nome_tipo}: #{nome_credor}")
   end
 
   private

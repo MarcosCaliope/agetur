@@ -46,15 +46,24 @@ class SorderItemPayment < ApplicationRecord
   def somar_ao_pago
     return unless sorder_item
 
-    sorder_item.update_columns(amountpay: (sorder_item.amountpay.to_f + valor).round(2))
-    Sorder.nova_versao!(sorder_item.sorder_id)
+    mover_pago("recebeu", valor)
   end
 
   def tirar_do_pago
     return unless sorder_item
 
-    sorder_item.update_columns(amountpay: (sorder_item.amountpay.to_f - valor).round(2))
+    mover_pago("estornou recebimento", -valor)
+  end
+
+  # The order's history (SorderAuditoria) gets the payment and the paid
+  # amount it moved, which update_columns doesn't record.
+  def mover_pago(acao, diferenca)
+    antes = sorder_item.amountpay
+    sorder_item.update_columns(amountpay: (antes.to_f + diferenca).round(2))
     Sorder.nova_versao!(sorder_item.sorder_id)
+    SorderAuditoria.registrar!(self, acao, { "data" => [nil, data], "valor" => [nil, valor], "forma_pagamento" => [nil, nome_forma],
+                                             "descricao" => [nil, descricao], "amountpay" => [antes, sorder_item.amountpay] }.reject { |_, (_, depois)| depois.blank? },
+                               sorder_id: sorder_item.sorder_id, descricao: sorder_item.nome_passageiro)
   end
 
   def lancar_caixa

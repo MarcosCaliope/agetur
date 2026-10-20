@@ -48,6 +48,7 @@ pt-BR:
         showcomis: "Relatório de comissões"
       sorders:
         export: "Exportar PDF"
+        historico: "Histórico (auditoria)"
         encerrar: "Encerrar"
         reabrir: "Reabrir"
       txt:

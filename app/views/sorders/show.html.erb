@@ -108,6 +108,7 @@
       <%= link_to '[Encerrar OS]', encerrar_sorder_path(@sorder), method: :patch,
             data: { confirm: "Encerrar a OS? Ela deixa de aceitar alterações e recebimentos, e as comissões e custos em aberto viram contas a pagar." } %>
     <% end %>
+    <%= link_to '[Histórico]', historico_sorder_path(@sorder) %>
     <%= link_to 'Baixar PDF', export_sorder_path(@sorder), target: "_blank" %>
     <button type="button" onclick="print()">imprimir</button>
   </div>

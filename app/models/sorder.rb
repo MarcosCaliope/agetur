@@ -1,5 +1,6 @@
 class Sorder < ApplicationRecord
     include DaEmpresa
+    include Auditavel
     has_many :sorder_items #, inverse_of: :sorders
     accepts_nested_attributes_for :sorder_items, reject_if: :all_blank, allow_destroy: true
     belongs_to :destination
@@ -108,6 +109,13 @@ class Sorder < ApplicationRecord
       unscoped.where(id: id).update_all("lock_version = lock_version + 1")
     end
 
+    # History (Auditavel, SorderAuditoria), oldest first.
+    def auditorias
+        SorderAuditoria.where(sorder_id: id).order(:created_at, :id)
+    end
+
+    def auditoria_sorder_id = id
+
     def self.nome_comparavel(nome)
       I18n.transliterate(nome.to_s).downcase.squish
     end
@@ -122,5 +130,14 @@ class Sorder < ApplicationRecord
 
     def self.ransackable_attributes(auth_object = nil)
       ["company_id", "created_at", "data", "destination_id", "driver_id", "id", "id_value", "sobservacoes", "tourguide_id", "updated_at", "valorcombustivel", "valordespesas", "valorfinalos", "valorguia", "valormotorista", "valoros", "valorpedagio", "vehicle_id"]
+    end
+
+    private
+
+    # Closing and reopening are named in the history.
+    def acao_auditada
+      return "alterou" unless saved_change_to_encerrada?
+
+      encerrada? ? "encerrou" : "reabriu"
     end
 end

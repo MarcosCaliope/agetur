@@ -5,7 +5,7 @@ class SordersController < ApplicationController
 
 # No Before Action nós adicionamos também o export para que ele consiga pegar o agreement correto  
 
-  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export, :encerrar, :reabrir, :editando]
+  before_action :set_sorder, only: [:show, :edit, :update, :destroy, :export, :historico, :encerrar, :reabrir, :editando]
   before_action :exigir_ordem_aberta, only: [:edit, :update, :destroy]
   before_action :set_destination_options, only: [:new, :create, :edit, :update]
   before_action :set_tourguide_options, only: [:new, :create, :edit, :update]
@@ -57,6 +57,11 @@ class SordersController < ApplicationController
   def export
     pdf = SorderExportPdf.new(@sorder)
     send_data pdf.render, filename: "sorder_#{@sorder.id}.pdf", type: 'application/pdf', disposition: "inline"
+  end
+
+  # GET /sorders/1/historico: who did what to the order (SorderAuditoria).
+  def historico
+    @auditorias = @sorder.auditorias
   end
 
   # GET /sorders/1

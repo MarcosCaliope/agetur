@@ -398,9 +398,15 @@ class SistgerImport
   # ON UPDATE CASCADE. Negating first avoids clashes while swapping.
   def renumerar_ordens
     conexao = Sorder.connection
+    # The orders' history (sorder_auditorias, no foreign key) follows them.
+    conexao.execute("UPDATE sorder_auditorias SET sorder_id = -sorder_id " \
+                    "WHERE sorder_id IN (SELECT id FROM sorders WHERE sistger_id IS NOT NULL AND id <> sistger_id)")
     conexao.execute("UPDATE sorders SET id = -id WHERE sistger_id IS NOT NULL AND id <> sistger_id")
+    conexao.execute("UPDATE sorder_auditorias a SET sorder_id = s.sistger_id FROM sorders s " \
+                    "WHERE a.sorder_id = s.id AND s.id < 0 AND s.sistger_id NOT IN (SELECT id FROM sorders WHERE id > 0)")
     conexao.execute("UPDATE sorders SET id = sistger_id WHERE id < 0 AND sistger_id NOT IN (SELECT id FROM sorders WHERE id > 0)")
     conexao.execute("UPDATE sorders SET id = -id WHERE id < 0")
+    conexao.execute("UPDATE sorder_auditorias SET sorder_id = -sorder_id WHERE sorder_id < 0")
   end
 
   def gravar_comissoes_roteiro(registros, avisos)

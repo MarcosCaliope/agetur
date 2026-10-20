@@ -234,11 +234,13 @@ class SistgerImportTest < ActiveSupport::TestCase
     importar_cadastros
     @import.importar("ordens")
     Sorder.connection.execute("UPDATE sorders SET id = id + 100 WHERE sistger_id IS NOT NULL")
+    Sorder.find(101).update!(sobservacoes: "alterada aqui")
 
     @import.importar("ordens")
 
     assert_equal 1, Sorder.find_by!(sistger_id: 1).id
     assert_equal 1, SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1).sorder_id
+    assert_equal [[1, "alterou"]], SorderAuditoria.pluck(:sorder_id, :acao), "the history follows the order; the import adds none"
   end
 
   test "an order created here keeps its number and the SISTGER order with that number is skipped" do

@@ -100,10 +100,18 @@ class BookingItem < ApplicationRecord
   # one) and down payments, which count as paid unless a paid amount was typed.
   def assumir!(item)
     booking.companions.each { |pessoa| item.companions.create!(pessoa.atributos_para_ordem) } if item.companions.none?
+    sinais = pagamentos.sum(:valor).to_f
+    pago = item.amountpay
     CashEntry.where(id: pagamentos.select(:cash_entry_id)).update_all(sorder_id: item.sorder_id, sorder_item_id: item.id)
     pagamentos.update_all(sorder_item_id: item.id)
-    item.update_columns(amountpay: pagamentos.sum(:valor).to_f) if item.amountpay.to_f.zero?
+    item.update_columns(amountpay: sinais) if item.amountpay.to_f.zero?
     Sorder.nova_versao!(item.sorder_id)
+    if sinais.positive?
+      alteracoes = { "sinais_do_agendamento" => [nil, sinais] }
+      alteracoes["amountpay"] = [pago, item.amountpay] if pago != item.amountpay
+      SorderAuditoria.registrar!(item, "recebeu sinais do agendamento nº #{booking_id}", alteracoes,
+                                 sorder_id: item.sorder_id, descricao: item.nome_passageiro)
+    end
     update!(sorder_item: item)
     item
   end

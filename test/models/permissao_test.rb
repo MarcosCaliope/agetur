@@ -12,7 +12,7 @@ class PermissaoTest < ActiveSupport::TestCase
     sorders = Permissao.grupos.find { |grupo| grupo.controller == "sorders" }
     assert_equal "Ordens de serviço", sorders.rotulo
     chaves = sorders.itens.map(&:chave)
-    assert_equal %w[sorders#export sorders#encerrar sorders#reabrir sorders#index sorders#create sorders#update sorders#show sorders#destroy].sort, chaves.sort
+    assert_equal %w[sorders#export sorders#historico sorders#encerrar sorders#reabrir sorders#index sorders#create sorders#update sorders#show sorders#destroy].sort, chaves.sort
     incluir = sorders.itens.find { |item| item.chave == "sorders#create" }
     assert_equal "Incluir (Novo)", incluir.rotulo
     assert_includes incluir.rotas, "GET /sorders/new"

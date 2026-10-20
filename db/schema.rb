@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_19_180000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -338,6 +338,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_19_180000) do
     t.index ["hotel_id"], name: "index_pickup_times_on_hotel_id"
   end
 
+  create_table "sorder_auditorias", force: :cascade do |t|
+    t.bigint "sorder_id", null: false
+    t.bigint "company_id", null: false
+    t.string "registro_type", null: false
+    t.bigint "registro_id"
+    t.string "descricao"
+    t.string "acao", null: false
+    t.string "usuario"
+    t.jsonb "alteracoes", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["company_id"], name: "index_sorder_auditorias_on_company_id"
+    t.index ["sorder_id", "created_at"], name: "index_sorder_auditorias_on_sorder_id_and_created_at"
+  end
+
   create_table "sorder_edicoes", force: :cascade do |t|
     t.bigint "sorder_id", null: false
     t.string "usuario", null: false
@@ -604,6 +618,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_19_180000) do
   add_foreign_key "pickup_times", "companies"
   add_foreign_key "pickup_times", "destinations", on_delete: :cascade
   add_foreign_key "pickup_times", "hotels", on_delete: :cascade
+  add_foreign_key "sorder_auditorias", "companies"
   add_foreign_key "sorder_edicoes", "sorders", on_update: :cascade, on_delete: :cascade
   add_foreign_key "sorder_item_companions", "customers"
   add_foreign_key "sorder_item_companions", "sorder_items", on_delete: :cascade

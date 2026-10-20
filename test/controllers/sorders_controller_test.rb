@@ -311,6 +311,24 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Agendada Digitado], @sorder.sorder_items.order(:snomepax).pluck(:snomepax)
   end
 
+  test "the history shows who changed what in the order and its passengers" do
+    item = @sorder.sorder_items.create!(snomepax: "Bia", amount: 100, hotel: hotels(:one))
+    patch sorder_url(@sorder), params: { sorder: { sobservacoes: "Saída às 8h", sorder_items_attributes: {
+      "0" => { id: item.id, amount: "120", hotel_id: hotels(:two).id, scancelado: "S" } } } }
+
+    get sorder_url(@sorder)
+    assert_select "a[href=?]", historico_sorder_path(@sorder)
+    get historico_sorder_url(@sorder)
+    assert_response :success
+    linhas = css_select("tbody tr").map { |tr| tr.css("td").map { |td| td.text.squish } }
+    alteracao_item = linhas.find { |linha| linha[2] == "Alterou" && linha[3].start_with?("Passageiro") }
+    assert_equal ["user_one@example.com", "Passageiro Bia"], [alteracao_item[1], alteracao_item[3]]
+    assert_includes alteracao_item[4], "Valor do passeio: 100,00 → 120,00"
+    assert_includes alteracao_item[4], "Hotel: #{hotels(:one).sname} (#{hotels(:one).id}) → #{hotels(:two).sname} (#{hotels(:two).id})"
+    assert_includes alteracao_item[4], "Cancelado: (vazio) → Sim"
+    assert linhas.any? { |linha| linha[2] == "Alterou" && linha[3] == "Ordem de serviço" && linha[4] == "Observações: MyString → Saída às 8h" }
+  end
+
   test "should destroy sorder" do
     assert_difference('Sorder.count', -1) do
       delete sorder_url(@sorder)

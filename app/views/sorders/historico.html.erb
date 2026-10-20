@@ -1,0 +1,43 @@
+<h1>Histórico da OS nº <%= @sorder.id %></h1>
+<p>
+  <%= descricao_registro(@sorder) %>
+  <% if @sorder.encerrada? %><span class="badge badge-secondary">Encerrada</span><% end %>
+</p>
+
+<% if @auditorias.empty? %>
+  <p class="text-muted">Nenhuma alteração registrada nesta ordem. Ordens e passageiros importados do SISTGER só aparecem aqui depois de alterados no sistema.</p>
+<% else %>
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr>
+        <th>Data/hora</th>
+        <th>Usuário</th>
+        <th>Ação</th>
+        <th>Registro</th>
+        <th>Alterações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @auditorias.each do |auditoria| %>
+        <tr>
+          <td class="text-nowrap"><%= l(auditoria.created_at, format: "%d/%m/%Y %H:%M:%S") %></td>
+          <td><%= auditoria.usuario.presence || "—" %></td>
+          <td><%= auditoria.acao.upcase_first %></td>
+          <td>
+            <%= auditoria.registro_type.safe_constantize&.model_name&.human || auditoria.registro_type %>
+            <% if auditoria.descricao.present? %><div class="small text-muted"><%= auditoria.descricao %></div><% end %>
+          </td>
+          <td>
+            <ul class="list-unstyled mb-0 small">
+              <% auditoria.alteracoes.each do |campo, valores| %>
+                <li><strong><%= campo_auditado(auditoria, campo) %>:</strong> <%= alteracao_auditada(auditoria, campo, valores) %></li>
+              <% end %>
+            </ul>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= link_to "[Voltar para a OS]", @sorder %>
