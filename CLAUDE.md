@@ -26,7 +26,7 @@ bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
 ```
 
-No linter or formatter is configured (no RuboCop/Brakeman in the Gemfile). `test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`.
+No linter or formatter is configured (no RuboCop/Brakeman in the Gemfile). `test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`. Tests that check a Prawn PDF's content `include TextoDoPdf` and call `texto_do_pdf` (`test/support/texto_do_pdf.rb`), which decodes the PDF's text runs (Windows-1252) into one line per run.
 
 System tests (`test/system/`) cover only what needs a browser: the order form's JavaScript (`sorder_form_test.rb`). CRUD is covered by the controller tests. Selenium Manager downloads Chrome and chromedriver to `~/.cache/selenium`. `ApplicationSystemTestCase` passes that Chrome's path itself, because Rails resolves only chromedriver's path, and that makes Selenium skip the browser lookup. On WSL, Chrome needs `libnss3 libnspr4 libasound2t64` installed.
 
