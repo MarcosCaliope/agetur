@@ -1,0 +1,71 @@
+<% b = @booking %>
+<% ativos = b.items.reject(&:cancelado?) %>
+<%= render "cabecalho" %>
+<h1 class="h3">Venda nº <%= b.id %></h1>
+<p>
+  <strong><%= b.snome %></strong> · <%= l(b.data) %>
+  <% if b.telefone.present? %> · <%= b.telefone %><% end %>
+  <% if b.hotel %> · <%= b.hotel.sname %><%= " apto #{b.apto}" if b.apto.present? %><% end %>
+</p>
+<% if b.companions.any? %>
+  <p class="small">Lista pax: <%= b.companions.map(&:snome).join(", ") %></p>
+<% end %>
+
+<div class="table-responsive">
+  <table class="table table-sm">
+    <thead><tr><th>Passeio</th><th>Data</th><th>PAX/CHD</th><th class="text-right">Valor</th><th class="text-right">Pago</th><th>Situação</th></tr></thead>
+    <tbody>
+      <% b.items.includes(:destination, :pagamentos, :sorder_item).each do |passeio| %>
+        <tr>
+          <td><%= passeio.destination.description %></td>
+          <td><%= l(passeio.data_passeio) %> <%= passeio.hora %></td>
+          <td><%= passeio.qtdepax %>/<%= passeio.qtdechd %></td>
+          <td class="text-right"><%= number_to_currency(passeio.valor) %></td>
+          <td class="text-right"><%= number_to_currency(passeio.pago) %></td>
+          <td><%= render "situacao_passeio", passeio: passeio %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr class="font-weight-bold">
+        <td colspan="3">Total</td>
+        <td class="text-right"><%= number_to_currency(ativos.sum(&:valor)) %></td>
+        <td class="text-right"><%= number_to_currency(ativos.sum(&:pago)) %></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<h2 class="h5 mt-3">Pagamentos informados</h2>
+<% pagamentos = SorderItemPayment.where(booking_item_id: b.items.select(:id)).includes(:booking_item, comprovante_attachment: :blob).order(:data, :id) %>
+<% if pagamentos.empty? %>
+  <p class="text-muted">Nenhum pagamento informado.</p>
+<% else %>
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <thead><tr><th>Data</th><th>Passeio</th><th>Forma</th><th class="text-right">Valor</th><th>Situação</th><th>Comprovante</th></tr></thead>
+      <tbody>
+        <% pagamentos.each do |pagamento| %>
+          <tr>
+            <td><%= l(pagamento.data) %></td>
+            <td><%= pagamento.booking_item.destination.description %></td>
+            <td><%= pagamento.nome_forma %></td>
+            <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
+            <td>
+              <%= render "shared/situacao_pagamento", pagamento: pagamento %>
+            </td>
+            <td><%= link_to "Ver", rails_blob_path(pagamento.comprovante, disposition: "inline"), target: "_blank" if pagamento.comprovante.attached? %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<h2 class="h5 mt-3">Informar pagamento</h2>
+<%= form_with url: pagamento_venda_path(b), local: true, multipart: true do %>
+  <%= render "shared/erros", registro: @pagamento %>
+  <%= render "campos_pagamento", pagamento: @pagamento %>
+  <%= submit_tag "Informar pagamento", class: "btn btn-primary" %>
+<% end %>

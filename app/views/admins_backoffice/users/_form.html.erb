@@ -20,6 +20,14 @@
         empresa trabalhar. Com "Nenhuma", não vê nenhum dado.
       </small>
     </div>
+    <div class="form-group col-md-6">
+      <%= form.label :vendor_id %>
+      <%= form.select :vendor_id, @vendor_options, { include_blank: "Não é vendedor" }, class: "form-control" %>
+      <small class="form-text text-muted">
+        Login de vendedor: abre só a tela de vendas (Minhas vendas), na empresa do vendedor, e vende em nome dele.
+        A empresa e as rotas deste cadastro são ignoradas.
+      </small>
+    </div>
   </div>
   <div class="form-row">
     <div class="form-group col-md-6">

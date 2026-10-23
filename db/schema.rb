@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_20_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -389,9 +389,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_20_120000) do
     t.datetime "updated_at", null: false
     t.bigint "booking_item_id"
     t.bigint "company_id", null: false
+    t.string "situacao"
+    t.string "conferido_por"
+    t.datetime "conferido_em"
+    t.string "motivo_recusa"
     t.index ["booking_item_id"], name: "index_sorder_item_payments_on_booking_item_id"
     t.index ["cash_entry_id"], name: "index_sorder_item_payments_on_cash_entry_id"
     t.index ["company_id"], name: "index_sorder_item_payments_on_company_id"
+    t.index ["situacao"], name: "index_sorder_item_payments_on_situacao"
     t.index ["sorder_item_id", "sistger_seq"], name: "index_sorder_item_payments_on_sorder_item_id_and_sistger_seq", unique: true
     t.index ["sorder_item_id"], name: "index_sorder_item_payments_on_sorder_item_id"
   end
@@ -508,9 +513,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_20_120000) do
     t.string "permissoes", default: [], null: false, array: true
     t.bigint "company_id"
     t.boolean "todas_empresas", default: false, null: false
+    t.bigint "vendor_id"
     t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["vendor_id"], name: "index_users_on_vendor_id"
   end
 
   create_table "vehicles", force: :cascade do |t|
@@ -640,6 +647,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_20_120000) do
   add_foreign_key "tourguides", "companies"
   add_foreign_key "tourguides", "states"
   add_foreign_key "users", "companies"
+  add_foreign_key "users", "vendors"
   add_foreign_key "vehicles", "companies"
   add_foreign_key "vehicles", "states"
   add_foreign_key "vendor_destinations", "destinations", on_delete: :cascade

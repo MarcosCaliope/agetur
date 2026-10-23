@@ -7,6 +7,7 @@ class AdminsBackoffice::UsersController < AdminsBackofficeController
 
   def index
     @users = User.includes(:company).order(:email)
+    @vendedores = Vendor.unscoped.where(id: @users.map(&:vendor_id).compact).index_by(&:id)
   end
 
   # ?copiar=ID starts from another user's routes.
@@ -50,9 +51,12 @@ class AdminsBackoffice::UsersController < AdminsBackofficeController
 
   def set_grupos
     @grupos = Permissao.grupos
+    # Every company's vendors: a vendor login works in its vendor's company.
+    @vendor_options = Vendor.unscoped.includes(:company).where(active: true).or(Vendor.unscoped.where(id: @user&.vendor_id))
+                            .order(:sname).map { |vendedor| ["#{vendedor.sname} (#{vendedor.company&.name})", vendedor.id] }
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation, :acesso_empresa, :acesso_total, permissoes: [])
+    params.require(:user).permit(:name, :email, :password, :password_confirmation, :acesso_empresa, :vendor_id, :acesso_total, permissoes: [])
   end
 end

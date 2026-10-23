@@ -17,7 +17,9 @@
           <% end %>
         </td>
         <td>
-          <% if user.acesso_total? %>
+          <% if user.vendedor? %>
+            Vendedor: <%= @vendedores[user.vendor_id]&.sname %> (só a tela de vendas)
+          <% elsif user.acesso_total? %>
             Total
           <% elsif user.permissoes.empty? %>
             <span class="text-danger">Nenhuma rota (só a página inicial)</span>

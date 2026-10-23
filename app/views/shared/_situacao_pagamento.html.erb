@@ -1,0 +1,9 @@
+<%# A payment's check status (SorderItemPayment#situacao). locals: pagamento. %>
+<% if pagamento.a_conferir? %>
+  <span class="badge badge-warning">a conferir</span>
+<% elsif pagamento.recusado? %>
+  <span class="badge badge-danger" title="<%= pagamento.motivo_recusa %>">recusado</span>
+  <% if pagamento.motivo_recusa.present? %><small class="text-muted"><%= pagamento.motivo_recusa %></small><% end %>
+<% elsif pagamento.conferido_em %>
+  <span class="badge badge-success" title="por <%= pagamento.conferido_por %> em <%= l(pagamento.conferido_em, format: :short) %>">conferido</span>
+<% end %>

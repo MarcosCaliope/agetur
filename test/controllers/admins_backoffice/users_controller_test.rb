@@ -37,6 +37,18 @@ class AdminsBackoffice::UsersControllerTest < ActionDispatch::IntegrationTest
     assert user.valid_password?("senha123")
   end
 
+  test "creates a vendor login, which works in its vendor's company with no routes" do
+    vendors(:one).update!(sname: "Gilda")
+    get new_admins_backoffice_user_url
+    assert_select "select[name='user[vendor_id]'] option", text: /Gilda/
+    post admins_backoffice_users_url, params: { user: { email: "gilda@example.com", password: "senha123", password_confirmation: "senha123",
+                                                         vendor_id: vendors(:one).id, acesso_empresa: "todas", acesso_total: "1" } }
+    user = User.find_by!(email: "gilda@example.com")
+    assert_equal [vendors(:one).id, vendors(:one).company_id, false, false], [user.vendor_id, user.company_id, user.todas_empresas, user.acesso_total]
+    get admins_backoffice_users_url
+    assert_select "td", text: /Vendedor: Gilda/
+  end
+
   test "copiar starts from another user's routes" do
     get new_admins_backoffice_user_url(copiar: users(:consulta).id)
     assert_response :success

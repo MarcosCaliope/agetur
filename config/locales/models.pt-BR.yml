@@ -159,6 +159,9 @@ pt-BR:
         valor: "Valor"
         descricao: "Descrição"
         forma_pagamento: "Forma de pagamento"
+        comprovante: "Comprovante"
+        situacao: "Situação"
+        motivo_recusa: "Motivo da recusa"
       cash_entry:
         data: "Data"
         tipo: "Tipo"
@@ -253,6 +256,8 @@ pt-BR:
         company: "Empresa"
         company_id: "Empresa"
         acesso_empresa: "Empresa"
+        vendor: "Vendedor"
+        vendor_id: "Vendedor"
         password: "Senha"
         password_confirmation: "Confirmação da senha"
         current_password: "Senha atual"
@@ -262,3 +267,11 @@ pt-BR:
         password_confirmation: "Confirmação da senha"
         current_password: "Senha atual"
         remember_me: "Lembrar de mim"
+  activemodel:
+    models:
+      pagamento_informado: { one: "Pagamento", other: "Pagamentos" }
+    attributes:
+      pagamento_informado:
+        valor: "Valor pago"
+        forma_pagamento: "Forma de pagamento"
+        comprovante: "Comprovante"

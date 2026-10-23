@@ -4,6 +4,8 @@ class Site::WelcomeController < SiteController
   # The home page is public; the dashboard's figures are only loaded for a
   # signed-in account.
   def index
+    return redirect_to(vendas_path) if user_signed_in? && current_user.vendedor? # a vendor login opens only its sales
+
     @empresa = empresa_atual || Company.first
     return unless user_signed_in? || admin_signed_in?
 
@@ -24,7 +26,7 @@ class Site::WelcomeController < SiteController
     # Tabs with nothing the user may open are left out.
     visiveis = {
       "cadastros" => @cadastros.any?,
-      "processos" => %w[sorders bookings cash_entries payables txt].any? { |controller| pode_acessar?(controller) },
+      "processos" => %w[sorders bookings conferencia_sinais cash_entries payables txt].any? { |controller| pode_acessar?(controller) },
       "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments") || pode_acessar?("relacao_ordens") ||
                       pode_acessar?("resumo_operacional") || pode_acessar?("agendamentos_por_usuario") ||
                       pode_acessar?("passeios_repassados"),
@@ -40,6 +42,7 @@ class Site::WelcomeController < SiteController
 
     @agendamentos_pendentes = BookingItem.pendentes.where(data_passeio: hoje..).count
     @agendamentos_semana = BookingItem.ativos.where(data_passeio: hoje..(hoje + 7)).count
+    @sinais_a_conferir = SorderItemPayment.a_conferir
     @caixa_saldo = CashEntry.saldo
     @caixa_hoje = CashEntry.where(data: hoje)
     @contas_abertas = Payable.abertas

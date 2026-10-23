@@ -9,6 +9,8 @@ class Booking < ApplicationRecord
   has_many :items, -> { order(:data_passeio, :id) }, class_name: "BookingItem", inverse_of: :booking, dependent: :destroy
   has_many :companions, -> { order(:id) }, class_name: "BookingCompanion", inverse_of: :booking, dependent: :delete_all
   accepts_nested_attributes_for :companions, reject_if: ->(atributos) { atributos["snome"].blank? }, allow_destroy: true
+  # The vendor's sales form (VendasController) takes the tours with the booking.
+  accepts_nested_attributes_for :items, reject_if: ->(atributos) { atributos["destination_id"].blank? }
 
   # "Deseja incluir este PAX no Cad. de Clientes?"
   attribute :cadastrar_cliente, :boolean, default: false
@@ -26,7 +28,7 @@ class Booking < ApplicationRecord
   end
 
   def pago
-    SorderItemPayment.where(booking_item_id: items.ativos.select(:id)).sum(:valor)
+    SorderItemPayment.confirmados.where(booking_item_id: items.ativos.select(:id)).sum(:valor)
   end
 
   # The holder plus the pax list, counted like an order item's list

@@ -9,6 +9,7 @@ pt-BR:
       booking_item_payments: "Agendamentos — sinais recebidos"
       booking_items: "Agendamentos — passeios"
       commission_payments: "Pagamento de comissões"
+      conferencia_sinais: "Agendamentos — sinais a conferir"
       passeios_repassados: "Passeios repassados"
       relacao_ordens: "Relação de ordens"
       resumo_operacional: "Resumo operacional"
@@ -32,6 +33,10 @@ pt-BR:
         recibo: "Recibo (PDF)"
       commission_payments:
         create: "Pagar comissões"
+      conferencia_sinais:
+        index: "Listar"
+        confirmar: "Confirmar"
+        recusar: "Recusar"
       relacao_ordens:
         index: "Abrir"
       resumo_operacional:

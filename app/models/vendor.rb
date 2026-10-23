@@ -5,6 +5,7 @@ class Vendor < ApplicationRecord
 
   belongs_to :state, optional: true
   has_many :vendor_destinations, dependent: :delete_all
+  has_many :usuarios, class_name: "User", dependent: :nullify # their logins (VendasController)
 
   scope :ativos, -> { where(active: true) }
 end

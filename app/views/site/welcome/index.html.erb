@@ -110,6 +110,24 @@
         </div>
         <% end %>
 
+        <% if pode_acessar?("conferencia_sinais") %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Sinais a conferir</h2>
+              <p class="dashboard-total mb-0"><%= @sinais_a_conferir.count %></p>
+              <p class="text-muted small mb-0">
+                pagamentos informados pelos vendedores (<%= number_to_currency(@sinais_a_conferir.sum(:valor)) %>), à espera
+                de conferência
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Conferir', conferencia_sinais_path, class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+        <% end %>
+
         <% if pode_acessar?("cash_entries") %>
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 dashboard-card">

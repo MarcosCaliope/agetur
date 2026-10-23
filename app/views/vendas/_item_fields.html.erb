@@ -1,0 +1,34 @@
+<div class="nested-fields border rounded p-2 mb-2">
+  <div class="form-row">
+    <div class="form-group col-md-5 mb-2">
+      <%= f.label :destination_id, "Roteiro" %>
+      <%= f.select :destination_id, @destination_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
+    <div class="form-group col-6 col-md-3 mb-2">
+      <%= f.label :data_passeio, "Data do passeio" %>
+      <%= f.date_field :data_passeio, class: "form-control" %>
+    </div>
+    <div class="form-group col-3 col-md-2 mb-2">
+      <%= f.label :qtdepax, "PAX" %>
+      <%= f.number_field :qtdepax, min: 0, class: "form-control" %>
+    </div>
+    <div class="form-group col-3 col-md-2 mb-2">
+      <%= f.label :qtdechd, "CHD" %>
+      <%= f.number_field :qtdechd, min: 0, class: "form-control" %>
+    </div>
+  </div>
+  <div class="form-row align-items-end">
+    <div class="form-group col-6 col-md-3 mb-2">
+      <%= f.label :valor, "Valor do passeio" %>
+      <%= f.number_field :valor, step: "0.01", min: 0, value: (f.object.valor.presence unless f.object.valor.to_d.zero?),
+            placeholder: "Pela tabela", class: "form-control" %>
+    </div>
+    <div class="form-group col-md-7 mb-2">
+      <%= f.label :observacao, "Observação" %>
+      <%= f.text_field :observacao, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-2 mb-2 text-right">
+      <%= link_to_remove_association "Remover", f, class: "btn btn-outline-danger btn-sm" %>
+    </div>
+  </div>
+</div>

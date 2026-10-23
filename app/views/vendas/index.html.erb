@@ -1,0 +1,35 @@
+<%= render "cabecalho" %>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h1 class="h3 mb-0">Minhas vendas</h1>
+  <%= link_to "Nova venda", new_venda_path, class: "btn btn-success" %>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr><th>Nº</th><th>Data</th><th>Passageiro</th><th>Passeios</th><th class="text-right">Valor</th><th class="text-right">Pago</th><th class="text-right">A conferir</th></tr>
+    </thead>
+    <tbody>
+      <% if @bookings.empty? %>
+        <tr><td colspan="7" class="text-muted">Nenhuma venda ainda.</td></tr>
+      <% end %>
+      <% @bookings.each do |booking| %>
+        <% ativos = booking.items.reject(&:cancelado?) %>
+        <tr>
+          <td><%= link_to booking.id, venda_path(booking) %></td>
+          <td><%= l(booking.data) %></td>
+          <td><%= link_to booking.snome, venda_path(booking) %></td>
+          <td>
+            <% booking.items.each do |passeio| %>
+              <div class="text-nowrap"><%= passeio.destination.description %> <%= l(passeio.data_passeio, format: "%d/%m") %>
+                <%= render "situacao_passeio", passeio: passeio %></div>
+            <% end %>
+          </td>
+          <td class="text-right"><%= number_to_currency(ativos.sum(&:valor)) %></td>
+          <td class="text-right"><%= number_to_currency(ativos.sum(&:pago)) %></td>
+          <td class="text-right"><%= number_to_currency(ativos.sum(&:a_conferir)) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

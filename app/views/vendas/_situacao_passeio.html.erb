@@ -1,0 +1,7 @@
+<% if passeio.cancelado? %>
+  <span class="badge badge-secondary">cancelado</span>
+<% elsif passeio.lancado? %>
+  <span class="badge badge-success">na OS nº <%= passeio.sorder_item.sorder_id %></span>
+<% else %>
+  <span class="badge badge-warning">aguardando OS</span>
+<% end %>

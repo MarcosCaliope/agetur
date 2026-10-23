@@ -1,0 +1,11 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <div>
+    <strong><%= @vendedor.sname %></strong>
+    <span class="text-muted small">· <%= current_user.email %></span>
+  </div>
+  <div class="small">
+    <%= link_to "Minhas vendas", vendas_path %> ·
+    <%= link_to "Minha senha", minha_senha_path %> ·
+    <%= link_to "Sair", destroy_user_session_path, method: :delete %>
+  </div>
+</div>

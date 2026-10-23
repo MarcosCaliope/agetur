@@ -22,6 +22,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # Before bookings, whose /agendamentos/:id would take "sinais-a-conferir".
+  get 'agendamentos/sinais-a-conferir', to: 'conferencia_sinais#index', as: :conferencia_sinais
+  patch 'agendamentos/sinais-a-conferir/:id/confirmar', to: 'conferencia_sinais#confirmar', as: :confirmar_sinal
+  patch 'agendamentos/sinais-a-conferir/:id/recusar', to: 'conferencia_sinais#recusar', as: :recusar_sinal
+  resources :vendas, only: %i[index new create show] do
+    post :pagamento, on: :member
+  end
   resources :bookings, path: "agendamentos" do
     get 'pendentes', on: :collection
     resources :items, controller: "booking_items", path: "passeios", only: %i[create edit update destroy] do

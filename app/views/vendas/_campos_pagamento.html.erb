@@ -1,0 +1,21 @@
+<%# Payment the vendor reports (PagamentoInformado). locals: pagamento. Top-level pagamento_informado[...] params. %>
+<%= fields_for :pagamento_informado, pagamento do |p| %>
+  <div class="form-row">
+    <div class="form-group col-6 col-md-3">
+      <%= p.label :valor %>
+      <%= p.number_field :valor, step: "0.01", min: "0.01", inputmode: "decimal", class: "form-control" %>
+    </div>
+    <div class="form-group col-6 col-md-3">
+      <%= p.label :forma_pagamento %>
+      <%= p.select :forma_pagamento, CashEntry::FORMAS.invert, {}, class: "form-control" %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= p.label :comprovante %>
+      <%= p.file_field :comprovante, accept: SorderItemPayment::COMPROVANTE_TIPOS.join(","), class: "form-control-file" %>
+      <small class="form-text text-muted">Foto ou PDF do comprovante (até 5 MB).</small>
+    </div>
+  </div>
+<% end %>
+<p class="text-muted small">
+  Pode ser parte do valor ou o total. O pagamento só conta como pago depois que o escritório conferir.
+</p>

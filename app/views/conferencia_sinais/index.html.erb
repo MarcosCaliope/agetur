@@ -1,0 +1,70 @@
+<h1>Sinais a conferir</h1>
+<p class="text-muted">
+  Pagamentos que os vendedores informaram nas vendas. Só depois de confirmados eles contam como pagos e entram no caixa
+  da data do pagamento.
+</p>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover sinais-a-conferir">
+    <thead>
+      <tr>
+        <th>Data</th><th>Vendedor</th><th>Passageiro</th><th>Passeio</th><th>Forma</th><th class="text-right">Valor</th>
+        <th>Comprovante</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @pagamentos.empty? %>
+        <tr><td colspan="8" class="text-muted">Nenhum sinal a conferir.</td></tr>
+      <% end %>
+      <% @pagamentos.each do |pagamento| %>
+        <% passeio = pagamento.booking_item %>
+        <tr>
+          <td><%= l(pagamento.data) %></td>
+          <td><%= passeio.booking.vendor.sname %></td>
+          <td><%= link_to passeio.booking.snome, booking_path(passeio.booking_id) %></td>
+          <td>
+            <%= passeio.destination.description %> <%= l(passeio.data_passeio) %>
+            <% if pagamento.sorder_item %><span class="badge badge-info">OS nº <%= pagamento.sorder_item.sorder_id %></span><% end %>
+          </td>
+          <td><%= pagamento.nome_forma %></td>
+          <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
+          <td>
+            <% if pagamento.comprovante.attached? %>
+              <%= link_to "Ver", rails_blob_path(pagamento.comprovante, disposition: "inline"), target: "_blank" %>
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </td>
+          <td class="text-nowrap">
+            <%= link_to "Confirmar", confirmar_sinal_path(pagamento), method: :patch, class: "btn btn-success btn-sm",
+                  data: { confirm: "Confirmar o recebimento e lançá-lo no caixa?" } %>
+            <%= form_with url: recusar_sinal_path(pagamento), method: :patch, local: true, class: "d-inline-flex ml-1" do %>
+              <%= text_field_tag :motivo_recusa, nil, placeholder: "Motivo", size: 12, class: "form-control form-control-sm mr-1",
+                    aria: { label: "Motivo da recusa" } %>
+              <%= submit_tag "Recusar", name: nil, class: "btn btn-outline-danger btn-sm" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if @recentes.any? %>
+  <h2 class="h5 mt-4">Conferidos recentemente</h2>
+  <table class="table table-sm">
+    <thead><tr><th>Conferido em</th><th>Por</th><th>Vendedor</th><th>Passageiro</th><th class="text-right">Valor</th><th>Situação</th></tr></thead>
+    <tbody>
+      <% @recentes.each do |pagamento| %>
+        <tr>
+          <td><%= l(pagamento.conferido_em, format: :short) %></td>
+          <td><%= pagamento.conferido_por %></td>
+          <td><%= pagamento.booking_item&.booking&.vendor&.sname %></td>
+          <td><%= pagamento.booking_item&.booking&.snome %></td>
+          <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
+          <td><%= render "shared/situacao_pagamento", pagamento: pagamento %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

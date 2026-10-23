@@ -7,6 +7,7 @@
 <p>
   Valor <%= number_to_currency(@item.valor) %> · pago <%= number_to_currency(@item.pago) %> ·
   a receber <strong><%= number_to_currency(@item.saldo) %></strong>
+  <% if @item.a_conferir.positive? %>· a conferir <%= link_to number_to_currency(@item.a_conferir), conferencia_sinais_path %><% end %>
 </p>
 
 <table class="table table-sm table-hover">
@@ -14,10 +15,16 @@
     <tr><th>Data</th><th>Descrição</th><th>Forma</th><th class="text-right">Valor</th><th>Usuário</th><th>Caixa</th><th></th></tr>
   </thead>
   <tbody>
-    <% @item.pagamentos.includes(:cash_entry).each do |pagamento| %>
+    <% @item.pagamentos.includes(:cash_entry, comprovante_attachment: :blob).each do |pagamento| %>
       <tr>
         <td><%= l(pagamento.data) %></td>
-        <td><%= pagamento.descricao %></td>
+        <td>
+          <%= pagamento.descricao %>
+          <%= render "shared/situacao_pagamento", pagamento: pagamento %>
+          <% if pagamento.comprovante.attached? %>
+            <%= link_to "comprovante", rails_blob_path(pagamento.comprovante, disposition: "inline"), target: "_blank", class: "small" %>
+          <% end %>
+        </td>
         <td><%= pagamento.nome_forma %></td>
         <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>
         <td><%= pagamento.usuario %></td>

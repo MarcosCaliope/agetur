@@ -29,13 +29,17 @@
     </tr>
   </thead>
   <tbody>
-    <% item.pagamentos.includes(:cash_entry).each do |pagamento| %>
+    <% item.pagamentos.includes(:cash_entry, comprovante_attachment: :blob).each do |pagamento| %>
       <tr>
         <td><%= l(pagamento.data) %></td>
         <td>
           <%= pagamento.descricao %>
           <% if pagamento.booking_item_id %>
             <span class="badge badge-info">sinal do <%= link_to "agendamento nº #{pagamento.booking_item.booking_id}", booking_path(pagamento.booking_item.booking_id), class: "text-white" %></span>
+          <% end %>
+          <%= render "shared/situacao_pagamento", pagamento: pagamento %>
+          <% if pagamento.comprovante.attached? %>
+            <%= link_to "comprovante", rails_blob_path(pagamento.comprovante, disposition: "inline"), target: "_blank", class: "small" %>
           <% end %>
         </td>
         <td><%= pagamento.nome_forma %></td>

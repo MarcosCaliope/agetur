@@ -25,13 +25,24 @@ class BookingItem < ApplicationRecord
     sorder_item_id.present?
   end
 
-  # Saved payments only: a payment being validated is already in the association.
+  # Saved, confirmed payments only: a payment being validated is already in
+  # the association, and one a vendor reported counts once the office confirms it.
   def pago
-    pagamentos.select(&:persisted?).sum(&:valor)
+    pagamentos.select { |pagamento| pagamento.persisted? && pagamento.confirmado? }.sum(&:valor)
+  end
+
+  # Reported by the vendor, still to be checked (SorderItemPayment#a_conferir?).
+  def a_conferir
+    pagamentos.select { |pagamento| pagamento.persisted? && pagamento.a_conferir? }.sum(&:valor)
   end
 
   def saldo
     valor.to_d - pago
+  end
+
+  # What may still be reported: payments waiting to be checked are taken too.
+  def saldo_a_informar
+    saldo - a_conferir
   end
 
   # Open orders of the same destination on the tour's date.
@@ -100,10 +111,10 @@ class BookingItem < ApplicationRecord
   # one) and down payments, which count as paid unless a paid amount was typed.
   def assumir!(item)
     booking.companions.each { |pessoa| item.companions.create!(pessoa.atributos_para_ordem) } if item.companions.none?
-    sinais = pagamentos.sum(:valor).to_f
+    sinais = pagamentos.confirmados.sum(:valor).to_f
     pago = item.amountpay
     CashEntry.where(id: pagamentos.select(:cash_entry_id)).update_all(sorder_id: item.sorder_id, sorder_item_id: item.id)
-    pagamentos.update_all(sorder_item_id: item.id)
+    pagamentos.nao_recusados.update_all(sorder_item_id: item.id) # one still to check moves the paid amount when confirmed
     item.update_columns(amountpay: sinais) if item.amountpay.to_f.zero?
     Sorder.nova_versao!(item.sorder_id)
     if sinais.positive?

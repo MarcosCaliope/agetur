@@ -1,0 +1,66 @@
+<%= render "cabecalho" %>
+<h1 class="h3">Nova venda</h1>
+
+<%= form_with model: @booking, url: vendas_path, local: true, multipart: true do |form| %>
+  <%= render "shared/erros", registro: @booking %>
+  <%= render "shared/erros", registro: @pagamento %>
+
+  <h2 class="h6 mt-3">Cliente</h2>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <%= form.label :snome, "Nome do passageiro" %>
+      <%= form.text_field :snome, class: "form-control", required: true %>
+    </div>
+    <div class="form-group col-md-6">
+      <%= form.label :telefone %>
+      <%= form.telephone_field :telefone, class: "form-control" %>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-4 col-md-2">
+      <%= form.label :documenttype %>
+      <%= form.select :documenttype, ["CPF", "RG", "PASSP"], { include_blank: true }, class: "form-control" %>
+    </div>
+    <div class="form-group col-8 col-md-4">
+      <%= form.label :document %>
+      <%= form.text_field :document, class: "form-control" %>
+    </div>
+    <div class="form-group col-8 col-md-4">
+      <%= form.label :hotel_id %>
+      <%= form.select :hotel_id, @hotel_options, { include_blank: "Selecione" }, class: "form-control" %>
+    </div>
+    <div class="form-group col-4 col-md-2">
+      <%= form.label :apto %>
+      <%= form.text_field :apto, class: "form-control" %>
+    </div>
+  </div>
+
+  <h2 class="h6">Lista pax <small class="text-muted">(além do titular)</small></h2>
+  <div id="venda-companions" class="mb-3">
+    <%= form.fields_for :companions do |companion| %>
+      <%= render "bookings/companion_fields", f: companion %>
+    <% end %>
+    <%= link_to_add_association "[Adicionar à lista pax]", form, :companions, partial: "bookings/companion_fields" %>
+  </div>
+
+  <h2 class="h6">Passeios</h2>
+  <div id="venda-passeios" class="mb-2">
+    <%= form.fields_for :items do |item| %>
+      <%= render "item_fields", f: item %>
+    <% end %>
+    <%= link_to_add_association "[Adicionar passeio]", form, :items,
+          wrap_object: ->(item) { item.data_passeio = Time.zone.tomorrow; item } %>
+  </div>
+  <p class="text-muted small">Sem valor, o passeio é cobrado pela tabela do roteiro (adulto × PAX + criança × CHD).</p>
+
+  <div class="form-group">
+    <%= form.label :observacoes %>
+    <%= form.text_field :observacoes, class: "form-control" %>
+  </div>
+
+  <h2 class="h6">Pagamento recebido <small class="text-muted">(deixe em branco se não recebeu)</small></h2>
+  <%= render "campos_pagamento", pagamento: @pagamento %>
+
+  <%= form.submit "Registrar venda", class: "btn btn-primary" %>
+  <%= link_to "Cancelar", vendas_path, class: "btn btn-link" %>
+<% end %>
