@@ -44,8 +44,11 @@ test:
 #   production:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
+# On Render, DATABASE_URL (the managed Postgres, render.yaml) gives the
+# host, user, password and database; the local AGETUR_DATABASE_* settings
+# above don't apply.
 production:
-  <<: *default
-  database: agetur_production
-  username: agetur
-  password: <%= ENV['AGETUR_DATABASE_PASSWORD'] %>
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV['DATABASE_URL'] %>

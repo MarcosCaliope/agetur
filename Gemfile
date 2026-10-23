@@ -18,6 +18,9 @@ gem 'terser'
 gem 'devise'
 # pt-BR translations for Devise messages and for Rails itself (validation errors, dates)
 gem 'devise-i18n'
+# The Devise views (app/views/users|admins) use simple_form_for. It used to
+# arrive only through rails_db, a development gem, so production lacked it.
+gem 'simple_form'
 gem 'rails-i18n', '~> 7.0'
 gem 'cocoon'
 gem 'tty-spinner'
@@ -45,6 +48,9 @@ gem 'bootsnap', '>= 1.1.0', require: false
 # usar o prawn habilita o prawn-table
 gem 'prawn-rails'
 gem 'prawn-table'
+# Prawn needs matrix, no longer a default gem since Ruby 3.1. It used to
+# arrive only through capybara, a test gem, so production couldn't boot.
+gem 'matrix'
 
 gem 'pdfkit'
 gem 'wkhtmltopdf-binary'
@@ -79,3 +85,6 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+# Active Storage on Cloudflare R2 (S3 API) in production: config/storage.yml
+gem 'aws-sdk-s3', '~> 1.235', require: false

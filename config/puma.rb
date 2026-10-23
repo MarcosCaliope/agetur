@@ -11,6 +11,14 @@ threads threads_count, threads_count
 #
 port        ENV.fetch("PORT") { 3000 }
 
+# Worker processes (production): 0 runs threads only, which fits Render's
+# 512 MB Starter; on 2 GB, WEB_CONCURRENCY=2.
+workers_count = Integer(ENV.fetch("WEB_CONCURRENCY") { 0 })
+if workers_count.positive?
+  workers workers_count
+  preload_app!
+end
+
 # Specifies the `environment` that Puma will run in.
 #
 environment ENV.fetch("RAILS_ENV") { "development" }

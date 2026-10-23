@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  # Render's health check (render.yaml); public, outside the app's login.
+  get 'up', to: 'rails/health#show', as: :rails_health_check
   
   resources :companies
   resources :sorder_items do
