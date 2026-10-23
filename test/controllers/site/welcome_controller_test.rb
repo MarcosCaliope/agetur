@@ -82,5 +82,6 @@ class Site::WelcomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "#relatorios a[href=?]", relacao_ordens_path, text: "Abrir relatório"
     assert_select "#relatorios a[href=?]", resumo_operacional_path, text: "Abrir relatório"
     assert_select "#relatorios a[href=?]", agendamentos_por_usuario_path, text: "Abrir relatório"
+    assert_select "#relatorios a[href=?]", passeios_repassados_path, text: "Abrir relatório"
   end
 end

@@ -9,6 +9,7 @@ pt-BR:
       booking_item_payments: "Agendamentos — sinais recebidos"
       booking_items: "Agendamentos — passeios"
       commission_payments: "Pagamento de comissões"
+      passeios_repassados: "Passeios repassados"
       relacao_ordens: "Relação de ordens"
       resumo_operacional: "Resumo operacional"
       sistger_imports: "Importação do SISTGER"
@@ -36,6 +37,8 @@ pt-BR:
       resumo_operacional:
         index: "Abrir"
       agendamentos_por_usuario:
+        index: "Abrir"
+      passeios_repassados:
         index: "Abrir"
       payables:
         pagar: "Pagar"

@@ -1,0 +1,64 @@
+<% relatorio = @relatorio %>
+<h1>Passeios repassados</h1>
+
+<%= form_with url: passeios_repassados_path, method: :get, local: true, class: "form-inline mb-3 no-print" do %>
+  <%= label_tag :inicio, "OS de", class: "mr-1" %>
+  <%= date_field_tag :inicio, relatorio.inicio, class: "form-control form-control-sm mr-1" %>
+  <%= label_tag :fim, "até", class: "mr-1" %>
+  <%= date_field_tag :fim, relatorio.fim, class: "form-control form-control-sm mr-2" %>
+  <%= select_tag :agencia_id, options_from_collection_for_select(relatorio.agencias, :id, :sname, relatorio.agencia_id),
+        include_blank: "Todas as agências", class: "form-control form-control-sm mr-2", aria: { label: "Agência" } %>
+  <div class="form-check mr-2">
+    <%= check_box_tag :cancelados, "1", relatorio.cancelados?, class: "form-check-input" %>
+    <%= label_tag :cancelados, "Incluir cancelados", class: "form-check-label" %>
+  </div>
+  <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm mr-1" %>
+  <%= link_to "PDF", passeios_repassados_path(relatorio.params_url.merge(format: :pdf)), target: "_blank",
+        class: "btn btn-outline-secondary btn-sm mr-1" %>
+  <button type="button" onclick="print()" class="btn btn-outline-secondary btn-sm">Imprimir</button>
+<% end %>
+
+<h5><%= relatorio.titulo %></h5>
+
+<table class="table table-sm table-hover passeios-repassados">
+  <thead>
+    <tr>
+      <th>Data OS</th>
+      <th>OS</th>
+      <th>Roteiro</th>
+      <th>Passageiro</th>
+      <th>Hotel / Apto</th>
+      <th class="text-right">A receber</th>
+      <th class="text-right">Comissão repasse</th>
+      <th class="text-right">Paga</th>
+      <th class="text-right">A pagar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if relatorio.itens.empty? %>
+      <tr><td colspan="9" class="text-muted">Nenhum passeio repassado no período.</td></tr>
+    <% end %>
+    <% relatorio.grupos.each do |agencia, itens| %>
+      <tr class="table-secondary"><th colspan="9"><%= agencia.sname %></th></tr>
+      <% itens.each do |item| %>
+        <tr class="<%= "text-muted" if item.cancelado? %>">
+          <td><%= l(item.sorder.data.to_date) %></td>
+          <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+          <td><%= item.sorder.destination&.description %></td>
+          <td><%= item.nome_passageiro %><%= " (cancelado)" if item.cancelado? %></td>
+          <td><%= [item.hotel&.sname, item.apto.presence].compact.join(" / ") %></td>
+          <td class="text-right"><%= number_to_currency(item.total_passeio) %></td>
+          <td class="text-right"><%= number_to_currency(item.amountcomissionrep.to_f) %></td>
+          <td class="text-right"><%= number_to_currency(item.amountcomissionreppay.to_f) %></td>
+          <td class="text-right"><%= number_to_currency(item.comissao_repasse_a_pagar) %></td>
+        </tr>
+      <% end %>
+      <%= render "linha_total", rotulo: "Total da agência", totais: PasseiosRepassados.totais(itens) %>
+    <% end %>
+  </tbody>
+  <% if relatorio.itens.any? %>
+    <tfoot>
+      <%= render "linha_total", rotulo: "Total geral", totais: relatorio.totais %>
+    </tfoot>
+  <% end %>
+</table>

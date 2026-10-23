@@ -1,0 +1,7 @@
+<tr class="font-weight-bold">
+  <td colspan="5"><%= rotulo %>: <%= pluralize(totais[:quantidade], "passageiro", plural: "passageiros") %></td>
+  <td class="text-right"><%= number_to_currency(totais[:a_receber]) %></td>
+  <td class="text-right"><%= number_to_currency(totais[:comissao]) %></td>
+  <td class="text-right"><%= number_to_currency(totais[:paga]) %></td>
+  <td class="text-right"><%= number_to_currency(totais[:a_pagar]) %></td>
+</tr>

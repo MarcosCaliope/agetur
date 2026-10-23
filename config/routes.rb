@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get 'showcomis', to: 'sorder_items#showcomis'
   get 'relatorios/ordens', to: 'relacao_ordens#index', as: :relacao_ordens
   get 'relatorios/resumo-operacional', to: 'resumo_operacional#index', as: :resumo_operacional
+  get 'relatorios/passeios-repassados', to: 'passeios_repassados#index', as: :passeios_repassados
   get 'relatorios/agendamentos-por-usuario', to: 'agendamentos_por_usuario#index', as: :agendamentos_por_usuario
   get 'comissoes/pagamento', to: 'commission_payments#index', as: :pagamento_comissoes
   post 'comissoes/pagamento', to: 'commission_payments#create'
