@@ -9,6 +9,9 @@ module Agetur
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
+    # Dates and times are Brasília's (America/Sao_Paulo); the database still
+    # stores UTC.
+    config.time_zone = "Brasilia"
 
     # The UI is in Portuguese; fall back to English for any key without a pt-BR translation.
     config.i18n.available_locales = [:"pt-BR", :en]

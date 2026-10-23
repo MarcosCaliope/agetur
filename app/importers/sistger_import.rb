@@ -262,7 +262,7 @@ class SistgerImport
         value_combo: numero(l["nIndCombo"]), value_combo_chd: numero(l["nIndCHDCombo"]),
         value_net_combo: numero(l["nNETCombo"]), value_net_combo_chd: numero(l["nNetComboCHD"]) }
     when "ordens"
-      { sistger_id: l["iNumero"], data: l["Data"],
+      { sistger_id: l["iNumero"], data: hora_local(l["Data"]),
         sobservacoes: juntar(texto(l["sObservacoes"]), ("CANCELADA no SISTGER" if l["bCancelado"]), separador: " | "),
         roteiro: l["iCodDestino"], guia: texto(l["sNomeRedGuia"]) || NAO_INFORMADO,
         motorista: texto(l["sNomeRedMotorista"]) || NAO_INFORMADO,
@@ -584,6 +584,12 @@ class SistgerImport
   end
 
   # ---- Value helpers ------------------------------------------------------------
+
+  # SISTGER's DATETIMEs are wall-clock times (Fonte reads them as UTC):
+  # the same time in the app's zone.
+  def hora_local(valor)
+    valor && Time.zone.local(valor.year, valor.month, valor.day, valor.hour, valor.min, valor.sec)
+  end
 
   def texto(valor)
     valor.is_a?(String) ? valor.strip.presence : valor

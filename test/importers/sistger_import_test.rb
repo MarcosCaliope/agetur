@@ -226,6 +226,8 @@ class SistgerImportTest < ActiveSupport::TestCase
     @import.importar("ordens")
 
     assert_equal [1, 2, 3, 4], Sorder.where(sistger_id: 1..4).order(:id).pluck(:id)
+    # SISTGER's wall-clock 01/10/2025 00:00 is that time in Brasília, not in UTC.
+    assert_equal Time.zone.local(2025, 10, 1), Sorder.find(1).data
     assert_operator Sorder.create!(Sorder.find(1).attributes.except("id", "sistger_id")).id, :>, 4, "new orders continue after the imported numbers"
     assert_no_difference("Sorder.count") { @import.importar("ordens") }
   end

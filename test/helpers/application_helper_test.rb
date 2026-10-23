@@ -9,7 +9,7 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test "ultimo_registro describes service orders by date and destination" do
-    ordem = sorders(:one).dup.tap { |o| o.data = Time.utc(2026, 6, 16); o.save! }
+    ordem = sorders(:one).dup.tap { |o| o.data = Time.zone.local(2026, 6, 16); o.save! }
     assert_includes ultimo_registro(Sorder), "nº #{number_with_delimiter(ordem.id)} — 16/06/2026 — #{ordem.destination.description}"
   end
 

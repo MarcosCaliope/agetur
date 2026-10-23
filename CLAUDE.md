@@ -47,7 +47,6 @@ Production runs on Render from `render.yaml` (web service plus managed Postgres)
 - **Configuration:** everything comes from env vars, read in `config/environments/production.rb`. `DATABASE_URL` is the database (the production entry in `database.yml` is only the URL). The secret is `SECRET_KEY_BASE`, never credentials. Files use the `r2` service (Cloudflare R2, `config/storage.yml`), and mail uses `SMTP_*`/`MAILER_FROM`. SSL is forced except for the `/up` health check.
 - **Gems:** production installs without the development/test groups. A gem the app needs must be in the default group, even when a dev gem already pulls it in: `simple_form` (the Devise views) came only through `rails_db`, and `matrix` (Prawn) only through capybara. Check with `BUNDLE_WITHOUT=development:test RAILS_ENV=production`.
 - **SISTGER import:** Render can't reach the legacy SQL Server, so production is imported from a machine that can: `DATABASE_URL=<external URL> bin/rails sistger:importar` (`lib/tasks/sistger.rake`; `ETAPAS=a,b` for some steps). In development, `DATABASE_URL` overrides `database.yml`, and `.env` still supplies the SISTGER settings.
-- `config.time_zone` is not set, so `Time.zone` is UTC. Dates taken from `Time.zone.today` turn over at 21:00 in Brazil.
 
 ## Git history
 
@@ -167,6 +166,7 @@ The conventions in this file each apply to a new cadastro. Together:
 
 ### Misc
 
+- The time zone is Brasília (`config.time_zone`), and the database stores UTC. `sorders.data` holds the real instant: the importer reads SISTGER's wall-clock DATETIMEs as Brasília time (`hora_local`). In tests, build times with `Time.zone.local`, not `Time.utc`.
 - Default locale is `pt-BR` (fallback `en`). `rails-i18n` and `devise-i18n` provide the framework/Devise translations, `config/locales/devise.pt-BR.yml` overrides Devise messages, and `config/locales/models.pt-BR.yml` holds Portuguese model/attribute names, used in validation errors, form error headers and submit buttons. Flash messages render once, from `layouts/_flash.html.erb` in every layout; don't add per-view `notice` markup. Controller notices are hardcoded Portuguese strings.
 - The scoped Devise views (`app/views/users/`, `app/views/admins/`) were generated with `rails g devise:i18n:views` and then had their lazy keys (`t(".sign_in")`) rewritten to absolute `devise.*` keys. Lazy keys there would resolve to `users.sessions.new.*`, which has no translation. Keep that if you regenerate them, and re-delete the `registrations/` views, since sign-up is closed. The same applies to their `mailer/` views.
 - Mail isn't delivered in development: `letter_opener_web` catches it, and Devise password-reset e-mails show up at `/letter_opener` (mounted only in development, no login needed). Production sends through `SMTP_*`, from `MAILER_FROM` (Devise's `mailer_sender`), and sends nothing without `SMTP_ADDRESS`.
