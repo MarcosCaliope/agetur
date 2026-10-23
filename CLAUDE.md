@@ -42,15 +42,17 @@ Test fixtures are interdependent. Controller tests destroy the `:one` fixture of
 
 ## Git history
 
-Work happens on `main`. Its history includes a committed `config/master.key` (plus `node_modules/` and `tmp/`) from an older 2022 line of commits, so treat that key as exposed. Never force-push `main`, not even to purge them.
+Work happens on `main`. `.claude/worktrees/*` are separate git worktrees on their own `worktree-*` branches: don't grep or edit them when working on `main`. `main`'s history includes a committed `config/master.key` (plus `node_modules/` and `tmp/`) from an older 2022 line of commits, so treat that key as exposed. Never force-push `main`, not even to purge them.
 
 ## Architecture
 
 Standard scaffold-style Rails MVC: `resources :x` controllers with HTML views plus jbuilder JSON views. There is no API layer, no background jobs and no service objects; the only extra layer is `app/pdfs/`. Frontend is Sprockets (CoffeeScript + SCSS per controller under `app/assets/`), Turbolinks, Bootstrap 4 (`bootstrap.bundle`, so Popper is included and dropdowns work)/jQuery from `package.json` via yarn, and a vendored `public/templates/gentelella/` admin theme. There is no `app/javascript`/importmap.
 
+Several routes use Portuguese paths over English controller names (`config/routes.rb`): `/agendamentos` → `bookings` (passengers at `/passeios` → `booking_items`, their down payments → `booking_item_payments`), `/sorder_items/:id/recebimentos` → `sorder_item_payments`, `/caixa` → `cash_entries`, `/contas-a-pagar` → `payables`, `/comissoes/pagamento` → `commission_payments`, `/horarios-de-passeio` → `pickup_times`, `/vendors/:id/comissoes-por-roteiro` → `vendor_destinations`.
+
 ### Orders: `Sorder` / `SorderItem`
 
-The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`SorderItem`, and don't resurrect `service_order*` code. `_forma.html.erb` / `_sordera_item_fields.html.erb` are unused leftovers next to the real `_form` / `_sorder_item_fields`.
+Legacy: renamed from `ServiceOrder`/`ServiceOrderItem` (don't resurrect `service_order*` code); `_forma.html.erb` / `_sordera_item_fields.html.erb` are unused leftovers next to the real `_form` / `_sorder_item_fields`.
 
 - `Sorder` nests `sorder_items` (cocoon), which nest `companions` (the pax list). Its destination, guide, driver, vehicle and company are required, while an item's customer, hotel and vendor are optional.
 - FKs live on `sorders`/`companies`, so `Destination`, `Vehicle` and `State` use `has_many`, not `belongs_to`.
@@ -58,7 +60,7 @@ The model was renamed from `ServiceOrder`/`ServiceOrderItem`. Use `Sorder`/`Sord
 - Inactive vendors are refused only when newly chosen, so old and imported items stay editable.
 - **Cancelled items:** blank `scancelado` means *not* cancelled. Filter with `SorderItem.ativos`, never `scancelado == "N"`. Totals, the show page and the PDF count only active items.
 - **Removing a passenger cancels it**, like SISTGER: the form's "X" on a saved item sets `scancelado = "S"` (`Sorder#sorder_items_attributes=`), keeping its payments. The form hides cancelled items. The order's page lists them with "Reativar" (`SorderItemsController#reativar`). Deleting one for good (`SorderItemsController#destroy`) is refused unless `SorderItem#excluivel?`: no payments, no commission paid, no booked tour, not imported.
-- **Passenger name:** use `SorderItem#nome_passageiro`. The typed `snomepax` replaced the customer select.
+- **Passenger name:** use `SorderItem#nome_passageiro` (the typed `snomepax`; there is no customer select).
 - **Commissions** (`amountcomission*`, vendor and repasse agency) are payables, not receivables.
 - **Paid amounts** (`SordersController::PAGOS`) are read-only in the form, and only admins may submit them. Payments and commission payments move them.
 - **Concurrent editing:** `sorders.lock_version` counts changes to the order, its items and its paid amounts. Only `SordersController#update` checks it, answering a stale form with a 409. Rails' optimistic locking is off. Any new code that writes items or paid amounts with `update_columns`/`update_all` must call `Sorder.nova_versao!(id)`. `SorderEdicao` only warns who else has the form open.
@@ -153,7 +155,7 @@ The conventions in this file each apply to a new cadastro. Together:
 - Default locale is `pt-BR` (fallback `en`). `rails-i18n` and `devise-i18n` provide the framework/Devise translations, `config/locales/devise.pt-BR.yml` overrides Devise messages, and `config/locales/models.pt-BR.yml` holds Portuguese model/attribute names, used in validation errors, form error headers and submit buttons. Flash messages render once, from `layouts/_flash.html.erb` in every layout; don't add per-view `notice` markup. Controller notices are hardcoded Portuguese strings.
 - The scoped Devise views (`app/views/users/`, `app/views/admins/`) were generated with `rails g devise:i18n:views` and then had their lazy keys (`t(".sign_in")`) rewritten to absolute `devise.*` keys. Lazy keys there would resolve to `users.sessions.new.*`, which has no translation. Keep that if you regenerate them, and re-delete the `registrations/` views, since sign-up is closed. The same applies to their `mailer/` views.
 - Mail isn't delivered in development: `letter_opener_web` catches it, and Devise password-reset e-mails show up at `/letter_opener` (mounted only in development, no login needed). Production has no SMTP configured, and Devise's `mailer_sender` is still the placeholder.
-- Cadastro lists search with `Model.pesquisar(params[:busca])` (`Pesquisavel` concern; columns declared with `pesquisavel_por`). The match ignores case and accents (Postgres `unaccent`, enabled by a migration), and a number also matches `id` or `sistger_id`. Views render `shared/_pesquisa` and a "Código" column. Add both to new cadastro lists.
-- Cadastro index pages (and the sorders list) show `ultimo_registro(Model)` (`ApplicationHelper`): the highest-id record with its name and SISTGER code. Add it to new cadastro lists. Teach `descricao_registro` the model's name column if it isn't `sname`.
+- Cadastro lists search with `Model.pesquisar(params[:busca])` (`Pesquisavel` concern; columns declared with `pesquisavel_por`). The match ignores case and accents (Postgres `unaccent`, enabled by a migration), and a number also matches `id` or `sistger_id`.
+- `ultimo_registro(Model)` (`ApplicationHelper`), shown on cadastro index pages and the sorders list, is the highest-id record with its name and SISTGER code.
 - `TxtController#importar` (`POST /txt/importar`) bulk-imports `Customer` records from an uploaded comma-separated `.txt`. It does no header validation and skips CSRF verification. 
 - `Company` logos are Active Storage uploads (`has_one_attached :logo_entrada` for the home page, `:logo_formulario` for service orders). They're validated as PNG/JPG/GIF/WebP up to 2 MB and removable via the `remover_logo_*` form checkboxes. The legacy string columns `logoentrada`/`logoform` are only a fallback when they name a file that exists under `public/`. Old records hold Windows paths like `D:\\SISTGER\\...`, which are ignored. Always render logos with `company_logo_tag(company, :entrada | :formulario, height:)`. Files live on the `:local` disk service (`storage/`, gitignored), so production needs that directory persisted.
