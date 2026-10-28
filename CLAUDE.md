@@ -26,7 +26,7 @@ bin/rails test test/models/sorder_test.rb:12     # single test at line 12
 bin/rails test:system                            # headless Chrome; SYSTEM_TEST_HEADED=1 shows the window
 ```
 
-No linter or formatter is configured (no RuboCop/Brakeman in the Gemfile). `test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`. Tests that check a Prawn PDF's content `include TextoDoPdf` and call `texto_do_pdf` (`test/support/texto_do_pdf.rb`), which decodes the PDF's text runs (Windows-1252) into one line per run.
+No linter or formatter is configured (no RuboCop/Brakeman in the Gemfile). `test/integration/` and `test/mailers/` are empty scaffold folders. Request-level tests live in `test/controllers/`. The suite runs serially (`test_helper.rb` doesn't call `parallelize`). Tests that check a Prawn PDF's content `include TextoDoPdf` and call `texto_do_pdf` (`test/support/texto_do_pdf.rb`), which decodes the PDF's text runs (Windows-1252) into one line per run.
 
 System tests (`test/system/`) cover only what needs a browser: the order form's JavaScript (`sorder_form_test.rb`). CRUD is covered by the controller tests. Selenium Manager downloads Chrome and chromedriver to `~/.cache/selenium`. `ApplicationSystemTestCase` passes that Chrome's path itself, because Rails resolves only chromedriver's path, and that makes Selenium skip the browser lookup. On WSL, Chrome needs `libnss3 libnspr4 libasound2t64` installed.
 
@@ -83,21 +83,13 @@ Ported from SISTGER's `frmLancamentoOS` (sources in `D:\SISTGER\OS-Fontes`). Eac
 - Closing an order (`Sorder#encerrar!`) turns what's left of its commissions and costs into `Payable`s. Closing again updates the open bills (`Payable.de_comissao`) instead of duplicating them, and `reabrir!` drops the unpaid ones. `pagar!`/`estornar!` post or undo the cash exit and the item's paid commission. `/comissoes/pagamento` pays in batch without closing the order. The order form's "Pagar comissão" menu (per passenger, one link per payment form) posts there with `retorno=ordem` to pay one vendor commission today and return to the order.
 - A closed order (`encerrada`) refuses edit/update/destroy and new payments.
 
-### Relação de ordens
+### Relatórios (SISTGER report ports)
 
-`/relatorios/ordens` (`RelacaoOrdensController`, a card in the Relatórios tab) ports SISTGER's "Relação de O. Serviço" reports (by period, vendor, roteiro, guide, hotel) into one screen. `RelacaoOrdens` (a plain class in `app/models/`) loads the passengers of the period's orders with the filters, and the view and `RelacaoOrdensPdf` share it. Lines are one per order (sintético) or per passenger (analítico), optionally grouped with subtotals. Grouping by vendor or hotel splits an order among its passengers. Cancelled passengers show only on request and never count in the totals.
-
-### Resumo operacional
-
-`/relatorios/resumo-operacional` (`ResumoOperacionalController`, `ResumoOperacional`, `ResumoOperacionalPdf`) ports SISTGER's "Resumo Operacional Ordem de Serviço": every order in a period, by number, with its costs (`Sorder::CUSTOS`), value (active passengers' amount less both discounts), vendor commissions and total (value − commissions − costs). Like SISTGER's printout, it computes these instead of reading `valoros`/`valorfinalos`, which only the legacy form kept up to date. The PDF reproduces SISTGER's three-line block per order. SISTGER's "Qtde. Litros" is left out: no fuel quantity is stored.
-
-### Agendamentos por usuário
-
-`/relatorios/agendamentos-por-usuario` (`AgendamentosPorUsuario` + controller + PDF) ports SISTGER's "Passeios Agendados por Usuário", which read the `tblOrdemServicoItensLog` inserts: the period's order passengers grouped by who placed them. `sorder_items.usuario` holds that account's e-mail: `SorderItem` fills it on create from `Current.usuario` (set in `definir_empresa`), and a booked tour placed in an order brings its booking's `usuario` (`BookingItem#dados_para_ordem`). Imported passengers and those created before the column have none; the report only counts them. The import's `upsert_all` never touches the column.
-
-### Passeios repassados
-
-`/relatorios/passeios-repassados` (`PasseiosRepassados` + controller + PDF) ports SISTGER's "Relação de passeios repassados" (`frmRelComissaoRepasse`): the period's order passengers with a repasse agency (`agency_id`), filterable by agency and grouped by it with subtotals. Each line shows what's left to receive (`total_passeio`) and the repasse commission (`amountcomissionrep`), paid (`amountcomissionreppay`) and still to pay. SISTGER's "Recebidos" option was commented out in its source, so it isn't ported. Cancelled passengers show only on request and never count in the totals.
+Each report is a card in the Relatórios tab built from three pieces: a plain class in `app/models/` that loads the rows, a controller, and a `*Pdf` that shares the class with the HTML view. All four list the period's order passengers. Cancelled passengers show only on request and never count in the totals.
+- **Relação de ordens** (`/relatorios/ordens`, `RelacaoOrdens`): SISTGER's "Relação de O. Serviço" reports (by period, vendor, roteiro, guide, hotel) in one screen. Lines are one per order (sintético) or per passenger (analítico), optionally grouped with subtotals. Grouping by vendor or hotel splits an order among its passengers.
+- **Resumo operacional** (`/relatorios/resumo-operacional`, `ResumoOperacional`): every order by number, with its costs (`Sorder::CUSTOS`), value (active passengers' amount less both discounts), vendor commissions and total (value − commissions − costs). It computes these instead of reading `valoros`/`valorfinalos`, which only the legacy form kept up to date. The PDF reproduces SISTGER's three-line block per order. "Qtde. Litros" is left out: no fuel quantity is stored.
+- **Agendamentos por usuário** (`/relatorios/agendamentos-por-usuario`, `AgendamentosPorUsuario`): passengers grouped by who placed them (SISTGER read `tblOrdemServicoItensLog`). `sorder_items.usuario` holds that account's e-mail: `SorderItem` fills it on create from `Current.usuario` (set in `definir_empresa`), and a booked tour placed in an order brings its booking's `usuario` (`BookingItem#dados_para_ordem`). Imported passengers and those created before the column have none; the report only counts them. The import's `upsert_all` never touches the column.
+- **Passeios repassados** (`/relatorios/passeios-repassados`, `PasseiosRepassados`, SISTGER's `frmRelComissaoRepasse`): passengers with a repasse agency (`agency_id`), filterable and grouped by agency with subtotals. Each line shows what's left to receive (`total_passeio`) and the repasse commission (`amountcomissionrep`), paid (`amountcomissionreppay`) and still to pay. SISTGER's "Recebidos" option was commented out in its source, so it isn't ported.
 
 ### Agendamentos
 
