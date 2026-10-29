@@ -1,7 +1,6 @@
 # Deploy no Render
 
-O app roda no [Render](https://render.com) como um Web Service Ruby com um Postgres gerenciado, descritos no `render.yaml` (Blueprint). 
-Os comprovantes e logos ficam num bucket do Cloudflare R2, porque o disco do Render é apagado a cada deploy.
+O app roda no [Render](https://render.com) como um Web Service Ruby com um Postgres gerenciado, descritos no `render.yaml` (Blueprint). Os comprovantes e logos ficam num bucket do Cloudflare R2, porque o disco do Render é apagado a cada deploy.
 
 | Peça | Plano no `render.yaml` | Custo aproximado |
 |---|---|---|
@@ -12,8 +11,7 @@ Os comprovantes e logos ficam num bucket do Cloudflare R2, porque o disco do Ren
 Os preços do Render mudaram em agosto de 2026: confira em render.com/pricing. Uma empresa com o histórico inteiro do SISTGER ocupa uns 30 MB no Postgres.
 
 Os planos gratuitos servem para demonstrar o sistema com uma empresa:
-- o Web Service dorme depois de uns 15 minutos sem acesso, e o primeiro acesso seguinte espera o Rails subir (30 a 60 s). 
-Abra o sistema alguns minutos antes de uma apresentação;
+- o Web Service dorme depois de uns 15 minutos sem acesso, e o primeiro acesso seguinte espera o Rails subir (30 a 60 s). Abra o sistema alguns minutos antes de uma apresentação;
 - o Postgres gratuito expira uns 30 dias depois de criado e não tem backup. Passe-o para um plano pago antes disso se os dados precisarem ficar (veja "Sair do plano gratuito");
 - o plano gratuito não tem a aba **Shell** nem o comando de pre-deploy.
 
@@ -21,8 +19,7 @@ Quando houver várias empresas em produção, suba o Web Service para o Standard
 
 ## 1. Bucket no Cloudflare R2
 
-1. No painel da Cloudflare, abra **R2 Object Storage** e crie um bucket, por exemplo `agetur-arquivos`. Deixe o acesso público desligado: o app entrega os arquivos 
-por links assinados.
+1. No painel da Cloudflare, abra **R2 Object Storage** e crie um bucket, por exemplo `agetur-arquivos`. Deixe o acesso público desligado: o app entrega os arquivos por links assinados.
 2. Em **Manage R2 API Tokens**, crie um token com permissão **Object Read & Write** só nesse bucket.
 3. Anote quatro valores:
    - o **Access Key ID**;
