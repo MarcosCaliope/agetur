@@ -42,8 +42,8 @@ Test fixtures are interdependent. Controller tests destroy the `:one` fixture of
 
 ## Deploy (Render)
 
-Production runs on Render from `render.yaml` (web service plus managed Postgres). `docs/deploy-render.md` is the step-by-step guide.
-- **Build:** `bin/render-build.sh` installs gems and yarn packages (Sprockets reads Bootstrap and jQuery from `node_modules`) and precompiles assets. Migrations and `db:seed` run in the pre-deploy command.
+Production runs on Render from `render.yaml` (web service plus managed Postgres, both on the free plans for the demo). `docs/deploy-render.md` is the step-by-step guide.
+- **Build:** `bin/render-build.sh` installs gems and yarn packages (Sprockets reads Bootstrap and jQuery from `node_modules`; yarn 1 runs through `npx`, with `--production`, so asset packages must be `dependencies`), precompiles assets, then runs migrations and `db:seed`, because the free plan has no pre-deploy command. It has no Shell either, so the admin is created from a local machine with `bin/rails runner` against the external `DATABASE_URL`.
 - **Configuration:** everything comes from env vars, read in `config/environments/production.rb`. `DATABASE_URL` is the database (the production entry in `database.yml` is only the URL). The secret is `SECRET_KEY_BASE`, never credentials. Files use the `r2` service (Cloudflare R2, `config/storage.yml`), and mail uses `SMTP_*`/`MAILER_FROM`. SSL is forced except for the `/up` health check.
 - **Gems:** production installs without the development/test groups. A gem the app needs must be in the default group, even when a dev gem already pulls it in: `simple_form` (the Devise views) came only through `rails_db`, and `matrix` (Prawn) only through capybara. Check with `BUNDLE_WITHOUT=development:test RAILS_ENV=production`.
 - **SISTGER import:** Render can't reach the legacy SQL Server, so production is imported from a machine that can: `DATABASE_URL=<external URL> bin/rails sistger:importar` (`lib/tasks/sistger.rake`; `ETAPAS=a,b` for some steps). In development, `DATABASE_URL` overrides `database.yml`, and `.env` still supplies the SISTGER settings.

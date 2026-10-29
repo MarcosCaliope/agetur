@@ -1,20 +1,28 @@
 # Deploy no Render
 
-O app roda no [Render](https://render.com) como um Web Service Ruby com um Postgres gerenciado, descritos no `render.yaml` (Blueprint). Os comprovantes e logos ficam num bucket do Cloudflare R2, porque o disco do Render é apagado a cada deploy.
+O app roda no [Render](https://render.com) como um Web Service Ruby com um Postgres gerenciado, descritos no `render.yaml` (Blueprint). 
+Os comprovantes e logos ficam num bucket do Cloudflare R2, porque o disco do Render é apagado a cada deploy.
 
 | Peça | Plano no `render.yaml` | Custo aproximado |
 |---|---|---|
-| Web Service `agetur` | Starter (512 MB) | US$ 7/mês |
-| Postgres `agetur-db` | Basic-256mb (+ US$ 0,30/GB) | US$ 6/mês |
+| Web Service `agetur` | Free (512 MB) | US$ 0 |
+| Postgres `agetur-db` | Free (1 GB) | US$ 0 |
 | Cloudflare R2 | até 10 GB grátis | US$ 0 |
 
 Os preços do Render mudaram em agosto de 2026: confira em render.com/pricing. Uma empresa com o histórico inteiro do SISTGER ocupa uns 30 MB no Postgres.
+
+Os planos gratuitos servem para demonstrar o sistema com uma empresa:
+- o Web Service dorme depois de uns 15 minutos sem acesso, e o primeiro acesso seguinte espera o Rails subir (30 a 60 s). 
+Abra o sistema alguns minutos antes de uma apresentação;
+- o Postgres gratuito expira uns 30 dias depois de criado e não tem backup. Passe-o para um plano pago antes disso se os dados precisarem ficar (veja "Sair do plano gratuito");
+- o plano gratuito não tem a aba **Shell** nem o comando de pre-deploy.
 
 Quando houver várias empresas em produção, suba o Web Service para o Standard (2 GB) e ponha `WEB_CONCURRENCY=2`, e suba o Postgres para o Basic-1GB.
 
 ## 1. Bucket no Cloudflare R2
 
-1. No painel da Cloudflare, abra **R2 Object Storage** e crie um bucket, por exemplo `agetur-arquivos`. Deixe o acesso público desligado: o app entrega os arquivos por links assinados.
+1. No painel da Cloudflare, abra **R2 Object Storage** e crie um bucket, por exemplo `agetur-arquivos`. Deixe o acesso público desligado: o app entrega os arquivos 
+por links assinados.
 2. Em **Manage R2 API Tokens**, crie um token com permissão **Object Read & Write** só nesse bucket.
 3. Anote quatro valores:
    - o **Access Key ID**;
@@ -29,17 +37,16 @@ Quando houver várias empresas em produção, suba o Web Service para o Standard
    - `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`: os valores do passo 1;
    - `MAILER_FROM`, `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD`: podem ficar em branco por enquanto (veja o passo 5).
 3. Confirme. O Render cria o banco e o serviço e faz o primeiro deploy:
-   - **build** (`bin/render-build.sh`): gems, pacotes yarn e assets;
-   - **pre-deploy**: `db:migrate` e `db:seed` (os 27 estados);
+   - **build** (`bin/render-build.sh`): gems, pacotes yarn, assets, `db:migrate` e `db:seed` (os 27 estados);
    - **start**: Puma, verificado pelo health check em `/up`.
 
 O `SECRET_KEY_BASE` é gerado pelo próprio Render. O `config/master.key` do repositório não é usado em produção, porque já foi exposto no histórico do git.
 
 ## 3. Primeiro acesso
 
-1. No serviço `agetur`, abra a aba **Shell** e crie o administrador:
+1. Crie o administrador. O plano gratuito não tem a aba **Shell**, então rode o comando neste computador, contra o banco do Render. Para isso, libere o seu IP em **Access Control** no banco `agetur-db` e copie a **External Database URL** (como no passo 4):
    ```bash
-   bin/rails runner 'Admin.create!(email: "voce@empresa.com.br", password: "uma-senha-forte")'
+   DATABASE_URL='<External Database URL>' bin/rails runner 'Admin.create!(email: "voce@empresa.com.br", password: "uma-senha-forte")'
    ```
 2. Entre em `https://agetur.onrender.com/admins/sign_in` (o endereço aparece no topo do serviço).
 3. Para cada empresa que for avaliar, você tem dois caminhos:
@@ -90,5 +97,12 @@ Salvar as variáveis faz um novo deploy.
 | `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | bucket do R2 |
 | `MAILER_FROM`, `SMTP_*` | envio de e-mail |
 | `APP_HOST` | domínio próprio, se houver (senão usa o endereço `.onrender.com`) |
-| `WEB_CONCURRENCY`, `RAILS_MAX_THREADS` | processos e threads do Puma (0 e 5 no Starter) |
+| `WEB_CONCURRENCY`, `RAILS_MAX_THREADS` | processos e threads do Puma (0 e 5 com 512 MB, no Free e no Starter) |
 | `RAILS_LOG_LEVEL` | `info` por padrão |
+
+## Sair do plano gratuito
+
+Quando houver adesão de clientes, troque os planos no painel do Render (ou no `render.yaml`). Os dados ficam:
+1. No banco `agetur-db`, mude para o Basic-256mb (cerca de US$ 6/mês) **antes** de o gratuito expirar.
+2. No serviço `agetur`, mude para o Starter (cerca de US$ 7/mês). Ele não dorme e ganha a aba **Shell**.
+3. Opcional: devolva as migrações ao pre-deploy. No `render.yaml`, acrescente ao serviço `preDeployCommand: bundle exec rails db:migrate && bundle exec rails db:seed` e tire as duas linhas `db:` do fim do `bin/render-build.sh`.

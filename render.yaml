@@ -1,9 +1,13 @@
 # Render Blueprint (https://render.com/docs/blueprint-spec): the web service
 # and its managed Postgres. Variables with sync: false are asked for when the
 # Blueprint is created; see docs/deploy-render.md.
+#
+# Free plans, for the demo. The free web service has no pre-deploy command,
+# so bin/render-build.sh runs the migrations and seeds. When upgrading, see
+# "Sair do plano gratuito" in docs/deploy-render.md.
 databases:
   - name: agetur-db
-    plan: basic-256mb
+    plan: free
     region: virginia
     databaseName: agetur_production
     user: agetur
@@ -13,10 +17,9 @@ services:
   - type: web
     name: agetur
     runtime: ruby
-    plan: starter
+    plan: free
     region: virginia
     buildCommand: bin/render-build.sh
-    preDeployCommand: bundle exec rails db:migrate && bundle exec rails db:seed
     startCommand: bundle exec puma -C config/puma.rb
     healthCheckPath: /up
     envVars:
