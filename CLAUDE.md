@@ -62,7 +62,7 @@ Several routes use Portuguese paths over English controller names (`config/route
 
 Legacy: renamed from `ServiceOrder`/`ServiceOrderItem` (don't resurrect `service_order*` code); `_forma.html.erb` / `_sordera_item_fields.html.erb` are unused leftovers next to the real `_form` / `_sorder_item_fields`.
 
-- `Sorder` nests `sorder_items` (cocoon), which nest `companions` (the pax list). Its destination, guide, driver, vehicle and company are required, while an item's customer, hotel and vendor are optional.
+- `Sorder` nests `sorder_items` (cocoon), which nest `companions` (`SorderItemCompanion`, the pax list). Its destination, guide (`Tourguide`, `tourguide_id`), driver, vehicle and company are required, while an item's customer, hotel and vendor are optional.
 - FKs live on `sorders`/`companies`, so `Destination`, `Vehicle` and `State` use `has_many`, not `belongs_to`.
 - Vendors, hotels, agencies, guides and drivers share one contact block: forms render `shared/_campos_contato` (needs `@state_options`), and show pages render `shared/_detalhes`. Re-imports never overwrite `comments`.
 - Inactive vendors are refused only when newly chosen, so old and imported items stay editable.
@@ -93,7 +93,7 @@ Each report is a card in the Relatórios tab built from three pieces: a plain cl
 
 ### Agendamentos
 
-`Booking` (`/agendamentos`) holds booked tours (`BookingItem`) that are later placed in an order.
+`Booking` (`/agendamentos`) holds booked tours (`items`, `BookingItem`) that are later placed in an order. Its pax list (`companions`, `BookingCompanion`) belongs to the booking, not to each tour.
 - `BookingItem#lancar_na_os!` creates the order's `SorderItem` and moves the pax list, the expected commission and the down payments (with their cash entries) over. `retirar_da_os!` hands them back. Cancelling that passenger in the order keeps them with it.
 - Every successful create/update in `SordersController` runs `Sorder#incluir_agendamentos!`, which pulls in pending tours for that destination and date. A passenger already typed with the same name (ignoring case and accents) is linked instead of duplicated. A tour taken out of an order gets `inclusao_automatica` false, so it doesn't come back by itself.
 - Placed tours and their bookings can't be deleted.
