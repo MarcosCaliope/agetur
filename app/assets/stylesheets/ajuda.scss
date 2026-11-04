@@ -1,0 +1,8 @@
+// Ajuda (manual): room between sections, and the anchors land below the top.
+.ajuda {
+  .lead { font-size: 1.1rem; line-height: 1.5; }
+  .alert, th { font-size: inherit; }
+  section { padding-top: 1rem; margin-bottom: 2rem; scroll-margin-top: 1rem; }
+  section h2 { border-bottom: 1px solid #dee2e6; padding-bottom: .25rem; }
+  dt { margin-top: .75rem; }
+}

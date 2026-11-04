@@ -15,7 +15,7 @@ module Permissao
   MESMA_CHAVE = { "payables#pagamento" => "payables#pagar", "sorders#editando" => "sorders#update" }.freeze
   ORDEM = %w[index show create update destroy].freeze
   LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController, SenhasController,
-            VendasController].freeze
+            VendasController, AjudaController].freeze
 
   module_function
 

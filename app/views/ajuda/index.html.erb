@@ -1,0 +1,414 @@
+<%# The user manual. Plain HTML: keep it in step with the screens it describes. %>
+<% secoes = [
+  ["visao-geral", "Visão geral"],
+  ["agendamentos", "Agendamentos"],
+  ["vendas", "Vendas pelos vendedores"],
+  ["sinais", "Sinais a conferir"],
+  ["ordens", "Ordens de serviço"],
+  ["passageiros", "Passageiros da OS"],
+  ["transferir", "Transferir e copiar passageiros"],
+  ["recebimentos", "Recebimentos"],
+  ["encerramento", "Encerrar e reabrir a OS"],
+  ["comissoes", "Comissões"],
+  ["contas", "Contas a pagar"],
+  ["caixa", "Caixa"],
+  ["relatorios", "Relatórios"],
+  ["configuracoes", "Ajustes que afetam os processos"],
+  ["acesso", "Acesso, empresas e permissões"],
+  ["duvidas", "Dúvidas comuns"]
+] %>
+
+<div class="container-fluid ajuda">
+  <div class="row">
+    <nav class="col-lg-3 no-print ajuda-indice" aria-label="Índice da ajuda">
+      <div class="sticky-top pt-2">
+        <h2 class="h6 text-muted text-uppercase">Índice</h2>
+        <ul class="nav flex-column">
+          <% secoes.each do |ancora, titulo| %>
+            <li class="nav-item"><a class="nav-link py-1 px-0" href="#<%= ancora %>"><%= titulo %></a></li>
+          <% end %>
+        </ul>
+        <button type="button" class="btn btn-outline-secondary btn-sm mt-3" onclick="print()">Imprimir manual</button>
+      </div>
+    </nav>
+
+    <main class="col-lg-9">
+      <h1>Manual de utilização</h1>
+      <p class="lead">
+        Como usar o Agetur no dia a dia: agendar passeios, montar as ordens de serviço, receber dos passageiros, pagar
+        comissões e acompanhar o caixa. Os cadastros (clientes, hotéis, roteiros, vendedores etc.) não são descritos aqui.
+      </p>
+
+      <section id="visao-geral">
+        <h2>Visão geral</h2>
+        <p>O caminho de um passeio no sistema é este:</p>
+        <ol>
+          <li><strong>Agendamento:</strong> o escritório (ou o vendedor, pelo celular) registra o cliente e os passeios que ele comprou, com os sinais recebidos.</li>
+          <li><strong>Ordem de serviço (OS):</strong> cada saída de um roteiro numa data é uma OS, com guia, motorista e veículo. Os passageiros agendados entram nela.</li>
+          <li><strong>Recebimentos:</strong> o que o passageiro paga é lançado nele e entra no caixa.</li>
+          <li><strong>Comissões e custos:</strong> as comissões dos vendedores e das agências de repasse são pagas pela tela de pagamento de comissões ou viram contas a pagar quando a OS é encerrada.</li>
+          <li><strong>Caixa e relatórios:</strong> todas as entradas e saídas aparecem no caixa, e os relatórios resumem as ordens do período.</li>
+        </ol>
+        <p>
+          A tela inicial tem abas: <strong>Cadastros</strong>, <strong>Processos</strong> (Ordem de Serviço, Agendamentos,
+          Sinais a conferir, Caixa, Contas a pagar), <strong>Relatórios</strong> e, para quem tem acesso,
+          <strong>Manutenção</strong>. Cada usuário vê só as telas que o seu perfil libera.
+        </p>
+      </section>
+
+      <section id="agendamentos">
+        <h2>Agendamentos</h2>
+        <p>
+          Um agendamento é um cliente com os passeios que ele comprou. Abra em <em>Processos › Agendamentos</em>. A lista
+          mostra os passeios de um período, filtráveis por situação (pendentes, lançados em OS, cancelados) e por nome do
+          passageiro, roteiro, hotel ou vendedor.
+        </p>
+
+        <h3 class="h5">Novo agendamento</h3>
+        <ol>
+          <li>Clique em <strong>Novo agendamento</strong> e preencha a data, o nome do passageiro, o telefone, o documento, o <strong>vendedor</strong> (obrigatório), o hotel e o apartamento, a forma de pagamento e as parcelas.</li>
+          <li>Se o cliente já é cadastrado, escolha-o. Se não, marque <em>Incluir este passageiro no cadastro de clientes</em> para cadastrá-lo ao gravar.</li>
+          <li>Em <strong>Lista pax</strong>, inclua os acompanhantes (além do titular), marcando CHD para crianças e colo para quem não ocupa lugar.</li>
+          <li>Grave. Na tela do agendamento, inclua os passeios em <strong>Incluir passeio</strong>: roteiro, data, hora, PAX, CHD e valor.</li>
+        </ol>
+        <div class="alert alert-info">
+          Deixe a <strong>hora</strong> e o <strong>valor</strong> em branco para o sistema preencher: a hora vem do horário
+          do roteiro no hotel do cliente, e o valor do preço do roteiro (adulto × PAX + criança × CHD; sem preço de criança,
+          metade do adulto).
+        </div>
+
+        <h3 class="h5">Sinais</h3>
+        <p>
+          O link <strong>Sinal</strong> de cada passeio abre os pagamentos antecipados. Informe data, valor, forma e descrição
+          e clique em <strong>Lançar recebimento</strong>. Com <em>Lançar no caixa da data</em> marcado, o sinal também entra
+          como entrada no caixa. O valor não pode passar do saldo do passeio. Quando o passeio entra numa OS, os sinais vão
+          junto e passam a ser recebimentos do passageiro.
+        </p>
+
+        <h3 class="h5">Situação de cada passeio</h3>
+        <ul>
+          <li><span class="badge badge-warning">Pendente</span>: ainda não está em nenhuma OS.</li>
+          <li><span class="badge badge-success">OS nº …</span>: já foi lançado na ordem indicada (clique para abri-la).</li>
+          <li><span class="badge badge-secondary">Cancelado</span>: marcado como <em>Passeio cancelado</em> em <strong>Editar</strong>. Não entra em OS nem nos totais.</li>
+        </ul>
+        <p>
+          Um passeio já lançado em OS só tem a observação editável no agendamento. O resto se altera na própria OS. Um passeio
+          lançado, ou um agendamento com passeios lançados, não pode ser excluído: retire-o da OS antes.
+        </p>
+
+        <h3 class="h5">Levar os passeios para a OS</h3>
+        <p>Há três formas:</p>
+        <ol>
+          <li><strong>Automática:</strong> ao gravar uma OS, o sistema inclui nela os passeios pendentes do mesmo roteiro e da mesma data. Se já houver na OS um passageiro digitado com o mesmo nome (sem diferenciar maiúsculas e acentos), ele é <em>vinculado</em> ao agendamento em vez de duplicado. A mensagem depois de gravar lista os agendados incluídos, os vinculados e os que não puderam entrar.</li>
+          <li><strong>Pelo agendamento:</strong> o botão <strong>Lançar na OS nº …</strong> aparece em cada passeio pendente quando há OS aberta do mesmo roteiro na data do passeio.</li>
+          <li><strong>Pendentes de OS:</strong> a tela <em>Agendamentos › Pendentes</em> agrupa, a partir de hoje, os passeios sem OS por data e roteiro. Quando a OS já existe, lance cada passageiro nela. Quando não existe, use <strong>Nova OS</strong>.</li>
+        </ol>
+        <p>
+          Ao entrar na OS, o passageiro leva o nome, o documento, o hotel, o vendedor, o PAX/CHD, a hora, o valor, a lista pax,
+          os sinais e a <strong>comissão prevista</strong> do vendedor (o % do vendedor para aquele roteiro, ou o % padrão dele).
+        </p>
+        <p>
+          <strong>Retirar da OS</strong> (no agendamento) tira o passageiro da ordem e devolve os sinais ao agendamento. Um
+          passeio retirado não volta sozinho para a OS na próxima gravação: lance-o de novo pelo botão quando quiser.
+        </p>
+      </section>
+
+      <section id="vendas">
+        <h2>Vendas pelos vendedores</h2>
+        <p>
+          O vendedor com login próprio entra direto em <strong>Minhas vendas</strong>, a única tela que ele vê. A tela
+          funciona bem no celular.
+        </p>
+        <ol>
+          <li><strong>Nova venda:</strong> nome do passageiro, telefone, documento, hotel e apartamento, lista pax e um ou mais passeios (<em>[Adicionar passeio]</em>: roteiro, data, PAX, CHD, valor e observação). Sem valor, o passeio é cobrado pela tabela do roteiro.</li>
+          <li><strong>Pagamento recebido:</strong> se o cliente já pagou algo, informe o valor, a forma e anexe o comprovante (foto ou PDF de até 5 MB). Pode ser parte ou o total. Deixe em branco se não recebeu.</li>
+          <li>Clique em <strong>Registrar venda</strong>. A venda vira um agendamento do escritório, em nome do vendedor.</li>
+        </ol>
+        <p>
+          Na venda, o vendedor acompanha a situação de cada passeio (<em>aguardando OS</em>, <em>na OS nº …</em>,
+          <em>cancelado</em>) e pode <strong>Informar pagamento</strong> depois. O valor informado é dividido entre os passeios
+          ativos, por data. Um pagamento informado só conta como pago depois que o escritório o confirma.
+        </p>
+      </section>
+
+      <section id="sinais">
+        <h2>Sinais a conferir</h2>
+        <p>
+          Os pagamentos informados pelos vendedores ficam em <em>Processos › Sinais a conferir</em> até serem conferidos.
+          Abra o comprovante em <strong>Ver</strong> e:
+        </p>
+        <ul>
+          <li><strong>Confirmar</strong>: o pagamento passa a contar como pago e entra no caixa na data do pagamento. Se o passeio já está numa OS, o valor pago do passageiro é atualizado.</li>
+          <li><strong>Recusar</strong>: informe o motivo (opcional). O vendedor vê o pagamento como <span class="badge badge-danger">recusado</span>, com o motivo.</li>
+        </ul>
+        <p>Os conferidos recentemente aparecem abaixo, com quem conferiu e quando.</p>
+      </section>
+
+      <section id="ordens">
+        <h2>Ordens de serviço</h2>
+        <p>
+          Em <em>Processos › Ordem de Serviço</em> ficam as ordens, filtráveis por data inicial, data final e roteiro. O link
+          <strong>Arq.PDF</strong> gera a lista filtrada em PDF. O número da OS é o mesmo do SISTGER para as ordens importadas.
+        </p>
+
+        <h3 class="h5">Nova ordem</h3>
+        <ol>
+          <li>Clique em <strong>Nova Ordem</strong> e informe a data, o destino (roteiro), o guia, o motorista, o veículo e as observações. Destino, guia, motorista e veículo são obrigatórios. Informe sempre a data: é por ela que os passeios agendados entram na OS e que os relatórios encontram a ordem.</li>
+          <li>Em <strong>detalhes</strong>, informe os custos da saída: pedágio, despesas, combustível, guia e motorista. Eles viram contas a pagar quando a OS for encerrada.</li>
+          <li>Inclua os passageiros (veja a próxima seção) e grave. O botão de gravar também fica no alto do formulário.</li>
+        </ol>
+        <p>A OS pertence à empresa em que você está trabalhando (mostrada no topo da tela).</p>
+
+        <h3 class="h5">Página da OS</h3>
+        <p>
+          A página da OS mostra o cabeçalho, os passageiros ativos com o valor a receber e o vendedor, e o total de PAX e CHD.
+          Por ela se chega a: <strong>[Editar]</strong>, <strong>[Encerrar OS]</strong> ou <strong>[Reabrir OS]</strong>,
+          <strong>[Histórico]</strong>, <strong>Baixar PDF</strong>, aos <strong>Recebimentos</strong> e ao
+          <strong>Transferir / copiar</strong> de cada passageiro. Os passageiros cancelados ficam numa lista recolhida
+          ao final.
+        </p>
+
+        <h3 class="h5">PDF da OS</h3>
+        <p>
+          <strong>Baixar PDF</strong> (ou <strong>Exportar PDF</strong>, no formulário) imprime a OS no modelo escolhido no
+          cadastro da empresa, como no SISTGER. Passageiros cancelados e repassados a outras agências só aparecem se a empresa
+          estiver configurada para exibi-los, e nunca entram nos totais.
+        </p>
+
+        <h3 class="h5">Duas pessoas editando a mesma OS</h3>
+        <p>
+          Se outra pessoa estiver com o formulário da mesma OS aberto, aparece um aviso amarelo com o nome dela. Se as duas
+          gravarem, a gravação de quem gravar por último é recusada, com a mensagem de que a ordem foi alterada por outro
+          usuário. Nesse caso, clique em <strong>Abrir a versão atual da ordem</strong> e refaça as alterações.
+        </p>
+        <p>
+          Ao sair do formulário com alterações não gravadas, o sistema pergunta se deseja <strong>Gravar alterações</strong>,
+          <strong>Sair sem gravar</strong> ou <strong>Continuar editando</strong>.
+        </p>
+
+        <h3 class="h5">Histórico</h3>
+        <p>
+          <strong>[Histórico]</strong> lista quem fez o quê na OS, com data e hora: criação e alterações da ordem e dos
+          passageiros (só os campos que mudaram, com o valor antes e depois), cancelamentos, reativações, transferências,
+          recebimentos, pagamentos de comissão, encerramento e reabertura.
+        </p>
+      </section>
+
+      <section id="passageiros">
+        <h2>Passageiros da OS</h2>
+        <p>No formulário da OS, <strong>[Adicionar PAX]</strong> inclui um passageiro. Para cada um:</p>
+        <ul>
+          <li><strong>Hotel, apartamento e hora.</strong> Com a hora em branco, o sistema usa o horário do roteiro naquele hotel.</li>
+          <li><strong>PAX, CHD, valor do passeio, desconto e desconto do vendedor.</strong></li>
+          <li><strong>Passageiro, documento e telefone.</strong></li>
+          <li><strong>Vendedor e comissão.</strong> A comissão do vendedor é digitada aqui, ou vem prevista do agendamento.</li>
+          <li><strong>Repassado.</strong> A agência a quem o passeio foi repassado e a comissão de repasse.</li>
+          <li><strong>Forma de pagamento e observação</strong> (a observação sai no PDF da OS).</li>
+          <li><strong>Lista pax.</strong> Ao mexer na lista, o PAX e o CHD são recalculados: o titular conta 1 PAX, cada pessoa da lista conta como PAX ou CHD, e colo não conta.</li>
+        </ul>
+        <div class="alert alert-info">
+          Os campos <strong>Pago</strong> (do passeio e das comissões) não se digitam: eles mudam pelos recebimentos e pelos
+          pagamentos de comissão. Só o administrador pode corrigi-los no formulário.
+        </div>
+
+        <h3 class="h5">Cancelar, reativar e excluir</h3>
+        <ul>
+          <li>O <strong>X</strong> de um passageiro já gravado o <strong>cancela</strong> ao gravar a OS. Ele sai do formulário e dos totais, mas mantém os recebimentos.</li>
+          <li>Na página da OS, em <em>Passageiros cancelados</em>, o ícone <strong>Reativar</strong> traz o passageiro de volta.</li>
+          <li><strong>Excluir definitivamente</strong> só aparece para cancelados sem recebimentos, sem comissão paga, sem agendamento e que não vieram do SISTGER.</li>
+        </ul>
+      </section>
+
+      <section id="transferir">
+        <h2>Transferir e copiar passageiros</h2>
+        <p>
+          Use quando o cliente muda de data ou de passeio, ou quando o mesmo passageiro vai em mais de uma saída. O link
+          <strong>Transferir / copiar</strong> fica na página da OS (ícone ⇄ em cada passageiro) e no formulário (ao lado do
+          X). Ele aparece só para passageiros gravados e não cancelados de OS abertas.
+        </p>
+        <ol>
+          <li>Digite o <strong>nº da OS de destino</strong>. Logo abaixo aparecem a data, o roteiro, o guia, o motorista e o PAX daquela ordem, para conferir se é a certa. Um aviso amarelo indica que ela não pode receber o passageiro (é a mesma OS, está encerrada ou não existe) ou que o roteiro é outro, caso em que o horário será recalculado.</li>
+          <li>Clique em <strong>Transferir</strong> ou <strong>Copiar</strong> e confirme. A pergunta repete qual OS vai receber o passageiro.</li>
+        </ol>
+        <table class="table table-sm table-bordered">
+          <thead class="thead-light"><tr><th></th><th>Transferir</th><th>Copiar</th></tr></thead>
+          <tbody>
+            <tr><th>O passageiro</th><td>sai da OS atual e vai para a outra</td><td>continua na OS atual; um novo é criado na outra</td></tr>
+            <tr><th>Lista pax</th><td>vai junto</td><td>é copiada</td></tr>
+            <tr><th>Recebimentos, caixa e comissões pagas</th><td>vão junto</td><td>não são copiados: a cópia começa sem nada pago</td></tr>
+            <tr><th>Valor e comissões previstas</th><td>vão junto</td><td>são copiados</td></tr>
+            <tr><th>Agendamento</th><td>passa a ter o roteiro e a data da nova OS</td><td>continua ligado só ao original</td></tr>
+            <tr><th>Observações</th><td>“Transferido da OS nº X em dd/mm/aaaa.”</td><td>na cópia, “Copiado da OS nº X em …”; no original, “Copiado para a OS nº Y em …”</td></tr>
+          </tbody>
+        </table>
+        <p>A transferência também aparece no histórico das duas ordens.</p>
+      </section>
+
+      <section id="recebimentos">
+        <h2>Recebimentos</h2>
+        <p>
+          O link <strong>Recebimentos</strong> de cada passageiro (na página da OS) mostra o valor do passeio, os descontos, o
+          pago e o <strong>a receber</strong>, com a lista de pagamentos.
+        </p>
+        <ul>
+          <li><strong>Novo recebimento:</strong> data, valor, forma (dinheiro, PIX, cartão de débito, cartão de crédito ou transferência) e descrição. O valor não pode passar do que falta receber.</li>
+          <li>Com <em>Lançar no caixa da data</em> marcado (o padrão), o recebimento entra no caixa. Desmarque só para registrar um valor que não passou pelo caixa.</li>
+          <li>Excluir um recebimento também retira o lançamento dele do caixa e devolve o valor ao saldo a receber.</li>
+          <li>Os sinais vindos do agendamento aparecem marcados <span class="badge badge-info">sinal do agendamento nº …</span>.</li>
+        </ul>
+        <p>
+          Passageiros importados do SISTGER podem ter um valor pago sem os recebimentos detalhados. A tela avisa quando é o
+          caso. Em OS encerrada não se lança nem se exclui recebimento.
+        </p>
+      </section>
+
+      <section id="encerramento">
+        <h2>Encerrar e reabrir a OS</h2>
+        <p>
+          Depois da saída, <strong>[Encerrar OS]</strong> fecha a ordem: ela deixa de aceitar alterações, exclusão e
+          recebimentos. O que falta pagar vira <strong>contas a pagar</strong>, com vencimento na data da OS:
+        </p>
+        <ul>
+          <li>uma conta por passageiro com comissão de vendedor ou de repasse ainda não paga;</li>
+          <li>uma conta para cada custo da OS (guia, motorista, pedágio, combustível, despesas), descontado o que já foi pago.</li>
+        </ul>
+        <p>
+          <strong>[Reabrir OS]</strong> libera a ordem de novo e remove as contas geradas pelo encerramento que ainda não foram
+          pagas. As pagas continuam. Encerrar de novo atualiza as contas em aberto, sem duplicá-las.
+        </p>
+      </section>
+
+      <section id="comissoes">
+        <h2>Comissões</h2>
+        <p>
+          Há dois tipos: a do <strong>vendedor</strong> que vendeu o passeio e a de <strong>repasse</strong>, devida à agência a
+          quem o passeio foi repassado. As duas são valores a pagar, lançados em cada passageiro da OS. Vendedores marcados
+          para não receber comissão ficam de fora.
+        </p>
+
+        <h3 class="h5">Pagar uma comissão pelo formulário da OS</h3>
+        <p>
+          Quando o passageiro tem comissão de vendedor a pagar, o formulário mostra o botão <strong>Pagar comissão</strong>.
+          Escolha a forma de pagamento no menu e confirme: o sistema paga hoje o saldo daquela comissão, lança a saída no
+          caixa e volta para a OS.
+        </p>
+
+        <h3 class="h5">Pagamento de comissões em lote</h3>
+        <p>
+          Em <em>Relatórios › Comissões › Pagar comissões</em>:
+        </p>
+        <ol>
+          <li>Escolha <strong>Vendedores</strong> ou <strong>Repasse (agências)</strong>, um vendedor ou agência (ou todos), o período das OS e, se quiser, o nº de uma OS, e clique em <strong>Pesquisar</strong>. Sem filtro, a tela mostra o mês atual.</li>
+          <li>Marque os passageiros a pagar (a caixa do cabeçalho marca todos). Cada linha mostra a comissão, o já pago e o <strong>a pagar</strong>.</li>
+          <li>Informe a <strong>data do pagamento</strong> e a <strong>forma</strong> e clique em <strong>Pagar marcados</strong>.</li>
+        </ol>
+        <p>
+          Cada vendedor (ou agência) recebe <strong>uma saída no caixa</strong> com o total dele, e os links dos
+          <strong>recibos</strong> aparecem no alto da tela. A OS não precisa estar encerrada. Passageiros marcados
+          <em>conta em aberto</em> (de OS encerrada) quitam essa conta.
+        </p>
+
+        <h3 class="h5">Relatório de comissões</h3>
+        <p>
+          <em>Relatórios › Comissões › Abrir relatório</em> lista as comissões por período de lançamento do passageiro e por
+          vendedor. Para estornar um pagamento de comissão, use <a href="#contas">Contas a pagar</a>.
+        </p>
+      </section>
+
+      <section id="contas">
+        <h2>Contas a pagar</h2>
+        <p>
+          Em <em>Processos › Contas a pagar</em> estão as contas geradas pelo encerramento das OS, pelos pagamentos de
+          comissão e as digitadas (<strong>Nova conta</strong>, tipo <em>Conta avulsa</em>). Filtre por situação (em aberto,
+          pagas, todas), tipo, vencimento e descrição ou credor. As vencidas aparecem em vermelho.
+        </p>
+        <ul>
+          <li><strong>Pagar:</strong> informe a data, a forma e o valor pago. O pagamento vira uma saída no caixa da data. Numa comissão, o valor também conta como pago no passageiro.</li>
+          <li><strong>Recibo:</strong> o ícone de PDF de uma conta paga gera o recibo da saída.</li>
+          <li><strong>Estornar:</strong> desfaz o pagamento e retira a saída do caixa. Se a conta foi paga em lote com outras (pagamento de comissões), o estorno desfaz o lote inteiro, e o sistema avisa antes.</li>
+          <li>Contas em aberto podem ser editadas e excluídas. As pagas, só estornadas.</li>
+        </ul>
+      </section>
+
+      <section id="caixa">
+        <h2>Caixa</h2>
+        <p>
+          <em>Processos › Caixa</em> mostra os lançamentos de um dia ou período, com o saldo anterior, as entradas, as saídas e
+          o saldo final. <strong>Hoje</strong> volta ao dia atual e <strong>Resumo em PDF</strong> imprime o período.
+        </p>
+        <ul>
+          <li><strong>Lançamentos automáticos:</strong> recebimentos de passageiros, sinais e pagamentos de contas e comissões entram sozinhos e só mudam pela origem. O ícone ao lado leva ao recebimento ou à conta que os gerou.</li>
+          <li><strong>Novo lançamento:</strong> para o resto (suprimento, sangria, despesa, outros), informe data, tipo (entrada ou saída), categoria, forma, valor, descrição, requerente e documento. Esses podem ser editados e excluídos.</li>
+          <li>Todo lançamento tem <strong>Recibo</strong> em PDF.</li>
+        </ul>
+      </section>
+
+      <section id="relatorios">
+        <h2>Relatórios</h2>
+        <p>
+          Ficam na aba <strong>Relatórios</strong> da tela inicial. Todos filtram pelo período das OS, mostram o resultado na
+          tela e têm o botão <strong>PDF</strong>. Passageiros cancelados só aparecem com <em>Incluir cancelados</em> e nunca
+          entram nos totais.
+        </p>
+        <dl>
+          <dt>Relação de ordens</dt>
+          <dd>
+            As ordens do período, filtráveis por roteiro, vendedor, guia, motorista, veículo, hotel e situação (abertas ou
+            encerradas). Em <em>Sintético</em> sai uma linha por OS; em <em>Analítico</em>, um passageiro por linha. Pode ser
+            agrupada por data, roteiro, vendedor, guia, motorista ou hotel, com subtotais.
+          </dd>
+          <dt>Resumo operacional</dt>
+          <dd>Cada OS do período com os custos (guia, motorista, pedágio, combustível, despesas), o valor dos passageiros ativos (menos os descontos), as comissões e o total (valor − comissões − custos).</dd>
+          <dt>Agendamentos por usuário</dt>
+          <dd>Os passageiros lançados nas OS do período, agrupados por quem os lançou, com o total de cada usuário. Passageiros importados do SISTGER não têm usuário e só entram na contagem.</dd>
+          <dt>Passeios repassados</dt>
+          <dd>Os passageiros repassados a outras agências, por agência, com o valor a receber e a comissão de repasse: devida, paga e a pagar.</dd>
+          <dt>Comissões</dt>
+          <dd>Veja <a href="#comissoes">Comissões</a>.</dd>
+        </dl>
+      </section>
+
+      <section id="configuracoes">
+        <h2>Ajustes que afetam os processos</h2>
+        <p>Alguns cadastros mudam o que o sistema preenche sozinho:</p>
+        <ul>
+          <li><strong>Horários de passeio</strong> (aba Cadastros): a hora de saída de cada roteiro em cada hotel. É a hora sugerida no agendamento e nos passageiros da OS.</li>
+          <li><strong>Preço do roteiro</strong> (adulto e criança): o valor sugerido nos passeios agendados.</li>
+          <li><strong>Comissão do vendedor</strong>: o % padrão, a opção de não pagar comissão e a <strong>comissão por roteiro</strong> (no cadastro do vendedor), usados na comissão prevista dos agendamentos. Vendedor inativo não pode ser escolhido em novos agendamentos e passageiros.</li>
+          <li><strong>Empresa</strong>: o modelo de impressão da OS e se o PDF mostra os passageiros cancelados e os repassados.</li>
+        </ul>
+      </section>
+
+      <section id="acesso">
+        <h2>Acesso, empresas e permissões</h2>
+        <ul>
+          <li><strong>Minha senha</strong> (no topo da tela inicial) troca a sua senha, pedindo a atual.</li>
+          <li><strong>Empresa:</strong> cada usuário trabalha nos dados de uma empresa. Quem tem acesso a todas as empresas escolhe no topo da tela em qual trabalhar. Os dados das outras empresas não aparecem em nenhuma tela ou relatório.</li>
+          <li><strong>Permissões:</strong> o administrador define, em <em>Administração › Usuários</em>, quais telas e ações cada usuário pode usar (ou acesso total). Os links das telas não liberadas não aparecem. O botão <strong>Copiar</strong> cria um usuário com as mesmas permissões de outro.</li>
+          <li><strong>Login de vendedor:</strong> um usuário ligado a um vendedor só vê <a href="#vendas">Minhas vendas</a>.</li>
+          <li><strong>Importar do SISTGER</strong> (aba Manutenção): traz do sistema antigo os cadastros, as ordens, os passageiros e o caixa. Reimportar atualiza o que veio de lá sem duplicar e sem mexer no que foi criado no Agetur.</li>
+        </ul>
+      </section>
+
+      <section id="duvidas">
+        <h2>Dúvidas comuns</h2>
+        <dl>
+          <dt>Não consigo editar a OS nem lançar recebimentos.</dt>
+          <dd>A OS está encerrada (aparece o selo <span class="badge badge-secondary">Encerrada</span>). Use <strong>[Reabrir OS]</strong> na página dela.</dd>
+          <dt>Um passageiro sumiu do formulário da OS.</dt>
+          <dd>Ele foi cancelado (pelo X). Está na lista <em>Passageiros cancelados</em> da página da OS, onde pode ser reativado.</dd>
+          <dt>Gravei a OS e apareceu que minhas alterações não foram gravadas.</dt>
+          <dd>Outra pessoa gravou a mesma OS enquanto você editava. Abra a versão atual e refaça as alterações.</dd>
+          <dt>Por que o campo Pago está bloqueado?</dt>
+          <dd>Ele muda pelos <a href="#recebimentos">recebimentos</a> e pelos <a href="#comissoes">pagamentos de comissão</a>. Só o administrador o corrige à mão.</dd>
+          <dt>O passeio agendado não entrou na OS.</dt>
+          <dd>A OS precisa ser do mesmo roteiro e da mesma data do passeio e estar aberta. Passeios cancelados ou retirados de uma OS não entram sozinhos: use <strong>Lançar na OS</strong> no agendamento.</dd>
+          <dt>O vendedor diz que pagou, mas o valor não aparece como pago.</dt>
+          <dd>O pagamento informado pelo vendedor só conta depois de confirmado em <a href="#sinais">Sinais a conferir</a>.</dd>
+          <dt>Não vejo uma tela que um colega usa.</dt>
+          <dd>Seu perfil não a libera. Peça ao administrador.</dd>
+        </dl>
+      </section>
+    </main>
+  </div>
+</div>

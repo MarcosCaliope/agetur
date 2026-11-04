@@ -87,6 +87,7 @@ Rails.application.routes.draw do
   get 'inicio', to: 'site/welcome#index'
   patch 'trocar-empresa', to: 'troca_empresa#update', as: :trocar_empresa
   get 'minha-senha', to: 'senhas#edit', as: :minha_senha
+  get 'ajuda', to: 'ajuda#index', as: :ajuda
   patch 'minha-senha', to: 'senhas#update'
 
   scope 'manutencao' do
