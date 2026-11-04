@@ -32,4 +32,31 @@ class AjudaControllerTest < ActionDispatch::IntegrationTest
     get ajuda_url
     assert_redirected_to new_user_session_url
   end
+  test "each screen's Ajuda link opens the manual at that screen's section" do
+    sign_in users(:one)
+    {
+      bookings_url => "agendamentos", sorders_url => "ordens", edit_sorder_url(sorders(:two)) => "ordens",
+      movimentar_sorder_item_url(sorder_items(:one)) => "transferir",
+      sorder_item_recebimentos_url(sorder_items(:one)) => "recebimentos", pagamento_comissoes_url => "comissoes",
+      payables_url => "contas", cash_entries_url => "caixa", relacao_ordens_url => "relatorios",
+      conferencia_sinais_url => "sinais", pickup_times_url => "configuracoes"
+    }.each do |url, secao|
+      get url
+      assert_select "nav a[href=?][title='Ajuda sobre esta tela']", ajuda_path(anchor: secao), { text: "Ajuda" }, url
+      assert_select "section##{secao}", 0, "the section is in the manual, not in #{url}"
+    end
+
+    get customers_url
+    assert_select "nav a[href=?]", ajuda_path, text: "Ajuda"
+
+    get ajuda_url
+    ApplicationHelper::SECOES_DA_AJUDA.values.uniq.each { |secao| assert_select "section##{secao}", 1, secao }
+    assert_select "nav a[title='Ajuda sobre esta tela']", 0
+  end
+
+  test "the admin screens have it too" do
+    sign_in admins(:one)
+    get admins_backoffice_users_url
+    assert_select "nav a[href=?]", ajuda_path(anchor: "acesso"), text: "Ajuda"
+  end
 end

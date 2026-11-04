@@ -15,7 +15,7 @@
     <nav class="no-print mb-3 d-flex justify-content-between align-items-center">
       <span>
         <%= link_to 'Início', root_path %>
-        <% if user_signed_in? || admin_signed_in? %> · <%= link_to 'Ajuda', ajuda_path %><% end %>
+        <% if (user_signed_in? || admin_signed_in?) && controller_path != "ajuda" %> · <%= link_ajuda %><% end %>
       </span>
       <%= render 'layouts/empresa_atual' %>
     </nav>

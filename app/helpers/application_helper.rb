@@ -25,6 +25,30 @@ module ApplicationHelper
     true
   end
 
+  # Section of the manual (ajuda/index) about each screen, by
+  # "controller#action" or controller. Other screens (cadastros) open the
+  # manual's top.
+  SECOES_DA_AJUDA = {
+    "bookings" => "agendamentos", "booking_items" => "agendamentos", "booking_item_payments" => "agendamentos",
+    "vendas" => "vendas", "conferencia_sinais" => "sinais",
+    "sorders" => "ordens", "sorders#encerrar" => "encerramento", "sorders#reabrir" => "encerramento",
+    "sorder_items#movimentar" => "transferir", "sorder_items#showcomis" => "comissoes",
+    "sorder_item_payments" => "recebimentos", "commission_payments" => "comissoes", "payables" => "contas",
+    "cash_entries" => "caixa", "relacao_ordens" => "relatorios", "resumo_operacional" => "relatorios",
+    "agendamentos_por_usuario" => "relatorios", "passeios_repassados" => "relatorios",
+    "pickup_times" => "configuracoes", "vendor_destinations" => "configuracoes", "vendors" => "configuracoes",
+    "destinations" => "configuracoes", "companies" => "configuracoes",
+    "admins_backoffice/users" => "acesso", "sistger_imports" => "acesso", "senhas" => "acesso"
+  }.freeze
+
+  # The layouts' "Ajuda" link, opening the manual at this screen's section.
+  def link_ajuda(**html_options)
+    secao = SECOES_DA_AJUDA["#{controller_path}##{action_name}"] || SECOES_DA_AJUDA[controller_path]
+    link_to ajuda_path(anchor: secao), title: "Ajuda sobre esta tela", **html_options do
+      safe_join([tag.i(class: "fa fa-question-circle", "aria-hidden": true), " Ajuda"])
+    end
+  end
+
   # Icon-only link (Font Awesome 4, from the gentelella theme); the title is the tooltip and the accessible name.
   def link_icone(icone, titulo, url, html_options = {})
     link_to url, html_options.merge(title: titulo, "aria-label": titulo) do
