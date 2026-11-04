@@ -90,4 +90,52 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
     assert outro.reload.cancelado?
     assert_redirected_to sorder_url(outro.sorder)
   end
+  test "a passenger is transferred or copied to another order from the order's page" do
+    destino = sorders(:one)
+    get sorder_url(@sorder_item.sorder)
+    assert_select "a[title='Transferir / copiar para outra OS'] i.fa-exchange"
+
+    get movimentar_sorder_item_url(@sorder_item)
+    assert_response :success
+    assert_select "button", text: "Transferir"
+    assert_select "button[formaction='#{copiar_sorder_item_path(@sorder_item)}']", text: "Copiar"
+
+    assert_difference("SorderItem.count") { post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.id } }
+    assert_redirected_to sorder_url(destino)
+
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.id }
+    assert_redirected_to sorder_url(destino)
+    assert_equal destino.id, @sorder_item.reload.sorder_id
+
+    get historico_sorder_url(destino)
+    assert_select "td", text: "Transferiu"
+    assert_select "li", text: /Ordem de serviço: .*\(#{sorders(:two).id}\) → .*\(#{destino.id}\)/
+  end
+
+  test "the typed order is described, with why it can't take the passenger" do
+    destino = sorders(:one)
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.id }, xhr: true
+    assert_response :success
+    assert_select "div.alert-info[data-descricao=?]", "OS nº #{destino.id} — 02/07/2021 13:25 — #{destino.destination.description}"
+    assert_match "Guia: #{destino.tourguide.sname}", response.body
+    assert_no_match "<html", response.body
+
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: @sorder_item.sorder_id }, xhr: true
+    assert_select "div.alert-warning", text: /É a OS atual do passageiro/
+
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: 0 }, xhr: true
+    assert_select "div.alert-warning", text: "OS nº 0 não encontrada."
+
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.id }
+    assert_select "#destino-movimentacao div.alert-info"
+    assert_select "button[data-confirm=?]", "Transferir #{@sorder_item.nome_passageiro} para a OS nº #{destino.id} — 02/07/2021 13:25 — #{destino.destination.description}?"
+  end
+
+  test "a transfer to a missing order goes back to the form with the error" do
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: 0 }
+
+    assert_redirected_to movimentar_sorder_item_url(@sorder_item, destino_id: 0)
+    assert_equal "OS de destino não encontrada.", flash[:alert]
+    assert_equal sorders(:two).id, @sorder_item.reload.sorder_id
+  end
 end

@@ -55,6 +55,9 @@ pt-BR:
       sorder_items:
         showcomis: "Relatório de comissões"
         reativar: "Reativar cancelado"
+        movimentar: "Transferir / copiar (tela)"
+        transferir: "Transferir para outra OS"
+        copiar: "Copiar para outra OS"
       sorders:
         export: "Exportar PDF"
         historico: "Histórico (auditoria)"

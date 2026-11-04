@@ -68,4 +68,66 @@ class SorderItemTest < ActiveSupport::TestCase
     assert_equal "ana@example.com", sorders(:one).sorder_items.create!(snomepax: "Bia").usuario
     assert_equal "caio@example.com", sorders(:one).sorder_items.create!(snomepax: "Caio", usuario: "caio@example.com").usuario
   end
+  test "transferring moves the passenger with its pax list and payments, and notes it" do
+    origem = sorders(:two)
+    destino = sorders(:one)
+    item = origem.sorder_items.create!(snomepax: "Maria", amount: 100, comments: "Janela",
+                                       sistger_numero: 900, sistger_sequencial: 1,
+                                       companions_attributes: [{ snome: "Filho", chd: true }])
+    pagamento = item.pagamentos.create!(data: Date.current, valor: 40, forma_pagamento: "D")
+    versao = origem.reload.lock_version
+
+    item.transferir_para!(destino)
+
+    item.reload
+    assert_equal destino.id, item.sorder_id
+    assert_equal "Janela Transferido da OS nº #{origem.id} em #{I18n.l(Date.current)}.", item.comments
+    assert_equal 40, item.amountpay
+    assert_equal ["Filho"], item.companions.map(&:snome)
+    assert_equal destino.id, pagamento.cash_entry.reload.sorder_id
+    assert_nil item.sistger_numero, "a re-import of the old order mustn't move it back"
+    assert_operator origem.reload.lock_version, :>, versao
+    [origem, destino].each do |ordem|
+      assert ordem.auditorias.exists?(acao: "transferiu", registro: item, alteracoes: { "sorder_id" => [origem.id, destino.id] })
+    end
+  end
+
+  test "copying places a new passenger with the pax list but nothing received, and notes it in both" do
+    origem = sorders(:two)
+    destino = sorders(:one)
+    item = origem.sorder_items.create!(snomepax: "Maria", amount: 100, amountcomission: 10, amountcomissionpay: 10,
+                                       qtdepax: 3, companions_attributes: [{ snome: "Filho", chd: true }])
+    item.update_columns(qtdepax: 3, qtdechd: 0)
+    item.pagamentos.create!(data: Date.current, valor: 40, forma_pagamento: "D")
+
+    copia = assert_difference("SorderItem.count") { item.copiar_para!(destino) }
+
+    data = I18n.l(Date.current)
+    assert_equal destino.id, copia.sorder_id
+    assert_equal ["Maria", 100, 10], [copia.snomepax, copia.amount, copia.amountcomission]
+    assert_equal [0, 0], [copia.amountpay.to_f, copia.amountcomissionpay.to_f]
+    assert_equal [3, 0], [copia.qtdepax, copia.qtdechd], "keeps the original's PAX/CHD"
+    assert_equal ["Filho"], copia.companions.map(&:snome)
+    assert_empty copia.pagamentos
+    assert_equal "Copiado da OS nº #{origem.id} em #{data}.", copia.comments
+    assert_equal "Copiado para a OS nº #{destino.id} em #{data}.", item.reload.comments
+    assert_equal origem.id, item.sorder_id
+    assert_equal ["Filho"], item.companions.map(&:snome)
+  end
+
+  test "transfers and copies need another open order and an active passenger" do
+    item = sorder_items(:one)
+    destino = sorders(:one)
+    erro = ->(destino) { assert_raises(SorderItem::NaoMovimentado) { item.transferir_para!(destino) }.message }
+
+    assert_equal "OS de destino não encontrada.", erro.(nil)
+    assert_equal "Escolha uma OS diferente da atual.", erro.(item.sorder)
+    destino.update!(encerrada: true)
+    assert_equal "A OS nº #{destino.id} está encerrada.", erro.(destino)
+    destino.update!(encerrada: false)
+    item.update!(scancelado: "S")
+    assert_equal "Passageiro cancelado: reative-o antes.", erro.(destino)
+    assert_raises(SorderItem::NaoMovimentado) { item.copiar_para!(destino) }
+    assert_equal sorders(:two).id, item.reload.sorder_id
+  end
 end

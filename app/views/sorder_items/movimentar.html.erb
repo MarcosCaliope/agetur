@@ -1,0 +1,32 @@
+<h1>Transferir ou copiar passageiro</h1>
+
+<p>
+  <strong>Passageiro:</strong> <%= @sorder_item.nome_passageiro %>
+  (<%= @sorder_item.qtdepax.to_i %> PAX, <%= @sorder_item.qtdechd.to_i %> CHD)<br>
+  <strong>OS atual:</strong> nº <%= @sorder_item.sorder_id %> — <%= descricao_registro(@sorder_item.sorder) %>
+</p>
+
+<ul class="small text-muted">
+  <li><strong>Transferir</strong> leva o passageiro, a lista pax, os recebimentos e as comissões para a outra OS.</li>
+  <li><strong>Copiar</strong> inclui na outra OS um novo passageiro com os mesmos dados e lista pax, sem recebimentos nem comissões pagas.</li>
+  <li>A movimentação fica registrada nas observações do passageiro e no histórico das OS.</li>
+</ul>
+
+<%= form_with url: transferir_sorder_item_path(@sorder_item), method: :post, local: true, id: "movimentar-passageiro",
+      data: { busca: movimentar_sorder_item_path(@sorder_item), passageiro: @sorder_item.nome_passageiro } do |form| %>
+  <div class="form-group">
+    <%= form.label :destino_id, "Nº da OS de destino" %>
+    <%= form.number_field :destino_id, value: params[:destino_id], min: 1, required: true, autofocus: true, class: "form-control w-auto" %>
+  </div>
+  <div id="destino-movimentacao" class="mb-3"><%= render "destino" %></div>
+  <% if pode_acessar?(:sorder_items, :transferir) %>
+    <%= form.button "Transferir", class: "btn btn-primary",
+          data: { acao: "Transferir", confirm: confirmar_movimentacao("Transferir", @sorder_item, @destino) } %>
+  <% end %>
+  <% if pode_acessar?(:sorder_items, :copiar) %>
+    <%= form.button "Copiar", class: "btn btn-secondary", formaction: copiar_sorder_item_path(@sorder_item),
+          data: { acao: "Copiar", confirm: confirmar_movimentacao("Copiar", @sorder_item, @destino) } %>
+  <% end %>
+<% end %>
+
+<p class="mt-3"><%= link_to "[Voltar para a OS]", @sorder_item.sorder %></p>

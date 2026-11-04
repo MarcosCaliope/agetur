@@ -1,6 +1,6 @@
 class SorderItemsController < ApplicationController
-  before_action :set_sorder_item, only: [:show, :edit, :update, :destroy, :reativar]
-  before_action :exigir_ordem_aberta, only: [:destroy, :reativar]
+  before_action :set_sorder_item, only: [:show, :edit, :update, :destroy, :reativar, :movimentar, :transferir, :copiar]
+  before_action :exigir_ordem_aberta, only: [:destroy, :reativar, :movimentar, :transferir, :copiar]
   # GET /sorder_items
   # GET /sorder_items.json
   def index
@@ -62,6 +62,32 @@ class SorderItemsController < ApplicationController
   def reativar
     @sorder_item.update!(scancelado: "N")
     redirect_to @sorder_item.sorder, notice: "Passageiro #{@sorder_item.nome_passageiro} reativado na ordem de serviço."
+  end
+
+  # GET /sorder_items/1/movimentar: asks for the order to transfer or copy
+  # the passenger to. As the number is typed, the page asks again (xhr) for
+  # just the description of that order.
+  def movimentar
+    @destino = Sorder.find_by(id: params[:destino_id]) if params[:destino_id].present?
+    render partial: "destino" if request.xhr?
+  end
+
+  # POST /sorder_items/1/transferir (SorderItem#transferir_para!)
+  def transferir
+    origem = @sorder_item.sorder_id
+    @sorder_item.transferir_para!(Sorder.find_by(id: params[:destino_id]))
+    redirect_to @sorder_item.sorder,
+                notice: "Passageiro #{@sorder_item.nome_passageiro} transferido da OS nº #{origem} para esta OS."
+  rescue SorderItem::NaoMovimentado => e
+    redirect_to movimentar_sorder_item_path(@sorder_item, destino_id: params[:destino_id]), alert: e.message
+  end
+
+  # POST /sorder_items/1/copiar (SorderItem#copiar_para!)
+  def copiar
+    copia = @sorder_item.copiar_para!(Sorder.find_by(id: params[:destino_id]))
+    redirect_to copia.sorder, notice: "Passageiro #{copia.nome_passageiro} copiado da OS nº #{@sorder_item.sorder_id} para esta OS."
+  rescue SorderItem::NaoMovimentado => e
+    redirect_to movimentar_sorder_item_path(@sorder_item, destino_id: params[:destino_id]), alert: e.message
   end
 
   # DELETE /sorder_items/1

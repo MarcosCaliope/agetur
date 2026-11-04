@@ -8,7 +8,7 @@ class SorderAuditoria < ApplicationRecord
   belongs_to :registro, polymorphic: true, optional: true
 
   # Updates of a record (Auditavel), named after what they did.
-  ALTERACOES = %w[alterou cancelou reativou encerrou reabriu].freeze
+  ALTERACOES = %w[alterou cancelou reativou transferiu encerrou reabriu].freeze
 
   def alteracao? = ALTERACOES.include?(acao)
 

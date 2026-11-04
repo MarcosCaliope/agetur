@@ -88,7 +88,12 @@
           <td><%= sorder_item.total_passeio %></td>
           <td><%= sorder_item.vendor&.sname %></td>
           <td><%= sorder_item.comments %></td>
-          <td class="no-print"><%= link_to "Recebimentos", sorder_item_recebimentos_path(sorder_item) %></td>
+          <td class="no-print text-nowrap">
+            <%= link_to "Recebimentos", sorder_item_recebimentos_path(sorder_item) %>
+            <% unless @sorder.encerrada? %>
+              <%= link_icone "exchange", "Transferir / copiar para outra OS", movimentar_sorder_item_path(sorder_item), class: "ml-2" %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
