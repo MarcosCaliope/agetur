@@ -66,7 +66,8 @@ class SorderItemsController < ApplicationController
 
   # GET /sorder_items/1/movimentar: asks for the order to transfer or copy
   # the passenger to. As the number is typed, the page asks again (xhr) for
-  # just the description of that order.
+  # just the description of that order. retorno=edicao (the order form's
+  # link) goes back to the form of the order it came from.
   def movimentar
     @destino = Sorder.find_by(id: params[:destino_id]) if params[:destino_id].present?
     render partial: "destino" if request.xhr?
@@ -74,20 +75,21 @@ class SorderItemsController < ApplicationController
 
   # POST /sorder_items/1/transferir (SorderItem#transferir_para!)
   def transferir
-    origem = @sorder_item.sorder_id
+    origem = @sorder_item.sorder
     @sorder_item.transferir_para!(Sorder.find_by(id: params[:destino_id]))
-    redirect_to @sorder_item.sorder,
-                notice: "Passageiro #{@sorder_item.nome_passageiro} transferido da OS nº #{origem} para esta OS."
+    redirect_to retorno_da_movimentacao(origem, @sorder_item.sorder),
+                notice: "Passageiro #{@sorder_item.nome_passageiro} transferido da OS nº #{origem.id} para a OS nº #{@sorder_item.sorder_id}."
   rescue SorderItem::NaoMovimentado => e
-    redirect_to movimentar_sorder_item_path(@sorder_item, destino_id: params[:destino_id]), alert: e.message
+    voltar_para_movimentar(e)
   end
 
   # POST /sorder_items/1/copiar (SorderItem#copiar_para!)
   def copiar
     copia = @sorder_item.copiar_para!(Sorder.find_by(id: params[:destino_id]))
-    redirect_to copia.sorder, notice: "Passageiro #{copia.nome_passageiro} copiado da OS nº #{@sorder_item.sorder_id} para esta OS."
+    redirect_to retorno_da_movimentacao(@sorder_item.sorder, copia.sorder),
+                notice: "Passageiro #{copia.nome_passageiro} copiado da OS nº #{@sorder_item.sorder_id} para a OS nº #{copia.sorder_id}."
   rescue SorderItem::NaoMovimentado => e
-    redirect_to movimentar_sorder_item_path(@sorder_item, destino_id: params[:destino_id]), alert: e.message
+    voltar_para_movimentar(e)
   end
 
   # DELETE /sorder_items/1
@@ -112,6 +114,16 @@ class SorderItemsController < ApplicationController
   end
 
   private
+    # The order form it came from (retorno=edicao), else the order that got the passenger.
+    def retorno_da_movimentacao(origem, destino)
+      params[:retorno] == "edicao" ? edit_sorder_path(origem) : destino
+    end
+
+    def voltar_para_movimentar(erro)
+      redirect_to movimentar_sorder_item_path(@sorder_item, destino_id: params[:destino_id], retorno: params[:retorno].presence),
+                  alert: erro.message
+    end
+
     def exigir_ordem_aberta
       redirect_to @sorder_item.sorder, alert: "Ordem de serviço encerrada: reabra para alterar." if @sorder_item.sorder.encerrada?
     end

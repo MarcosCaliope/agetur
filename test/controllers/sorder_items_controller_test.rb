@@ -131,6 +131,26 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-confirm=?]", "Transferir #{@sorder_item.nome_passageiro} para a OS nº #{destino.id} — 02/07/2021 13:25 — #{destino.destination.description}?"
   end
 
+  test "from the order form, a transfer or copy and its errors come back to the form" do
+    origem = @sorder_item.sorder
+    destino = sorders(:one)
+    get edit_sorder_url(origem)
+    assert_select "a[href=?]", movimentar_sorder_item_path(@sorder_item, retorno: "edicao"), text: "Transferir / copiar"
+
+    get movimentar_sorder_item_url(@sorder_item, retorno: "edicao")
+    assert_select "input[type=hidden][name=retorno][value=edicao]"
+    assert_select "a[href=?]", edit_sorder_path(origem)
+
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: 0, retorno: "edicao" }
+    assert_redirected_to movimentar_sorder_item_url(@sorder_item, destino_id: 0, retorno: "edicao")
+
+    post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.id, retorno: "edicao" }
+    assert_redirected_to edit_sorder_url(origem)
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.id, retorno: "edicao" }
+    assert_redirected_to edit_sorder_url(origem)
+    assert_equal destino.id, @sorder_item.reload.sorder_id
+  end
+
   test "a transfer to a missing order goes back to the form with the error" do
     post transferir_sorder_item_url(@sorder_item), params: { destino_id: 0 }
 

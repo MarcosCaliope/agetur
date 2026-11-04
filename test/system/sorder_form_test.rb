@@ -1,7 +1,8 @@
 require "application_system_test_case"
 
 # The order form's JavaScript: lista_pax.js, edicao_ordem.js and the
-# "Pagar comissão" menu (Bootstrap dropdown + rails-ujs).
+# "Pagar comissão" menu (Bootstrap dropdown + rails-ujs) and the
+# "Transferir / copiar" link, which comes back to the form.
 class SorderFormTest < ApplicationSystemTestCase
   setup do
     @sorder = sorders(:one)
@@ -73,5 +74,18 @@ class SorderFormTest < ApplicationSystemTestCase
     assert_equal ["O", 25], [CashEntry.last.forma_pagamento, CashEntry.last.valor]
     assert_equal 25, @item.reload.amountcomissionpay
     assert_no_button "Pagar comissão"
+  end
+  test "transfers a passenger from the form and comes back to it" do
+    destino = sorders(:two)
+    visit edit_sorder_path(@sorder)
+    click_on "Transferir / copiar"
+    fill_in "Nº da OS de destino", with: destino.id
+    assert_selector "#destino-movimentacao .alert-info", text: "OS nº #{destino.id}"
+    accept_confirm { click_on "Transferir" }
+
+    assert_text "Passageiro Maria transferido da OS nº #{@sorder.id} para a OS nº #{destino.id}."
+    assert_current_path edit_sorder_path(@sorder)
+    assert_no_link "Transferir / copiar"
+    assert_equal destino.id, @item.reload.sorder_id
   end
 end

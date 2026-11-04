@@ -92,6 +92,10 @@
         <%# On a saved passenger this cancels it (Sorder#sorder_items_attributes=). %>
         <%= link_to_remove_association('X', f, class: "btn btn-danger",
               title: ("Cancela o passageiro ao salvar; ele pode ser reativado na tela da OS" if f.object.persisted?)) %>
+        <% if f.object.persisted? && !f.object.cancelado? %>
+          <%# Leaving with unsaved changes asks first (edicao_ordem.js). %>
+          <%= link_to "Transferir / copiar", movimentar_sorder_item_path(f.object, retorno: "edicao"), class: "btn btn-outline-secondary" %>
+        <% end %>
         
         <div>
         ________________________________________________________________________________________________________________________________________________________________________________!
