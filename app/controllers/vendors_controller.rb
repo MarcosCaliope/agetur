@@ -33,7 +33,7 @@ class VendorsController < ApplicationController
         format.json { render :show, status: :created, location: @vendor }
       else
         format.html { render :new }
-        format.json { render json: @vendor.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @vendor.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -47,7 +47,7 @@ class VendorsController < ApplicationController
         format.json { render :show, status: :ok, location: @vendor }
       else
         format.html { render :edit }
-        format.json { render json: @vendor.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @vendor.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end

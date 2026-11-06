@@ -42,7 +42,7 @@ module SordersHelper
     end
   end
 
-  # The order form's "+" next to a select, opening its quick-add modal
+  # The order form's "+" right after a select, opening its quick-add modal
   # (sorders/_cadastro_rapido), for users allowed to create that cadastro.
   def botao_cadastro_rapido(controller, modal, nome)
     return unless pode_acessar?(controller, "create")

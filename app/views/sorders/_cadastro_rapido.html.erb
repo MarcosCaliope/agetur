@@ -1,15 +1,20 @@
 <%# Quick-add modals for the order form's guide, driver and vehicle selects
-    (cadastro_rapido.js). Rendered after the order form, since forms can't
-    nest. Each posts JSON to the cadastro's own create action, so the same
-    permission applies; the "+" buttons next to the selects open them. %>
+    and each passenger's vendor (cadastro_rapido.js). Rendered after the
+    order form, since forms can't nest. Each posts JSON to the cadastro's own
+    create action, so the same permission applies; the "+" right after a
+    select opens its modal. `selects` are the selects that get the new
+    record; the one next to the clicked "+" picks it. %>
 <% cadastros = [
-     { id: "novo-guia", titulo: "Novo guia", modelo: Tourguide, url: tourguides_path(format: :json), select: "sorder_tourguide_id",
+     { id: "novo-guia", titulo: "Novo guia", modelo: Tourguide, url: tourguides_path(format: :json), selects: "#sorder_tourguide_id",
        rotulo: "sname", campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"]] },
-     { id: "novo-motorista", titulo: "Novo motorista", modelo: Driver, url: drivers_path(format: :json), select: "sorder_driver_id",
+     { id: "novo-motorista", titulo: "Novo motorista", modelo: Driver, url: drivers_path(format: :json), selects: "#sorder_driver_id",
        rotulo: "sname", campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"]] },
-     { id: "novo-veiculo", titulo: "Novo veículo", modelo: Vehicle, url: vehicles_path(format: :json), select: "sorder_vehicle_id",
+     { id: "novo-veiculo", titulo: "Novo veículo", modelo: Vehicle, url: vehicles_path(format: :json), selects: "#sorder_vehicle_id",
        rotulo: "license", campos: [[:license, "Placa", true], [:vehicle_type, "Tipo"], [:smodel, "Modelo"], [:capacity, "Capacidade"]],
-       estado: true }
+       estado: true },
+     { id: "novo-vendedor", titulo: "Novo vendedor", modelo: Vendor, url: vendors_path(format: :json),
+       selects: "select[name$='[vendor_id]']", rotulo: "sname",
+       campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"], [:commission, "Comissão (%)"]] }
    ] %>
 <% cadastros.each do |cadastro| %>
   <% next unless pode_acessar?(cadastro[:modelo].model_name.route_key, "create") %>
@@ -17,7 +22,7 @@
   <div class="modal fade cadastro-rapido-modal" id="<%= cadastro[:id] %>" tabindex="-1" role="dialog" aria-labelledby="<%= cadastro[:id] %>-titulo" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <%= form_with url: cadastro[:url], scope: escopo, local: true, class: "modal-content cadastro-rapido",
-                    data: { select: cadastro[:select], rotulo: cadastro[:rotulo] } do |f| %>
+                    data: { selects: cadastro[:selects], rotulo: cadastro[:rotulo] } do |f| %>
         <div class="modal-header">
           <h5 class="modal-title" id="<%= cadastro[:id] %>-titulo"><%= cadastro[:titulo] %></h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>

@@ -94,20 +94,51 @@ class SorderFormTest < ApplicationSystemTestCase
     visit new_sorder_path
     find("button[title='Cadastrar guia']").click
     within("#novo-guia") do
+      assert_selector "input:focus" # shown: Bootstrap no longer moves the focus
       fill_in "Nome", with: "JOANA"
       click_on "Cadastrar e selecionar"
     end
     assert_no_selector "#novo-guia", visible: true
+    assert_selector "#sorder_tourguide_id option:checked", text: "JOANA"
     assert_equal "JOANA", find("#sorder_tourguide_id option:checked").text
     assert Tourguide.exists?(sname: "JOANA")
 
     find("button[title='Cadastrar veículo']").click
     within("#novo-veiculo") do
+      assert_selector "input:focus"
       fill_in "Placa", with: "ABC1D23"
       click_on "Cadastrar e selecionar"
     end
     assert_no_selector "#novo-veiculo", visible: true
+    assert_selector "#sorder_vehicle_id option:checked", text: "ABC1D23"
     assert_equal "ABC1D23", find("#sorder_vehicle_id option:checked").text
     assert_equal companies(:two).state_id, Vehicle.find_by!(license: "ABC1D23").state_id
+  end
+
+  test "the + next to a passenger's vendor creates one, picks it there and offers it to every passenger" do
+    @sorder.sorder_items.create!(snomepax: "Pedro", qtdepax: 1)
+    visit edit_sorder_path(@sorder)
+    selects = all("select[name$='[vendor_id]']").to_a
+    alvo = selects.find { |select| select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro") }
+    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar vendedor'][1]").click
+    within("#novo-vendedor") do
+      assert_selector "input:focus"
+      fill_in "Nome", with: "ZECA VENDAS"
+      fill_in "Comissão (%)", with: "10"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#novo-vendedor", visible: true
+    assert_selector "option:checked", text: "ZECA VENDAS"
+
+    vendedor = Vendor.find_by!(sname: "ZECA VENDAS")
+    assert_equal [10.0, true], [vendedor.commission, vendedor.active]
+    assert_equal vendedor.id.to_s, alvo.value
+    (selects - [alvo]).each do |select|
+      assert_not_equal vendedor.id.to_s, select.value
+      assert select.has_selector?("option", text: "ZECA VENDAS")
+    end
+
+    click_on "[Adicionar PAX]"
+    assert all("select[name$='[vendor_id]']").last.has_selector?("option", text: "ZECA VENDAS"), "new passengers get it too"
   end
 end

@@ -42,6 +42,7 @@
         <p>
         <%= f.label :Vendedor %>
         <%= f.select( "vendor_id", @vendor_options, { include_blank: "Selecione" }) %>
+        <%= botao_cadastro_rapido("vendors", "novo-vendedor", "vendedor") %>
         <%= f.label :Comissão %>
         <%= f.text_field :amountcomission , size:7%>
         <%= f.label :amountcomissionpay, "Pago" %>
