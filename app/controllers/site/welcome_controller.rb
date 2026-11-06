@@ -30,7 +30,7 @@ class Site::WelcomeController < SiteController
       "relatorios" => pode_acessar?("sorder_items", "showcomis") || pode_acessar?("commission_payments") || pode_acessar?("relacao_ordens") ||
                       pode_acessar?("resumo_operacional") || pode_acessar?("agendamentos_por_usuario") ||
                       pode_acessar?("passeios_repassados"),
-      "manutencao" => pode_acessar?("sistger_imports")
+      "manutencao" => pode_acessar?("sistger_imports") || pode_acessar?("sistger_exclusoes")
     }
     @abas = ABAS.select { |aba, _| visiveis[aba] }
 

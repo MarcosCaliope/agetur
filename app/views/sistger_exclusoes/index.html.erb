@@ -1,0 +1,66 @@
+<h1>Excluir dados</h1>
+
+<% if @empresa.nil? %>
+  <div class="alert alert-warning">Escolha a empresa no topo da página.</div>
+<% else %>
+  <div class="alert alert-danger">
+    Apaga <strong>todos</strong> os registros das tabelas marcadas na empresa
+    <strong><%= @empresa.name %></strong>, importados do SISTGER ou cadastrados neste sistema. Não há como desfazer.
+    Para outra empresa, troque a empresa no topo da página.
+  </div>
+  <p class="text-muted small">
+    Se um registro que fica ainda usa um dos que seriam apagados (por exemplo, uma ordem usa o hotel), nada é
+    apagado e a mensagem diz o que incluir. Ordens de serviço levam junto os passageiros, a lista pax, os
+    recebimentos, as contas a pagar e o histórico. Lançamentos do caixa feitos por elas ficam, sem ligação com a
+    ordem, a não ser que o caixa também seja marcado. Ordens com passeios agendados não são apagadas.
+  </p>
+
+  <% if @escolhidas.any? %>
+    <%= form_with url: sistger_exclusoes_path, method: :delete, local: true, id: "sistger-exclusao" do |form| %>
+      <% @escolhidas.each do |chave| %>
+        <%= hidden_field_tag "etapas[]", chave, id: nil %>
+      <% end %>
+      <div class="card border-danger mb-4">
+        <div class="card-body">
+          <h2 class="h5 card-title">Confirmar a exclusão</h2>
+          <ul>
+            <% @escolhidas.each do |chave| %>
+              <li><%= SistgerImport.etapa(chave).nome %>: <%= number_with_delimiter(@contagens[chave]) %> registro(s)</li>
+            <% end %>
+          </ul>
+          <div class="form-group">
+            <%= label_tag :confirmacao, "Digite #{SistgerExclusoesController::CONFIRMACAO} para confirmar" %>
+            <%= text_field_tag :confirmacao, nil, class: "form-control", autocomplete: "off", style: "max-width: 16rem" %>
+          </div>
+          <%= form.submit "Excluir definitivamente", class: "btn btn-danger" %>
+          <%= link_to "Cancelar", sistger_exclusoes_path, class: "btn btn-link" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= form_with url: sistger_exclusoes_path, method: :get, local: true, id: "sistger-exclusao-escolha" do |form| %>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Tabela</th>
+            <th class="text-right">Registros nesta empresa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% SistgerExclusao.etapas.each do |etapa| %>
+            <tr class="sistger-etapa" data-etapa="<%= etapa.chave %>">
+              <td><%= check_box_tag "etapas[]", etapa.chave, @escolhidas.include?(etapa.chave), id: "excluir_#{etapa.chave}" %></td>
+              <td><label for="excluir_<%= etapa.chave %>" class="mb-0"><%= etapa.nome %></label></td>
+              <td class="text-right"><%= number_with_delimiter(@contagens[etapa.chave]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= form.submit "Ver o que será excluído", class: "btn btn-outline-danger", name: nil %>
+    <%= link_to "Voltar", sistger_imports_path, class: "btn btn-link" %>
+  <% end %>
+<% end %>

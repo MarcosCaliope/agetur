@@ -21,7 +21,7 @@ class User < ApplicationRecord
   # acesso_total, including screens added later. Without either, only the
   # home page.
   def pode?(controller, action)
-    return false if vendedor?
+    return false if vendedor? || Permissao::SO_ADMIN.include?(controller)
 
     acesso_total? || permissoes.include?(Permissao.chave(controller, action))
   end

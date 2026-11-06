@@ -383,4 +383,30 @@ class SistgerImportTest < ActiveSupport::TestCase
     Current.set(empresa_id: companies(:two).id, filtrar_empresa: true) { importador.importar("clientes") }
     assert_equal [empresa.id], Customer.unscoped.where.not(sistger_id: nil).distinct.pluck(:company_id)
   end
+
+  test "empresa_id imports into the given company and warns about records it moves there" do
+    importar_cadastros
+    empresa = Company.find_by!(sistger_id: 1)
+    destino = companies(:two)
+    importador = SistgerImport.new(@fonte, empresa_id: destino.id)
+
+    assert_equal destino.id, importador.empresa_destino_id
+    assert_equal({ "hoteis" => 1 }, importador.importados_em_outras_empresas(%w[empresa hoteis horarios]))
+    importador.importar("hoteis")
+    assert_equal destino.id, Hotel.unscoped.find_by!(sistger_id: 2).company_id
+    assert_equal empresa.id, Customer.unscoped.find_by!(sistger_id: 10).company_id, "steps not chosen stay"
+    assert_empty importador.importados_em_outras_empresas(%w[hoteis])
+  end
+
+  test "names are matched only within the destination company" do
+    importar_cadastros
+    empresa = Company.find_by!(sistger_id: 1)
+    outro = Hotel.unscoped.create!(sname: "BRASIL TROPICAL", company_id: empresa.id)
+    destino = companies(:two)
+    SistgerImport.new(@fonte, empresa_id: destino.id).importar("ordens")
+
+    hotel = SorderItem.unscoped.find_by!(sistger_numero: 1, sistger_sequencial: 2).hotel_id
+    assert_not_equal outro.id, hotel
+    assert_equal destino.id, Hotel.unscoped.find(hotel).company_id
+  end
 end

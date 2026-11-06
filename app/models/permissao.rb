@@ -6,7 +6,8 @@
 #
 # Only controllers that run the permission check are listed: ApplicationController
 # subclasses, minus Devise, the public site, the back-offices and the header's
-# company switch, the own-password screen and the vendors' sales screen.
+# company switch, the own-password screen and the vendors' sales screen, and
+# the admin-only screens (SO_ADMIN).
 module Permissao
   Item = Struct.new(:chave, :rotulo, :rotas)
   Grupo = Struct.new(:controller, :rotulo, :itens)
@@ -16,6 +17,8 @@ module Permissao
   ORDEM = %w[index show create update destroy].freeze
   LIVRES = [SiteController, UsersBackofficeController, AdminsBackofficeController, DeviseController, TrocaEmpresaController, SenhasController,
             VendasController, AjudaController].freeze
+  # Screens only admins open: not offered in the user form, refused even with acesso_total.
+  SO_ADMIN = %w[sistger_exclusoes].freeze
 
   module_function
 
@@ -27,8 +30,14 @@ module Permissao
   def controlado?(controller)
     (@controlados ||= {}).fetch(controller) do
       classe = "#{controller}_controller".camelize.safe_constantize
-      @controlados[controller] = classe.present? && classe < ApplicationController && LIVRES.none? { |livre| classe <= livre }
+      @controlados[controller] = classe.present? && classe < ApplicationController && LIVRES.none? { |livre| classe <= livre } &&
+                                 SO_ADMIN.exclude?(controller)
     end
+  end
+
+  # Whether opening the controller is checked at all (listed or admin-only).
+  def verificado?(controller)
+    controlado?(controller) || SO_ADMIN.include?(controller)
   end
 
   def grupos

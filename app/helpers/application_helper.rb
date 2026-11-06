@@ -8,7 +8,7 @@ module ApplicationHelper
   end
 
   def rota_permitida?(url, html_options = nil)
-    return true if url.nil? || admin_signed_in? || !user_signed_in? || current_user.acesso_total?
+    return true if url.nil? || admin_signed_in? || !user_signed_in? # acesso_total still misses admin-only screens
 
     uri = URI.parse(url_for(url))
     return true if uri.host.present? && uri.host != request.host
@@ -19,7 +19,7 @@ module ApplicationHelper
     # Lists repeat the same routes with other ids: recognize each shape once.
     (@rotas_permitidas ||= {}).fetch([uri.path.gsub(/\d+/, "0"), metodo]) do |chave|
       rota = Rails.application.routes.recognize_path(uri.path, method: metodo)
-      @rotas_permitidas[chave] = !Permissao.controlado?(rota[:controller]) || pode_acessar?(rota[:controller], rota[:action])
+      @rotas_permitidas[chave] = !Permissao.verificado?(rota[:controller]) || pode_acessar?(rota[:controller], rota[:action])
     end
   rescue ActionController::RoutingError, URI::InvalidURIError
     true
@@ -38,7 +38,7 @@ module ApplicationHelper
     "agendamentos_por_usuario" => "relatorios", "passeios_repassados" => "relatorios",
     "pickup_times" => "configuracoes", "vendor_destinations" => "configuracoes", "vendors" => "configuracoes",
     "destinations" => "configuracoes", "companies" => "configuracoes",
-    "admins_backoffice/users" => "acesso", "sistger_imports" => "acesso", "senhas" => "acesso"
+    "admins_backoffice/users" => "acesso", "sistger_imports" => "acesso", "sistger_exclusoes" => "acesso", "senhas" => "acesso"
   }.freeze
 
   # The layouts' "Ajuda" link, opening the manual at this screen's section.

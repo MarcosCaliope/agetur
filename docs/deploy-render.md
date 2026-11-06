@@ -61,9 +61,19 @@ O Render não alcança o SQL Server da sua rede, então a importação roda **no
    ```bash
    DATABASE_URL='<External Database URL>' bin/rails sistger:importar
    ```
-   Para importar só algumas etapas, use `ETAPAS=ordens,caixa`. A lista de etapas está em `SistgerImport::ETAPAS`.
+   Para importar só algumas etapas, use `ETAPAS=ordens,caixa`. Etapas: `empresa`, `clientes`, `vendedores`, `agencias`, `hoteis`, `guias`, `motoristas`, `veiculos`, `roteiros`, `horarios`, `comissoes_roteiro`, `ordens`, `caixa`. Sem `ETAPAS`, importa todas.
+
+   Para gravar numa empresa diferente da importada do SISTGER, use `EMPRESA=<código da empresa no sistema>`. Um registro do SISTGER só existe em uma empresa: importá-lo para outra o **move** para ela, e a tarefa avisa quantos estão nesse caso.
+
+   Antes de gravar, a tarefa mostra a origem, o destino, a empresa e as etapas, e pergunta `Importar? (s/N)`. Confira se o destino é o banco do Render. `CONFIRMAR=s` pula a pergunta.
 
 A tarefa mostra a origem e o destino antes de gravar e, no fim, quanto leu e gravou em cada etapa. Ela é a mesma importação da tela Manutenção → SISTGER: pode ser repetida, e atualiza os registros em vez de duplicar. Pela internet, ela demora mais do que os ~30 s locais.
+
+Para limpar uma empresa antes de importá-la de novo, a tarefa `sistger:excluir` apaga **todos** os registros (importados ou não) das tabelas escolhidas numa empresa:
+```bash
+DATABASE_URL='<External Database URL>' EMPRESA=3 ETAPAS=ordens,hoteis bin/rails sistger:excluir
+```
+Ela mostra quantos registros vai apagar e pede que se digite `EXCLUIR`. Se um registro que fica ainda usa um dos que seriam apagados (por exemplo, um agendamento usa o hotel), nada é apagado e a mensagem diz o que incluir. A mesma exclusão está na tela Manutenção → Excluir dados, só para administradores, na empresa escolhida no topo.
 
 Depois da importação, tire o seu IP do Access Control, se não for mais usar.
 

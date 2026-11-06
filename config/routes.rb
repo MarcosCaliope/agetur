@@ -92,6 +92,8 @@ Rails.application.routes.draw do
 
   scope 'manutencao' do
     get 'sistger', to: 'sistger_imports#index', as: :sistger_imports
+    get 'sistger/exclusao', to: 'sistger_exclusoes#index', as: :sistger_exclusoes # before sistger/:etapa
+    delete 'sistger/exclusao', to: 'sistger_exclusoes#destroy'
     post 'sistger', to: 'sistger_imports#create'
     get 'sistger/:etapa', to: 'sistger_imports#show', as: :sistger_import
   end

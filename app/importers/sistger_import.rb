@@ -12,8 +12,11 @@
 #
 # Everything imported belongs to the company imported from SISTGER (the
 # "empresa" step), whichever company the person importing works in, or to
-# that person's company until it's imported. The import reads and writes
-# across companies (DaEmpresa's scope is off).
+# that person's company until it's imported. `empresa_id:` picks another
+# destination (EMPRESA= in `sistger:importar`). Legacy keys are unique across
+# companies, so importing a record into another company moves it there. The
+# import reads and writes across companies (DaEmpresa's scope is off), but
+# matches names only within the destination company.
 class SistgerImport
   NAO_INFORMADO = "Não informado".freeze
 
@@ -115,8 +118,33 @@ class SistgerImport
     ETAPAS.find { |e| e.chave == chave } or raise Erro, "Etapa desconhecida: #{chave}"
   end
 
-  def initialize(fonte = Fonte.new)
+  def initialize(fonte = Fonte.new, empresa_id: nil)
     @fonte = fonte
+    @empresa_id = empresa_id
+  end
+
+  # The company the steps other than "empresa" write to, or nil while none
+  # was given nor imported.
+  def empresa_destino_id
+    @empresa_id || Company.unscoped.where.not(sistger_id: nil).order(:sistger_id).pick(:id)
+  end
+
+  # {chave => count} of records the chosen steps already imported into a
+  # company other than the destination: re-importing them moves them there.
+  def importados_em_outras_empresas(chaves)
+    destino = empresa_destino_id
+    return {} unless destino
+
+    sem_escopo_de_empresa do
+      ETAPAS.select { |etapa| chaves.include?(etapa.chave) && etapa.chave != "empresa" }.filter_map do |etapa|
+        modelo = etapa.modelo.constantize
+        coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
+        next unless modelo.column_names.include?(coluna.to_s) && modelo.column_names.include?("company_id")
+
+        total = modelo.where.not(coluna => nil).where.not(company_id: destino).count
+        [etapa.chave, total] if total.positive?
+      end.to_h
+    end
   end
 
   # {chave => {sistger:, importados:, ultimo_sistger:, ultimo_importado:}}:
@@ -181,7 +209,7 @@ class SistgerImport
   end
 
   def empresa_importada_id
-    Company.unscoped.where.not(sistger_id: nil).order(:sistger_id).pick(:id) || Current.empresa_id or
+    empresa_destino_id || Current.empresa_id or
       raise Erro, "Importe a empresa antes das outras etapas."
   end
 
@@ -546,12 +574,13 @@ class SistgerImport
   def ids_por_nome(modelo, coluna, nomes, extras = {}, tambem: nil)
     nomes = nomes.compact.uniq
     ids = {}
+    existentes = modelo < DaEmpresa ? modelo.where(company_id: Current.empresa_id) : modelo # the scope is off: stay in the destination
     if tambem
-      modelo.where(tambem => nomes).pluck(tambem, :id).group_by(&:first).each do |nome, pares|
+      existentes.where(tambem => nomes).pluck(tambem, :id).group_by(&:first).each do |nome, pares|
         ids[nome] = pares.first.last if pares.one?
       end
     end
-    ids.merge!(modelo.where(coluna => nomes).pluck(coluna, :id).to_h)
+    ids.merge!(existentes.where(coluna => nomes).pluck(coluna, :id).to_h)
     faltando = nomes - ids.keys
     faltando.each_slice(LOTE) do |lote|
       linhas = com_empresa(modelo, lote.map { |nome| { coluna => nome }.merge(extras) })

@@ -290,6 +290,21 @@
           </div>
         </div>
         <% end %>
+        <% if pode_acessar?("sistger_exclusoes") %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 dashboard-card">
+            <div class="card-body">
+              <h2 class="h5 card-title">Excluir dados</h2>
+              <p class="text-muted small mb-0">
+                Apaga todos os registros das tabelas escolhidas na empresa atual, para importá-la de novo. Só administradores.
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <%= link_to 'Abrir', sistger_exclusoes_path, class: "btn btn-outline-danger btn-sm" %>
+            </div>
+          </div>
+        </div>
+        <% end %>
       </div>
     </section>
     <% end %>
