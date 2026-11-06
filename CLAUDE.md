@@ -149,7 +149,7 @@ Previews honor the filter. Chosen steps always run in dependency order.
 - `Company` itself is scoped to a bound user's own record (`Current.so_a_propria_empresa`). Admins and `todas_empresas` users see every company.
 - Use `empresa_atual` (a helper) for "the company of this page", never `Company.first`. The order form has no company select; an order belongs to the company being worked in.
 - Outside a request (console, seeds) nothing is filtered and `company_id` must be given. Tests set `Current.empresa_id` to `companies(:two)` in `test_helper.rb`, and every fixture belongs to `:two`. Users `:one`/`:two`/`:consulta` work in it, `:sem_rotas` has none. Add `company: two` to new fixtures.
-- `upsert_all`/`insert_all` skip callbacks, so pass `company_id` yourself. The SISTGER import runs with the scope off (`sem_escopo_de_empresa`) and writes everything to the company imported from SISTGER, or to the importer's company until that one is imported.
+- `upsert_all`/`insert_all` skip callbacks, so pass `company_id` yourself. The SISTGER import runs with the scope off (`sem_escopo_de_empresa`) and writes everything to its destination: on the screen, the company picked in the header (`empresa_atual`); from `sistger:importar`, `EMPRESA=` or else the company imported from SISTGER. Records imported into another company move to the destination, and both warn how many.
 
 ### Adding a cadastro
 

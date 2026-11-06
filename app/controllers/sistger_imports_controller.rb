@@ -1,10 +1,15 @@
 # Manutenção > Importar do SISTGER: reads the legacy SQL Server and imports
-# the chosen steps, each with its own filter (see SistgerImport::Filtro).
+# the chosen steps, each with its own filter (see SistgerImport::Filtro),
+# into the company picked in the header (empresa_atual). Records already
+# imported into another company move to it; the index warns how many.
 class SistgerImportsController < ApplicationController
   # GET /manutencao/sistger
   def index
     @configurada = fonte.configurada?
-    @contagens = importador.contagens if @configurada
+    return unless @configurada
+
+    @contagens = importador.contagens
+    @em_outras_empresas = importador.importados_em_outras_empresas(SistgerImport::ETAPAS.map(&:chave))
   rescue SistgerImport::Erro => e
     @erro = e.message
   ensure
@@ -56,7 +61,7 @@ class SistgerImportsController < ApplicationController
   helper_method :fonte
 
   def importador
-    @importador ||= SistgerImport.new(fonte)
+    @importador ||= SistgerImport.new(fonte, empresa_id: empresa_atual&.id)
   end
 
   def resumo(resultados)
@@ -65,6 +70,6 @@ class SistgerImportsController < ApplicationController
       "#{r.etapa.nome} (#{r.filtro.descricao}): #{r.gravados} de #{r.lidos} gravados#{com}"
     end
     avisos = resultados.flat_map(&:avisos)
-    (["Importação concluída. #{partes.join('; ')}."] + avisos).join(" ")
+    (["Importação concluída em #{empresa_atual&.name}. #{partes.join('; ')}."] + avisos).join(" ")
   end
 end

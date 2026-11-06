@@ -10,6 +10,11 @@
 <% elsif @erro %>
   <div class="alert alert-danger"><%= @erro %></div>
 <% else %>
+  <div class="alert alert-info">
+    Os dados serão gravados na empresa <strong><%= empresa_atual&.name || "importada do SISTGER" %></strong>.
+    Para outra empresa, troque a empresa no topo da página. Um registro do SISTGER só existe em uma empresa:
+    importá-lo aqui o move de onde estiver.
+  </div>
   <p class="text-muted">
     Origem: <%= fonte.descricao %>. Marque as tabelas e escolha o filtro de cada uma. Importar de novo
     atualiza o que já foi importado, sem duplicar; registros criados diretamente neste sistema não são alterados.
@@ -45,6 +50,11 @@
               <td>
                 <label for="etapa_<%= etapa.chave %>" class="mb-0"><%= etapa.nome %></label><br>
                 <code class="small"><%= etapa.tabelas %></code>
+                <% if (movidos = @em_outras_empresas[etapa.chave]) %>
+                  <div class="small text-danger sistger-movidos">
+                    <%= number_with_delimiter(movidos) %> já importado(s) em outra empresa serão movidos para esta.
+                  </div>
+                <% end %>
               </td>
               <td class="text-right"><%= number_with_delimiter(contagem[:sistger]) %></td>
               <td class="text-right sistger-ultimo"><%= contagem[:ultimo_sistger] ? number_with_delimiter(contagem[:ultimo_sistger]) : "—" %></td>
@@ -83,7 +93,7 @@
     </div>
 
     <%= form.submit "Importar selecionadas", class: "btn btn-primary",
-          data: { confirm: "Importar as tabelas selecionadas do SISTGER? Pode levar alguns minutos.",
+          data: { confirm: "Importar as tabelas selecionadas do SISTGER para #{empresa_atual&.name || 'a empresa do SISTGER'}? Pode levar alguns minutos.",
                   disable_with: "Importando… aguarde" } %>
   <% end %>
 <% end %>

@@ -75,6 +75,26 @@ class SistgerImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "tr[data-etapa=clientes] td.sistger-ultimo-importado", text: "30"
   end
 
+  test "imports into the company picked in the header and warns about records it moves" do
+    outra = Company.create!(name: "OUTRA", state: states(:two))
+    Customer.unscoped.create!(nome: "JA IMPORTADO", sistger_id: 10, company_id: outra.id)
+    sign_out :user
+    sign_in admins(:one)
+    patch trocar_empresa_url, params: { empresa_id: companies(:two).id }
+
+    com_fonte { get sistger_imports_url }
+    assert_select ".alert-info strong", companies(:two).name
+    assert_select "tr[data-etapa=clientes] .sistger-movidos", /1 já importado/
+
+    com_fonte { post sistger_imports_url, params: { etapas: ["clientes"], filtros: { clientes: { modo: "todos" } } } }
+    assert_equal [companies(:two).id], Customer.unscoped.where(sistger_id: [10, 20, 30]).distinct.pluck(:company_id)
+    assert_match(/concluída em #{companies(:two).name}/, flash[:notice])
+
+    patch trocar_empresa_url, params: { empresa_id: outra.id }
+    com_fonte { post sistger_imports_url, params: { etapas: ["clientes"], filtros: { clientes: { modo: "todos" } } } }
+    assert_equal [outra.id], Customer.unscoped.where(sistger_id: [10, 20, 30]).distinct.pluck(:company_id)
+  end
+
   test "asks to select at least one step" do
     com_fonte { post sistger_imports_url }
     follow_redirect!

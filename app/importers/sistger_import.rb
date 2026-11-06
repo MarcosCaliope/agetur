@@ -10,10 +10,10 @@
 # no record matches by code, the text in the field is used: an existing
 # record with that name/plate is reused, otherwise one is created.
 #
-# Everything imported belongs to the company imported from SISTGER (the
-# "empresa" step), whichever company the person importing works in, or to
-# that person's company until it's imported. `empresa_id:` picks another
-# destination (EMPRESA= in `sistger:importar`). Legacy keys are unique across
+# Everything imported belongs to `empresa_id:` (the screen passes the company
+# picked in the header; `sistger:importar` takes EMPRESA=). Without it, to the
+# company imported from SISTGER (the "empresa" step), or to the importing
+# person's company until that one is imported. Legacy keys are unique across
 # companies, so importing a record into another company moves it there. The
 # import reads and writes across companies (DaEmpresa's scope is off), but
 # matches names only within the destination company.
