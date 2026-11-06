@@ -42,6 +42,16 @@ module SordersHelper
     end
   end
 
+  # The order form's "+" next to a select, opening its quick-add modal
+  # (sorders/_cadastro_rapido), for users allowed to create that cadastro.
+  def botao_cadastro_rapido(controller, modal, nome)
+    return unless pode_acessar?(controller, "create")
+
+    content_tag(:button, "+", type: "button", class: "btn btn-sm btn-outline-secondary py-0 cadastro-rapido-abrir",
+                              title: "Cadastrar #{nome}", aria: { label: "Cadastrar #{nome}" },
+                              data: { toggle: "modal", target: "##{modal}" })
+  end
+
   private
 
   def associacao_auditada(modelo, campo)

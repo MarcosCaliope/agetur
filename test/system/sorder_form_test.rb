@@ -2,7 +2,8 @@ require "application_system_test_case"
 
 # The order form's JavaScript: lista_pax.js, edicao_ordem.js and the
 # "Pagar comissão" menu (Bootstrap dropdown + rails-ujs) and the
-# "Transferir / copiar" link, which comes back to the form.
+# "Transferir / copiar" link, which comes back to the form, and the
+# quick-add modals for guide, driver and vehicle (cadastro_rapido.js).
 class SorderFormTest < ApplicationSystemTestCase
   setup do
     @sorder = sorders(:one)
@@ -87,5 +88,26 @@ class SorderFormTest < ApplicationSystemTestCase
     assert_current_path edit_sorder_path(@sorder)
     assert_no_link "Transferir / copiar"
     assert_equal destino.id, @item.reload.sorder_id
+  end
+
+  test "the + next to the guide and vehicle creates one in a modal and selects it" do
+    visit new_sorder_path
+    find("button[title='Cadastrar guia']").click
+    within("#novo-guia") do
+      fill_in "Nome", with: "JOANA"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#novo-guia", visible: true
+    assert_equal "JOANA", find("#sorder_tourguide_id option:checked").text
+    assert Tourguide.exists?(sname: "JOANA")
+
+    find("button[title='Cadastrar veículo']").click
+    within("#novo-veiculo") do
+      fill_in "Placa", with: "ABC1D23"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#novo-veiculo", visible: true
+    assert_equal "ABC1D23", find("#sorder_vehicle_id option:checked").text
+    assert_equal companies(:two).state_id, Vehicle.find_by!(license: "ABC1D23").state_id
   end
 end

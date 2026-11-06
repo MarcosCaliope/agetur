@@ -33,7 +33,7 @@ class VehiclesController < ApplicationController
         format.json { render :show, status: :created, location: @vehicle }
       else
         format.html { render :new }
-        format.json { render json: @vehicle.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @vehicle.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -47,7 +47,7 @@ class VehiclesController < ApplicationController
         format.json { render :show, status: :ok, location: @vehicle }
       else
         format.html { render :edit }
-        format.json { render json: @vehicle.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @vehicle.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end

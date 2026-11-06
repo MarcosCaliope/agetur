@@ -31,10 +31,13 @@
     <%= form.select( "destination_id", @destination_options, { include_blank: "Selecione" }) %>
     <%= form.label :Guia %>
     <%= form.select( "tourguide_id", @tourguide_options, { include_blank: "Selecione" }) %>
+    <%= botao_cadastro_rapido("tourguides", "novo-guia", "guia") %>
     <%= form.label :Motorista %>
     <%= form.select( "driver_id", @driver_options, { include_blank: "Selecione" }) %>
+    <%= botao_cadastro_rapido("drivers", "novo-motorista", "motorista") %>
     <%= form.label :Veiculo %>
     <%= form.select( "vehicle_id", @vehicle_options, { include_blank: "Selecione" }) %>
+    <%= botao_cadastro_rapido("vehicles", "novo-veiculo", "veículo") %>
       <%= form.label :observacoes %>
       <%= form.text_field :sobservacoes %>
 
@@ -97,3 +100,5 @@
     <% end %>
   </div>
 <% end %>
+
+<%= render "cadastro_rapido" %>

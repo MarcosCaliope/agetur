@@ -24,6 +24,16 @@ class VehiclesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to vehicle_url(Vehicle.last)
   end
 
+  test "the order form's quick add creates through JSON and gets the errors as sentences" do
+    post vehicles_url(format: :json), params: { vehicle: { license: "ABC1D23", state_id: @vehicle.state_id } }
+    assert_response :created
+    assert_equal "ABC1D23", response.parsed_body["license"]
+
+    post vehicles_url(format: :json), params: { vehicle: { license: "XYZ" } }
+    assert_response :unprocessable_entity
+    assert_equal ["Estado é obrigatório(a)"], response.parsed_body["errors"]
+  end
+
   test "should show vehicle" do
     get vehicle_url(@vehicle)
     assert_response :success

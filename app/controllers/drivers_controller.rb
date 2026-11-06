@@ -33,7 +33,7 @@ class DriversController < ApplicationController
         format.json { render :show, status: :created, location: @driver }
       else
         format.html { render :new }
-        format.json { render json: @driver.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @driver.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -47,7 +47,7 @@ class DriversController < ApplicationController
         format.json { render :show, status: :ok, location: @driver }
       else
         format.html { render :edit }
-        format.json { render json: @driver.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @driver.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end

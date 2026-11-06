@@ -33,6 +33,20 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the form offers quick-add buttons only for the cadastros the user may create" do
+    get new_sorder_url
+    assert_select "button.cadastro-rapido-abrir", 3
+    assert_select ".modal form.cadastro-rapido", 3
+
+    sign_out :user
+    sign_in users(:consulta)
+    users(:consulta).update!(permissoes: %w[sorders#create tourguides#create])
+    get new_sorder_url
+    assert_select "button.cadastro-rapido-abrir[data-target='#novo-guia']"
+    assert_select "button.cadastro-rapido-abrir", 1
+    assert_select "#novo-motorista", 0
+  end
+
   test "should create sorder" do
     assert_difference('Sorder.count') do
       post sorders_url, params: { sorder: { data: @sorder.data, sobservacoes: @sorder.sobservacoes,

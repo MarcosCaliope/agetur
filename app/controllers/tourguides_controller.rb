@@ -33,7 +33,7 @@ class TourguidesController < ApplicationController
         format.json { render :show, status: :created, location: @tourguide }
       else
         format.html { render :new }
-        format.json { render json: @tourguide.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @tourguide.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -47,7 +47,7 @@ class TourguidesController < ApplicationController
         format.json { render :show, status: :ok, location: @tourguide }
       else
         format.html { render :edit }
-        format.json { render json: @tourguide.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @tourguide.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end
