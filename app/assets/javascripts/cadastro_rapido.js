@@ -4,7 +4,9 @@
 // (each passenger's hotel, vendor or agency, and the passengers cocoon adds later) and picks
 // it in the select next to the "+" that opened the modal.
 $(document).on("click", ".cadastro-rapido-abrir", function () {
-  $($(this).data("target")).data("alvo", $(this).prevAll("select").get(0));
+  // The select right before the "+", or the one in its input-group.
+  var alvo = $(this).prevAll("select").get(0) || $(this).closest(".input-group").find("select").get(0);
+  $($(this).data("target")).data("alvo", alvo);
 });
 
 // Bootstrap focuses the modal itself once it's shown: then start typing in the first field.

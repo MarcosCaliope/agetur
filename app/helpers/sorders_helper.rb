@@ -44,10 +44,12 @@ module SordersHelper
 
   # The order form's "+" right after a select, opening its quick-add modal
   # (sorders/_cadastro_rapido), for users allowed to create that cadastro.
-  def botao_cadastro_rapido(controller, modal, nome)
+  # grupo: inside a Bootstrap input-group, at the field's full height.
+  def botao_cadastro_rapido(controller, modal, nome, grupo: false)
     return unless pode_acessar?(controller, "create")
 
-    content_tag(:button, "+", type: "button", class: "btn btn-sm btn-outline-secondary py-0 cadastro-rapido-abrir",
+    tamanho = grupo ? "" : "btn-sm py-0 "
+    content_tag(:button, "+", type: "button", class: "btn #{tamanho}btn-outline-secondary cadastro-rapido-abrir",
                               title: "Cadastrar #{nome}", aria: { label: "Cadastrar #{nome}" },
                               data: { toggle: "modal", target: "##{modal}" })
   end

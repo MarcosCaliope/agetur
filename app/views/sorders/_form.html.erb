@@ -14,78 +14,82 @@
 
   <%# Also at the top: orders with many passengers make a long form. %>
   <div class="actions mb-2">
-    <%= form.submit %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 
-  <div class="jumbotron">
-    <td><%= company_logo_tag sorder.company || empresa_atual, :formulario %>
-    <p>
-    <%= form.label :ordem %>
-    <%= form.text_field :id, disabled: true , size:2 %>
+  <%# Header: number and company, then the trip, then the costs (no longer in a modal). %>
+  <div class="card mb-3 ordem-cabecalho">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-center mb-3">
+        <div class="mr-3"><%= company_logo_tag sorder.company || empresa_atual, :formulario, height: 56 %></div>
+        <div>
+          <h2 class="h3 mb-0 ordem-numero">
+            <% if sorder.persisted? %>
+              Ordem de serviço nº <%= sorder.numero %>
+            <% else %>
+              Nova ordem de serviço
+            <% end %>
+          </h2>
+          <%# The order belongs to the company being worked in (DaEmpresa). %>
+          <div class="text-muted"><%= (sorder.company || empresa_atual)&.name %></div>
+        </div>
+      </div>
 
-    <%# The order belongs to the company being worked in (DaEmpresa). %>
-    <strong>Empresa:</strong> <%= (sorder.company || empresa_atual)&.name %>
-    <%= form.label :data %>
-    <%= form.date_field :data %>
-    <%= form.label :Destino %>
-    <%= form.select( "destination_id", @destination_options, { include_blank: "Selecione" }) %>
-    <%= botao_cadastro_rapido("destinations", "novo-roteiro", "roteiro") %>
-    <%= form.label :Guia %>
-    <%= form.select( "tourguide_id", @tourguide_options, { include_blank: "Selecione" }) %>
-    <%= botao_cadastro_rapido("tourguides", "novo-guia", "guia") %>
-    <%= form.label :Motorista %>
-    <%= form.select( "driver_id", @driver_options, { include_blank: "Selecione" }) %>
-    <%= botao_cadastro_rapido("drivers", "novo-motorista", "motorista") %>
-    <%= form.label :Veiculo %>
-    <%= form.select( "vehicle_id", @vehicle_options, { include_blank: "Selecione" }) %>
-    <%= botao_cadastro_rapido("vehicles", "novo-veiculo", "veículo") %>
-      <%= form.label :observacoes %>
-      <%= form.text_field :sobservacoes %>
-
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-      detalhes
-      </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Detalhes das despesas</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-              <span aria-hidden="true">&times;</span>
-            </button>
+      <div class="form-row">
+        <div class="form-group col-md-2">
+          <%= form.label :data %>
+          <%= form.date_field :data, class: "form-control" %>
+        </div>
+        <div class="form-group col-md-4">
+          <%= form.label :destination_id, "Destino" %>
+          <div class="input-group">
+            <%= form.select :destination_id, @destination_options, { include_blank: "Selecione" }, class: "custom-select" %>
+            <div class="input-group-append"><%= botao_cadastro_rapido("destinations", "novo-roteiro", "roteiro", grupo: true) %></div>
           </div>
-          <div class="modal-body">
-            <%= form.label :Pedagio %>
-            <%= form.text_field :valorpedagio, size:7 %>
-          
-            <%= form.label :Despesas %>
-            <%= form.text_field :valordespesas, size:7 %>
-          
-            <%= form.label :Combustivel %>
-            <%= form.text_field :valorcombustivel, size:7 %>
-          
-            <%= form.label :Valor %>
-            <%= form.text_field :valoros, size:7 %>
-            <%= form.label :Final %>
-            <%= form.text_field :valorfinalos, size:7 %>
-            <%= form.label :Guia %>
-            <%= form.text_field :valorguia, size:7%>
-            <br>
-            <%= form.label :Motorista %>
-            <%= form.text_field :valormotorista, size:7 %>
-      
-                    <div>                  </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        </div>
+        <div class="form-group col-md-6">
+          <%= form.label :sobservacoes, "Observações" %>
+          <%= form.text_field :sobservacoes, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <%= form.label :tourguide_id, "Guia" %>
+          <div class="input-group">
+            <%= form.select :tourguide_id, @tourguide_options, { include_blank: "Selecione" }, class: "custom-select" %>
+            <div class="input-group-append"><%= botao_cadastro_rapido("tourguides", "novo-guia", "guia", grupo: true) %></div>
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <%= form.label :driver_id, "Motorista" %>
+          <div class="input-group">
+            <%= form.select :driver_id, @driver_options, { include_blank: "Selecione" }, class: "custom-select" %>
+            <div class="input-group-append"><%= botao_cadastro_rapido("drivers", "novo-motorista", "motorista", grupo: true) %></div>
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <%= form.label :vehicle_id, "Veículo" %>
+          <div class="input-group">
+            <%= form.select :vehicle_id, @vehicle_options, { include_blank: "Selecione" }, class: "custom-select" %>
+            <div class="input-group-append"><%= botao_cadastro_rapido("vehicles", "novo-veiculo", "veículo", grupo: true) %></div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
 
+      <h3 class="h6 text-muted border-top pt-3">Despesas e valores</h3>
+      <div class="form-row">
+        <% [[:valorguia, "Guia"], [:valormotorista, "Motorista"], [:valorpedagio, "Pedágio"], [:valorcombustivel, "Combustível"],
+            [:valordespesas, "Outras despesas"], [:valoros, "Valor da OS"], [:valorfinalos, "Valor final"]].each do |campo, rotulo| %>
+          <div class="form-group col-6 col-md">
+            <%= form.label campo, rotulo %>
+            <%= form.text_field campo, class: "form-control text-right", inputmode: "decimal" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
+
     <div id='sorder_items'>
     <%= link_to_add_association '[Adicionar PAX]', form, :sorder_items %>
       <%# Cancelled passengers are listed (and brought back) on the order's page. %>
@@ -95,7 +99,7 @@
     </div>
 
     <div class="actions">
-    <%= form.submit %>
+    <%= form.submit class: "btn btn-primary" %>
     <% if sorder.persisted? %>
       <%= link_to 'Exportar PDF', export_sorder_path(sorder), target: "_blank" %>
     <% end %>
