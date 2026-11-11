@@ -91,7 +91,7 @@
   </div>
 
     <div id='sorder_items'>
-    <%= link_to_add_association '[Adicionar PAX]', form, :sorder_items %>
+    <%= link_to_add_association '[Adicionar PAX]', form, :sorder_items, class: "btn btn-outline-primary btn-sm mb-3" %>
       <%# Cancelled passengers are listed (and brought back) on the order's page. %>
       <%= form.fields_for :sorder_items, sorder.sorder_items.reject { |item| item.scancelado_in_database == "S" } do |sorder_item| %>
       <%= render partial: "sorder_item_fields", locals: { f: sorder_item } %>

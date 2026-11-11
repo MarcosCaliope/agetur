@@ -1,57 +1,107 @@
+<%# One passenger of the order form (cocoon). .nested-fields is the outer
+    element: cocoon removes it, and lista_pax.js finds the passenger's PAX/CHD
+    from its pax list through it. %>
 <%# Paid amounts are moved by payments; only an admin corrects them here (SordersController::PAGOS). %>
-<% pago = { size: 7, readonly: !admin_signed_in?, title: ("Lançado pelos recebimentos e pagamentos de comissão" unless admin_signed_in?) } %>
-<table class="table table-hover">
-    <div class="nested-fields">
-        <%= f.label :ID %>
-        <%= f.text_field :id  ,disabled: true , size:2%>
-        
-        <%= f.label :Hotel %>
-        <%= f.select( "hotel_id", @hotel_options, { include_blank: "Selecione" }) %>
-        <%= botao_cadastro_rapido("hotels", "novo-hotel", "hotel") %>
- 
-        <%= f.label :Apto %>
-        <%= f.text_field :apto , size:7%>
+<% pago = { class: "form-control form-control-sm text-right", readonly: !admin_signed_in?,
+            title: ("Lançado pelos recebimentos e pagamentos de comissão" unless admin_signed_in?) } %>
+<% valor = { class: "form-control form-control-sm text-right", inputmode: "decimal" } %>
+<div class="nested-fields card mb-3 passageiro">
+  <div class="card-header d-flex flex-wrap align-items-center py-2">
+    <%= f.label :snomepax, "Passageiro", class: "sr-only" %>
+    <%= f.text_field :snomepax, class: "form-control font-weight-bold mr-2 my-1", placeholder: "Nome do passageiro",
+          style: "flex: 1 1 16rem; width: auto; min-width: 0" %>
+    <% if f.object.persisted? && !f.object.cancelado? %>
+      <%# Leaving with unsaved changes asks first (edicao_ordem.js). %>
+      <%= link_to "Transferir / copiar", movimentar_sorder_item_path(f.object, retorno: "edicao"), class: "btn btn-outline-secondary btn-sm mr-2" %>
+    <% end %>
+    <%# On a saved passenger this cancels it (Sorder#sorder_items_attributes=). %>
+    <%= link_to_remove_association('X', f, class: "btn btn-danger btn-sm",
+          title: (f.object.persisted? ? "Cancela o passageiro ao salvar; ele pode ser reativado na tela da OS" : "Remover")) %>
+  </div>
 
-        <%= f.label :Hora %>
-        <%= f.text_field  :hour , size:8%>
+  <div class="card-body py-2">
+    <div class="form-row">
+      <div class="form-group col-4 col-md-1 mb-2">
+        <%= f.label :documenttype, "Doc.", class: "small mb-0" %>
+        <%= f.select :documenttype, ["CPF", "RG", "PASSP"], {}, class: "custom-select custom-select-sm" %>
+      </div>
+      <div class="form-group col-8 col-md-2 mb-2">
+        <%= f.label :document, "Número", class: "small mb-0" %>
+        <%= f.text_field :document, class: "form-control form-control-sm" %>
+      </div>
+      <div class="form-group col-md-2 mb-2">
+        <%= f.label :phone, "Telefone", class: "small mb-0" %>
+        <%= f.telephone_field :phone, class: "form-control form-control-sm" %>
+      </div>
+      <div class="form-group col-md-4 mb-2">
+        <%= f.label :hotel_id, "Hotel", class: "small mb-0" %>
+        <div class="input-group input-group-sm">
+          <%= f.select :hotel_id, @hotel_options, { include_blank: "Selecione" }, class: "custom-select" %>
+          <div class="input-group-append"><%= botao_cadastro_rapido("hotels", "novo-hotel", "hotel", grupo: true) %></div>
+        </div>
+      </div>
+      <div class="form-group col-6 col-md-1 mb-2">
+        <%= f.label :apto, "Apto.", class: "small mb-0" %>
+        <%= f.text_field :apto, class: "form-control form-control-sm" %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :hour, "Hora", class: "small mb-0" %>
+        <%= f.text_field :hour, class: "form-control form-control-sm" %>
+      </div>
+    </div>
 
-        <%= f.label :PAX %>
-        <%= f.number_field :qtdepax , size:5%>
-
-        <%= f.label :CHD %>
-        <%= f.number_field :qtdechd , size:5%>
-        <%= f.label :Valor_Passeio %>
-        <%= f.text_field :amount , size:7%>
-        <%= f.label :Pago %>
+    <div class="form-row">
+      <div class="form-group col-3 col-md-1 mb-2">
+        <%= f.label :qtdepax, "PAX", class: "small mb-0" %>
+        <%= f.number_field :qtdepax, min: 0, class: "form-control form-control-sm" %>
+      </div>
+      <div class="form-group col-3 col-md-1 mb-2">
+        <%= f.label :qtdechd, "CHD", class: "small mb-0" %>
+        <%= f.number_field :qtdechd, min: 0, class: "form-control form-control-sm" %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amount, "Valor do passeio", class: "small mb-0" %>
+        <%= f.text_field :amount, **valor %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :discount, "Desconto", class: "small mb-0" %>
+        <%= f.text_field :discount, **valor %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :vendor_discount, "Desc. vendedor", class: "small mb-0" %>
+        <%= f.text_field :vendor_discount, **valor %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amountpay, "Pago", class: "small mb-0" %>
         <%= f.text_field :amountpay, **pago %>
-        <%= f.label :discount, "Desconto" %>
-        <%= f.text_field :discount , size:6%>
-        <%= f.label :vendor_discount, "Desc. vendedor" %>
-        <%= f.text_field :vendor_discount , size:6%>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :forma_pagamento, "Forma de pagamento", class: "small mb-0" %>
+        <%= f.select :forma_pagamento, SorderItem::FORMAS_PAGAMENTO.invert, { include_blank: true }, class: "custom-select custom-select-sm" %>
+      </div>
+    </div>
 
-        <div>
-        <%= f.label :Passageiro %>
-        <%= f.text_field  :snomepax , size:45%>
-
-        <%= f.label :Documento %>
-        <%= f.select :documenttype, ["CPF", "RG", "PASSP"] %>
-
-        <%= f.label :Número %>
-        <%= f.text_field :document , size:10%>
-        <%= f.label :Fone %>
-        <%= f.telephone_field  :phone , size:10%>
-        <p>
-        <%= f.label :Vendedor %>
-        <%= f.select( "vendor_id", @vendor_options, { include_blank: "Selecione" }) %>
-        <%= botao_cadastro_rapido("vendors", "novo-vendedor", "vendedor") %>
-        <%= f.label :Comissão %>
-        <%= f.text_field :amountcomission , size:7%>
-        <%= f.label :amountcomissionpay, "Pago" %>
+    <div class="form-row align-items-end">
+      <div class="form-group col-md-4 mb-2">
+        <%= f.label :vendor_id, "Vendedor", class: "small mb-0" %>
+        <div class="input-group input-group-sm">
+          <%= f.select :vendor_id, @vendor_options, { include_blank: "Selecione" }, class: "custom-select" %>
+          <div class="input-group-append"><%= botao_cadastro_rapido("vendors", "novo-vendedor", "vendedor", grupo: true) %></div>
+        </div>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amountcomission, "Comissão", class: "small mb-0" %>
+        <%= f.text_field :amountcomission, **valor %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amountcomissionpay, "Comissão paga", class: "small mb-0" %>
         <%= f.text_field :amountcomissionpay, **pago %>
+      </div>
+      <div class="form-group col-md-4 mb-2">
         <% if f.object.comissao_a_pagar? %>
           <%# Pays the commission left today, with a cash exit (CommissionPaymentsController#create). %>
           <% a_pagar = number_to_currency(f.object.comissao_a_pagar) %>
-          <div class="dropdown d-inline-block">
+          <div class="dropdown">
             <button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
               Pagar comissão
             </button>
@@ -65,43 +115,44 @@
             </div>
           </div>
         <% end %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-4 mb-2">
+        <%= f.label :agency_id, "Repassado", class: "small mb-0" %>
+        <div class="input-group input-group-sm">
+          <%= f.select :agency_id, @agency_options, { include_blank: "Nenhum" }, class: "custom-select" %>
+          <div class="input-group-append"><%= botao_cadastro_rapido("agencies", "nova-agencia", "agência de repasse", grupo: true) %></div>
         </div>
-        <%= f.label :Repassado %>
-        <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
-        <%= botao_cadastro_rapido("agencies", "nova-agencia", "agência de repasse") %>
-        <%= f.label :amountcomissionrep, "Comissão" %>
-        <%= f.text_field :amountcomissionrep , size:7%>
-        <%= f.label :amountcomissionreppay, "Pago" %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amountcomissionrep, "Comissão do repasse", class: "small mb-0" %>
+        <%= f.text_field :amountcomissionrep, **valor %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :amountcomissionreppay, "Repasse pago", class: "small mb-0" %>
         <%= f.text_field :amountcomissionreppay, **pago %>
+      </div>
+      <div class="form-group col-6 col-md-2 mb-2">
+        <%= f.label :scancelado, "Cancelado", class: "small mb-0" %>
+        <%= f.select :scancelado, [["Não", "N"], ["Sim", "S"]], {}, class: "custom-select custom-select-sm" %>
+      </div>
+    </div>
 
-        <%= f.label :Cancelado %>
-        <%= f.select :scancelado, ["N", "S"] %>
-        <%= f.label :forma_pagamento, "Forma de pagamento" %>
-        <%= f.select :forma_pagamento, SorderItem::FORMAS_PAGAMENTO.invert, { include_blank: true } %>
-        <p>
-        <%= f.label :obs %>
-        <%= f.text_field :comments , size:130%>
+    <div class="form-group mb-2">
+      <%= f.label :comments, "Observações", class: "small mb-0" %>
+      <%= f.text_field :comments, class: "form-control form-control-sm" %>
+    </div>
 
-        <div class="ml-3 my-2 lista-pax">
-          <strong>Lista pax</strong>
-          <%= f.fields_for :companions do |companion| %>
-            <%= render "companion_fields", f: companion %>
-          <% end %>
-          <%# Inserted right before this link, inside .lista-pax (lista_pax.js counts the rows there). %>
-          <%= link_to_add_association "[Adicionar à lista pax]", f, :companions,
-                data: { association_insertion_node: "this", association_insertion_method: "before" } %>
-        </div>
-
-        <%# On a saved passenger this cancels it (Sorder#sorder_items_attributes=). %>
-        <%= link_to_remove_association('X', f, class: "btn btn-danger",
-              title: ("Cancela o passageiro ao salvar; ele pode ser reativado na tela da OS" if f.object.persisted?)) %>
-        <% if f.object.persisted? && !f.object.cancelado? %>
-          <%# Leaving with unsaved changes asks first (edicao_ordem.js). %>
-          <%= link_to "Transferir / copiar", movimentar_sorder_item_path(f.object, retorno: "edicao"), class: "btn btn-outline-secondary" %>
-        <% end %>
-        
-        <div>
-        ________________________________________________________________________________________________________________________________________________________________________________!
-        </div>
-    
-</table>
+    <div class="lista-pax bg-light border rounded p-2">
+      <div class="small font-weight-bold mb-1">Lista pax <span class="font-weight-normal text-muted">(além do titular)</span></div>
+      <%= f.fields_for :companions do |companion| %>
+        <%= render "companion_fields", f: companion %>
+      <% end %>
+      <%# Inserted right before this link, inside .lista-pax (lista_pax.js counts the rows there). %>
+      <%= link_to_add_association "[Adicionar à lista pax]", f, :companions,
+            data: { association_insertion_node: "this", association_insertion_method: "before" } %>
+    </div>
+  </div>
+</div>

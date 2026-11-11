@@ -135,7 +135,7 @@ class SorderFormTest < ApplicationSystemTestCase
     alvo = all("select[name$='[agency_id]']").find do |select|
       select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro")
     end
-    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar agência de repasse'][1]").click
+    alvo.find(:xpath, "ancestor::div[contains(@class,'input-group')][1]//button[@title='Cadastrar agência de repasse']").click
     within("#nova-agencia") do
       fill_in "Nome", with: "AGENCIA PARCEIRA"
       fill_in "Comissão (%)", with: "15"
@@ -151,7 +151,7 @@ class SorderFormTest < ApplicationSystemTestCase
     visit edit_sorder_path(@sorder)
     selects = all("select[name$='[hotel_id]']").to_a
     alvo = selects.find { |select| select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro") }
-    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar hotel'][1]").click
+    alvo.find(:xpath, "ancestor::div[contains(@class,'input-group')][1]//button[@title='Cadastrar hotel']").click
     within("#novo-hotel") do
       fill_in "Nome", with: "POUSADA DO SOL"
       click_on "Cadastrar e selecionar"
@@ -168,7 +168,7 @@ class SorderFormTest < ApplicationSystemTestCase
     visit edit_sorder_path(@sorder)
     selects = all("select[name$='[vendor_id]']").to_a
     alvo = selects.find { |select| select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro") }
-    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar vendedor'][1]").click
+    alvo.find(:xpath, "ancestor::div[contains(@class,'input-group')][1]//button[@title='Cadastrar vendedor']").click
     within("#novo-vendedor") do
       assert_selector "input:focus"
       fill_in "Nome", with: "ZECA VENDAS"
