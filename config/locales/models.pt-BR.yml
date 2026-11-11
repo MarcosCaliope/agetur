@@ -35,6 +35,7 @@ pt-BR:
       customer: { one: "Cliente", other: "Clientes" }
       destination: { one: "Roteiro", other: "Roteiros" }
       driver: { one: "Motorista", other: "Motoristas" }
+      mensalidade: { one: "Mensalidade", other: "Mensalidades" }
       hotel: { one: "Hotel", other: "Hotéis" }
       sorder: { one: "Ordem de serviço", other: "Ordens de serviço" }
       sorder_item: { one: "Passageiro", other: "Passageiros" }
@@ -61,6 +62,9 @@ pt-BR:
       company:
         acesso_bloqueado: "Bloquear acesso"
         acesso_liberado_ate: "Acesso liberado até"
+        dia_vencimento: "Dia do vencimento"
+        dias_tolerancia: "Dias de tolerância"
+        mensalidade_valor: "Valor da mensalidade"
         cnpj: "CNPJ"
         short_name: "Nome reduzido"
         state_registration: "Inscrição estadual (CGF)"
@@ -79,6 +83,13 @@ pt-BR:
         osshowrep: "Exibir repasse na OS"
         site: "Site"
         state: "Estado"
+      mensalidade:
+        forma: "Forma de pagamento"
+        observacao: "Observação"
+        pago_em: "Pago em"
+        referencia: "Mês de referência"
+        registrado_por: "Registrado por"
+        valor: "Valor"
       customer:
         billing_address: "Endereço de cobrança"
         billing_city: "Cidade de cobrança"

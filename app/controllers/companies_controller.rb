@@ -49,11 +49,18 @@ class CompaniesController < ApplicationController
   end
 
   # DELETE /companies/1 or /companies/1.json
+  # Refused while the company has monthly fee payments (Mensalidade).
   def destroy
-    @company.destroy
-    respond_to do |format|
-      format.html { redirect_to companies_url, notice: "Empresa excluída com sucesso." }
-      format.json { head :no_content }
+    if @company.destroy
+      respond_to do |format|
+        format.html { redirect_to companies_url, notice: "Empresa excluída com sucesso." }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to companies_url, alert: "Não foi possível excluir a empresa: #{@company.errors.full_messages.to_sentence}." }
+        format.json { render json: @company.errors, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -7,6 +7,12 @@ class Company < ApplicationRecord
 
   belongs_to :state
   has_many :users, dependent: :nullify
+  has_many :mensalidades, dependent: :restrict_with_error
+
+  validates :dia_vencimento, numericality: { only_integer: true, in: 1..31 }, allow_nil: true
+  validates :dias_tolerancia, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :mensalidade_valor, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :dia_vencimento, presence: { message: "é obrigatório para cobrar mensalidade" }, if: :cobrada?
 
   # A user sees only their own company (an admin sees them all).
   default_scope { where(id: Current.empresa_id) if Current.so_a_propria_empresa }
@@ -45,6 +51,25 @@ class Company < ApplicationRecord
 
   def acesso_vencido?(hoje = Date.current)
     acesso_liberado_ate.present? && acesso_liberado_ate < hoje
+  end
+
+  # Monthly fee (Mensalidade): a company with mensalidade_valor is billed,
+  # due on dia_vencimento each month (the month's last day when shorter).
+  def cobrada? = mensalidade_valor.to_d.positive?
+
+  def vencimento_em(mes)
+    inicio = mes.beginning_of_month
+    inicio.change(day: [dia_vencimento, inicio.end_of_month.day].min)
+  end
+
+  # Paying month M keeps access until the next month's due day plus the grace days.
+  def acesso_pago_ate(referencia)
+    vencimento_em(referencia.next_month) + dias_tolerancia.to_i
+  end
+
+  # The month the next payment pays: the one after the latest paid, else the current one.
+  def proxima_referencia
+    mensalidades.maximum(:referencia)&.next_month || Date.current.beginning_of_month
   end
 
   # The image to show for a logo (:entrada or :formulario): the upload, or a

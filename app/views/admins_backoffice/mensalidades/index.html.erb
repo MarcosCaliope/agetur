@@ -1,0 +1,38 @@
+<h1 class="h3">Pagamentos de <%= @company.name %></h1>
+<p class="mb-1">
+  Mensalidade: <strong><%= @company.cobrada? ? number_to_currency(@company.mensalidade_valor) : "não cobrada" %></strong>
+  <% if @company.dia_vencimento %>· vence todo dia <%= @company.dia_vencimento %>, com <%= pluralize(@company.dias_tolerancia, "dia", plural: "dias") %> de tolerância<% end %>
+</p>
+<p class="mb-3">Acesso: <%= render "admins_backoffice/companies/situacao", company: @company %></p>
+<p>
+  <%= link_to "Registrar pagamento", new_admins_backoffice_company_mensalidade_path(@company), class: "btn btn-success btn-sm" %>
+  <%= link_to "Editar cobrança e acesso", edit_admins_backoffice_company_path(@company), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "Mensalidades do mês", admins_backoffice_mensalidades_path, class: "btn btn-link btn-sm" %>
+</p>
+
+<% if @mensalidades.empty? %>
+  <p class="text-muted">Nenhum pagamento registrado.</p>
+<% else %>
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr><th>Referência</th><th class="text-right">Valor</th><th>Pago em</th><th>Forma</th><th>Libera até</th><th>Observação</th><th>Registrado por</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @mensalidades.each do |mensalidade| %>
+        <tr>
+          <td><%= l(mensalidade.referencia, format: "%B/%Y").capitalize %></td>
+          <td class="text-right"><%= number_to_currency(mensalidade.valor) %></td>
+          <td><%= l mensalidade.pago_em %></td>
+          <td><%= mensalidade.forma %></td>
+          <td><%= l mensalidade.liberado_ate if @company.dia_vencimento %></td>
+          <td><%= mensalidade.observacao %></td>
+          <td><%= mensalidade.registrado_por %></td>
+          <td class="text-nowrap">
+            <%= link_icone "trash", "Excluir", admins_backoffice_company_mensalidade_path(@company, mensalidade), method: :delete, class: "text-danger",
+                  data: { confirm: "Excluir este pagamento? O acesso da empresa será recalculado pelo último mês pago." } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

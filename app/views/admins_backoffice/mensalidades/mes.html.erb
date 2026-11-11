@@ -1,0 +1,62 @@
+<% mes_texto = ->(data) { l(data, format: "%B/%Y").capitalize } %>
+<h1 class="h3">Mensalidades de <%= mes_texto.(@mes) %></h1>
+<p class="text-muted">
+  Empresas com valor de mensalidade. Registrar o pagamento de um mês libera o acesso da empresa até o vencimento do mês
+  seguinte, mais os dias de tolerância.
+</p>
+
+<div class="d-flex align-items-center mb-3">
+  <%= link_to "‹ #{mes_texto.(@mes.prev_month)}", admins_backoffice_mensalidades_path(mes: @mes.prev_month.strftime("%Y-%m")), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "Mês atual", admins_backoffice_mensalidades_path, class: "btn btn-link btn-sm" %>
+  <%= link_to "#{mes_texto.(@mes.next_month)} ›", admins_backoffice_mensalidades_path(mes: @mes.next_month.strftime("%Y-%m")), class: "btn btn-outline-secondary btn-sm" %>
+</div>
+
+<% if @companies.empty? %>
+  <p>Nenhuma empresa tem valor de mensalidade. Defina o valor em <%= link_to "Acesso das empresas", admins_backoffice_companies_path %>.</p>
+<% else %>
+  <% previsto = recebido = 0 %>
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr><th>Código</th><th>Empresa</th><th>Vencimento</th><th class="text-right">Mensalidade</th><th>Situação</th><th class="text-right">Recebido</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @companies.each do |company| %>
+        <% paga = @pagas[company.id]; vencimento = company.vencimento_em(@mes) %>
+        <% previsto += company.mensalidade_valor; recebido += paga.valor if paga %>
+        <tr>
+          <td><%= company.id %></td>
+          <td><%= link_to company.name, admins_backoffice_company_mensalidades_path(company) %></td>
+          <td><%= l vencimento %></td>
+          <td class="text-right"><%= number_to_currency(company.mensalidade_valor) %></td>
+          <td>
+            <% if paga %>
+              <span class="badge badge-success">Paga</span> <small class="text-muted">em <%= l paga.pago_em %><%= " · #{paga.forma}" if paga.forma.present? %></small>
+            <% elsif vencimento < Date.current %>
+              <span class="badge badge-danger">Atrasada</span> <small class="text-muted"><%= pluralize((Date.current - vencimento).to_i, "dia", plural: "dias") %></small>
+            <% else %>
+              <span class="badge badge-secondary">Em aberto</span>
+            <% end %>
+            <% if company.acesso_suspenso? %><span class="badge badge-dark">Acesso suspenso</span><% end %>
+          </td>
+          <td class="text-right"><%= number_to_currency(paga.valor) if paga %></td>
+          <td class="text-nowrap">
+            <% unless paga %>
+              <%= link_icone "money", "Registrar pagamento",
+                    new_admins_backoffice_company_mensalidade_path(company, referencia: @mes.strftime("%Y-%m"), retorno: "mes") %>
+            <% end %>
+            <%= link_icone "history", "Pagamentos da empresa", admins_backoffice_company_mensalidades_path(company), class: "ml-2" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr class="font-weight-bold">
+        <td colspan="3">Total</td>
+        <td class="text-right"><%= number_to_currency(previsto) %></td>
+        <td>Em aberto: <%= number_to_currency([previsto - recebido, 0].max) %></td>
+        <td class="text-right"><%= number_to_currency(recebido) %></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+<% end %>

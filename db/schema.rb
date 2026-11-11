@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_11_11_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -189,6 +189,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_120000) do
     t.string "state_registration"
     t.boolean "acesso_bloqueado", default: false, null: false
     t.date "acesso_liberado_ate"
+    t.decimal "mensalidade_valor", precision: 10, scale: 2
+    t.integer "dia_vencimento"
+    t.integer "dias_tolerancia", default: 5, null: false
     t.index ["sistger_id"], name: "index_companies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_companies_on_state_id"
   end
@@ -297,6 +300,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_120000) do
     t.index ["company_id"], name: "index_hotels_on_company_id"
     t.index ["sistger_id"], name: "index_hotels_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_hotels_on_state_id"
+  end
+
+  create_table "mensalidades", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.date "referencia", null: false
+    t.decimal "valor", precision: 10, scale: 2, null: false
+    t.date "pago_em", null: false
+    t.string "forma"
+    t.string "observacao"
+    t.string "registrado_por"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "referencia"], name: "index_mensalidades_on_company_id_and_referencia", unique: true
+    t.index ["company_id"], name: "index_mensalidades_on_company_id"
   end
 
   create_table "payables", force: :cascade do |t|
@@ -620,6 +637,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_120000) do
   add_foreign_key "drivers", "states"
   add_foreign_key "hotels", "companies"
   add_foreign_key "hotels", "states"
+  add_foreign_key "mensalidades", "companies"
   add_foreign_key "payables", "cash_entries", on_delete: :nullify
   add_foreign_key "payables", "companies"
   add_foreign_key "payables", "sorder_items", on_delete: :cascade

@@ -85,6 +85,16 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to companies_url
   end
 
+  test "a company with monthly fee payments isn't destroyed" do
+    @company.update!(mensalidade_valor: 100, dia_vencimento: 10)
+    @company.mensalidades.create!(referencia: Date.new(2026, 11, 1), valor: 100, pago_em: Date.current)
+    assert_no_difference('Company.count') do
+      delete company_url(@company)
+    end
+    assert_redirected_to companies_url
+    assert_match "Não foi possível excluir", flash[:alert]
+  end
+
   test "form has short name and state registration" do
     get new_company_url
     assert_select "[name=?]", "company[short_name]"

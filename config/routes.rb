@@ -79,7 +79,10 @@ Rails.application.routes.draw do
   namespace :admins_backoffice do
     get 'welcome/index'
     resources :users, path: "usuarios", except: :show
-    resources :companies, path: "empresas", only: %i[index edit update]
+    resources :companies, path: "empresas", only: %i[index edit update] do
+      resources :mensalidades, only: %i[index new create destroy]
+    end
+    get "mensalidades", to: "mensalidades#mes", as: :mensalidades
   end
   
   devise_for :users

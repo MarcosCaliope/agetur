@@ -4,6 +4,30 @@
 
 <%= form_with(model: [:admins_backoffice, @company], local: true) do |form| %>
   <%= render "shared/erros", registro: @company %>
+  <h2 class="h5">Mensalidade</h2>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <%= form.label :mensalidade_valor %>
+      <%= form.number_field :mensalidade_valor, step: "0.01", min: "0", class: "form-control" %>
+      <small class="form-text text-muted">Em branco ou zero: a empresa não é cobrada e não aparece nas mensalidades do mês.</small>
+    </div>
+    <div class="form-group col-md-4">
+      <%= form.label :dia_vencimento %>
+      <%= form.number_field :dia_vencimento, min: 1, max: 31, class: "form-control" %>
+      <small class="form-text text-muted">Em meses mais curtos, vence no último dia.</small>
+    </div>
+    <div class="form-group col-md-4">
+      <%= form.label :dias_tolerancia %>
+      <%= form.number_field :dias_tolerancia, min: 0, class: "form-control" %>
+      <small class="form-text text-muted">Dias depois do vencimento em que o acesso continua liberado.</small>
+    </div>
+  </div>
+  <p class="text-muted small">
+    Registrar o pagamento de um mês (<%= link_to "Pagamentos da empresa", admins_backoffice_company_mensalidades_path(@company) %>)
+    avança o "Acesso liberado até" para o vencimento do mês seguinte mais a tolerância.
+  </p>
+
+  <h2 class="h5">Acesso</h2>
   <div class="form-row">
     <div class="form-group col-md-4">
       <%= form.label :acesso_liberado_ate %>

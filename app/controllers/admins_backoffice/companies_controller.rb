@@ -1,5 +1,6 @@
 # Acesso das empresas: an admin blocks a company's users by hand or lets
-# their access run until a date (the monthly fee is paid through it). Kept
+# their access run until a date (the monthly fee is paid through it, see
+# Mensalidade), and sets what the company pays and when it's due. Kept
 # out of CompaniesController, which users with acesso_total can open, so a
 # company can't lift its own block. See Company#acesso_suspenso?.
 class AdminsBackoffice::CompaniesController < AdminsBackofficeController
@@ -8,6 +9,7 @@ class AdminsBackoffice::CompaniesController < AdminsBackofficeController
   def index
     @companies = Company.order(:name)
     @usuarios = User.where(company_id: @companies.map(&:id)).group(:company_id).count
+    @ultimas_pagas = Mensalidade.group(:company_id).maximum(:referencia)
   end
 
   def edit; end
@@ -27,6 +29,6 @@ class AdminsBackoffice::CompaniesController < AdminsBackofficeController
   end
 
   def company_params
-    params.require(:company).permit(:acesso_bloqueado, :acesso_liberado_ate)
+    params.require(:company).permit(:acesso_bloqueado, :acesso_liberado_ate, :mensalidade_valor, :dia_vencimento, :dias_tolerancia)
   end
 end
