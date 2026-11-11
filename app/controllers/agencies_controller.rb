@@ -33,7 +33,7 @@ class AgenciesController < ApplicationController
         format.json { render :show, status: :created, location: @agency }
       else
         format.html { render :new }
-        format.json { render json: @agency.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @agency.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end

@@ -115,6 +115,54 @@ class SorderFormTest < ApplicationSystemTestCase
     assert_equal companies(:two).state_id, Vehicle.find_by!(license: "ABC1D23").state_id
   end
 
+  test "the + next to the destination creates a roteiro in the company's state and selects it" do
+    visit new_sorder_path
+    find("button[title='Cadastrar roteiro']").click
+    within("#novo-roteiro") do
+      fill_in "Descrição", with: "PASSEIO NOVO"
+      fill_in "Valor normal", with: "120"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#novo-roteiro", visible: true
+    assert_equal "PASSEIO NOVO", find("#sorder_destination_id option:checked").text
+    roteiro = Destination.find_by!(description: "PASSEIO NOVO")
+    assert_equal [120.0, companies(:two).state_id], [roteiro.valuenormal.to_f, roteiro.state_id]
+  end
+
+  test "the + next to a passenger's repasse agency creates one and picks it there" do
+    @sorder.sorder_items.create!(snomepax: "Pedro", qtdepax: 1)
+    visit edit_sorder_path(@sorder)
+    alvo = all("select[name$='[agency_id]']").find do |select|
+      select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro")
+    end
+    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar agência de repasse'][1]").click
+    within("#nova-agencia") do
+      fill_in "Nome", with: "AGENCIA PARCEIRA"
+      fill_in "Comissão (%)", with: "15"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#nova-agencia", visible: true
+    agencia = Agency.find_by!(sname: "AGENCIA PARCEIRA")
+    assert_equal [agencia.id.to_s, 15.0], [alvo.value, agencia.commission.to_f]
+  end
+
+  test "the + next to a passenger's hotel creates one and picks it there" do
+    @sorder.sorder_items.create!(snomepax: "Pedro", qtdepax: 1)
+    visit edit_sorder_path(@sorder)
+    selects = all("select[name$='[hotel_id]']").to_a
+    alvo = selects.find { |select| select.find(:xpath, "ancestor::*[contains(@class,'nested-fields')][1]").has_field?(with: "Pedro") }
+    alvo.find(:xpath, "following-sibling::button[@title='Cadastrar hotel'][1]").click
+    within("#novo-hotel") do
+      fill_in "Nome", with: "POUSADA DO SOL"
+      click_on "Cadastrar e selecionar"
+    end
+    assert_no_selector "#novo-hotel", visible: true
+
+    hotel = Hotel.find_by!(sname: "POUSADA DO SOL")
+    assert_equal hotel.id.to_s, alvo.value
+    (selects - [alvo]).each { |select| assert select.has_selector?("option", text: "POUSADA DO SOL") }
+  end
+
   test "the + next to a passenger's vendor creates one, picks it there and offers it to every passenger" do
     @sorder.sorder_items.create!(snomepax: "Pedro", qtdepax: 1)
     visit edit_sorder_path(@sorder)

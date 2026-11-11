@@ -1,7 +1,7 @@
 // Order form's quick-add modals (sorders/_cadastro_rapido): creates the
-// guide, driver, vehicle or vendor through its cadastro's JSON create
+// destination, guide, driver, vehicle, hotel, vendor or repasse agency through its cadastro's JSON create
 // action, then adds it to every select the form's data-selects matches
-// (each passenger's vendor, and the passengers cocoon adds later) and picks
+// (each passenger's hotel, vendor or agency, and the passengers cocoon adds later) and picks
 // it in the select next to the "+" that opened the modal.
 $(document).on("click", ".cadastro-rapido-abrir", function () {
   $($(this).data("target")).data("alvo", $(this).prevAll("select").get(0));

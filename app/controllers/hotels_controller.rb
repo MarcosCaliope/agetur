@@ -42,7 +42,7 @@ class HotelsController < ApplicationController
         format.json { render :show, status: :created, location: @hotel }
       else
         format.html { render :new }
-        format.json { render json: @hotel.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @hotel.errors.full_messages }, status: :unprocessable_entity }
       end
     end
   end

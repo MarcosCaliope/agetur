@@ -35,9 +35,11 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
 
   test "the form offers quick-add buttons only for the cadastros the user may create" do
     get new_sorder_url
-    assert_select "button.cadastro-rapido-abrir", 3
-    assert_select ".modal form.cadastro-rapido", 4
+    assert_select "button.cadastro-rapido-abrir", 4
+    assert_select ".modal form.cadastro-rapido", 7
     get edit_sorder_url(sorders(:one))
+    assert_select "#sorder_items button.cadastro-rapido-abrir[data-target='#novo-hotel']", sorders(:one).sorder_items.ativos.count
+    assert_select "#sorder_items button.cadastro-rapido-abrir[data-target='#nova-agencia']", sorders(:one).sorder_items.ativos.count
     assert_select "#sorder_items button.cadastro-rapido-abrir[data-target='#novo-vendedor']", sorders(:one).sorder_items.ativos.count
 
     sign_out :user

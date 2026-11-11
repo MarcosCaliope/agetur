@@ -29,6 +29,7 @@
     <%= form.date_field :data %>
     <%= form.label :Destino %>
     <%= form.select( "destination_id", @destination_options, { include_blank: "Selecione" }) %>
+    <%= botao_cadastro_rapido("destinations", "novo-roteiro", "roteiro") %>
     <%= form.label :Guia %>
     <%= form.select( "tourguide_id", @tourguide_options, { include_blank: "Selecione" }) %>
     <%= botao_cadastro_rapido("tourguides", "novo-guia", "guia") %>

@@ -1,10 +1,15 @@
-<%# Quick-add modals for the order form's guide, driver and vehicle selects
-    and each passenger's vendor (cadastro_rapido.js). Rendered after the
+<%# Quick-add modals for the order form's destination, guide, driver and
+    vehicle selects and each passenger's hotel, vendor and repasse agency
+    (cadastro_rapido.js). Rendered after the
     order form, since forms can't nest. Each posts JSON to the cadastro's own
     create action, so the same permission applies; the "+" right after a
     select opens its modal. `selects` are the selects that get the new
     record; the one next to the clicked "+" picks it. %>
 <% cadastros = [
+     { id: "novo-roteiro", titulo: "Novo roteiro", modelo: Destination, url: destinations_path(format: :json),
+       selects: "#sorder_destination_id", rotulo: "description",
+       campos: [[:description, "Descrição", true], [:valuenormal, "Valor normal"], [:valuenormalchd, "Valor normal CHD"]],
+       estado: true },
      { id: "novo-guia", titulo: "Novo guia", modelo: Tourguide, url: tourguides_path(format: :json), selects: "#sorder_tourguide_id",
        rotulo: "sname", campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"]] },
      { id: "novo-motorista", titulo: "Novo motorista", modelo: Driver, url: drivers_path(format: :json), selects: "#sorder_driver_id",
@@ -14,6 +19,12 @@
        estado: true },
      { id: "novo-vendedor", titulo: "Novo vendedor", modelo: Vendor, url: vendors_path(format: :json),
        selects: "select[name$='[vendor_id]']", rotulo: "sname",
+       campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"], [:commission, "Comissão (%)"]] },
+     { id: "novo-hotel", titulo: "Novo hotel", modelo: Hotel, url: hotels_path(format: :json),
+       selects: "select[name$='[hotel_id]']", rotulo: "sname",
+       campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:address, "Endereço"], [:phone, "Telefone"]] },
+     { id: "nova-agencia", titulo: "Nova agência de repasse", modelo: Agency, url: agencies_path(format: :json),
+       selects: "select[name$='[agency_id]']", rotulo: "sname",
        campos: [[:sname, "Nome", true], [:short_name, "Nome reduzido"], [:phone, "Telefone"], [:commission, "Comissão (%)"]] }
    ] %>
 <% cadastros.each do |cadastro| %>

@@ -7,6 +7,7 @@
         
         <%= f.label :Hotel %>
         <%= f.select( "hotel_id", @hotel_options, { include_blank: "Selecione" }) %>
+        <%= botao_cadastro_rapido("hotels", "novo-hotel", "hotel") %>
  
         <%= f.label :Apto %>
         <%= f.text_field :apto , size:7%>
@@ -67,6 +68,7 @@
         </div>
         <%= f.label :Repassado %>
         <%= f.select( "agency_id", @agency_options, { include_blank: "        " }) %>
+        <%= botao_cadastro_rapido("agencies", "nova-agencia", "agência de repasse") %>
         <%= f.label :amountcomissionrep, "Comissão" %>
         <%= f.text_field :amountcomissionrep , size:7%>
         <%= f.label :amountcomissionreppay, "Pago" %>
