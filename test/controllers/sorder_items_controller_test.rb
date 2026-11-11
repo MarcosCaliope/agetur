@@ -100,10 +100,10 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: "Transferir"
     assert_select "button[formaction='#{copiar_sorder_item_path(@sorder_item)}']", text: "Copiar"
 
-    assert_difference("SorderItem.count") { post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.id } }
+    assert_difference("SorderItem.count") { post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.numero } }
     assert_redirected_to sorder_url(destino)
 
-    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.id }
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.numero }
     assert_redirected_to sorder_url(destino)
     assert_equal destino.id, @sorder_item.reload.sorder_id
 
@@ -114,21 +114,21 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
 
   test "the typed order is described, with why it can't take the passenger" do
     destino = sorders(:one)
-    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.id }, xhr: true
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.numero }, xhr: true
     assert_response :success
-    assert_select "div.alert-info[data-descricao=?]", "OS nº #{destino.id} — 02/07/2021 13:25 — #{destino.destination.description}"
+    assert_select "div.alert-info[data-descricao=?]", "OS nº #{destino.numero} — 02/07/2021 13:25 — #{destino.destination.description}"
     assert_match "Guia: #{destino.tourguide.sname}", response.body
     assert_no_match "<html", response.body
 
-    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: @sorder_item.sorder_id }, xhr: true
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: @sorder_item.sorder.numero }, xhr: true
     assert_select "div.alert-warning", text: /É a OS atual do passageiro/
 
     get movimentar_sorder_item_url(@sorder_item), params: { destino_id: 0 }, xhr: true
-    assert_select "div.alert-warning", text: "OS nº 0 não encontrada."
+    assert_select "div.alert-warning", text: "OS nº 0 não encontrada nesta empresa."
 
-    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.id }
+    get movimentar_sorder_item_url(@sorder_item), params: { destino_id: destino.numero }
     assert_select "#destino-movimentacao div.alert-info"
-    assert_select "button[data-confirm=?]", "Transferir #{@sorder_item.nome_passageiro} para a OS nº #{destino.id} — 02/07/2021 13:25 — #{destino.destination.description}?"
+    assert_select "button[data-confirm=?]", "Transferir #{@sorder_item.nome_passageiro} para a OS nº #{destino.numero} — 02/07/2021 13:25 — #{destino.destination.description}?"
   end
 
   test "from the order form, a transfer or copy and its errors come back to the form" do
@@ -144,9 +144,9 @@ class SorderItemsControllerTest < ActionDispatch::IntegrationTest
     post transferir_sorder_item_url(@sorder_item), params: { destino_id: 0, retorno: "edicao" }
     assert_redirected_to movimentar_sorder_item_url(@sorder_item, destino_id: 0, retorno: "edicao")
 
-    post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.id, retorno: "edicao" }
+    post copiar_sorder_item_url(@sorder_item), params: { destino_id: destino.numero, retorno: "edicao" }
     assert_redirected_to edit_sorder_url(origem)
-    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.id, retorno: "edicao" }
+    post transferir_sorder_item_url(@sorder_item), params: { destino_id: destino.numero, retorno: "edicao" }
     assert_redirected_to edit_sorder_url(origem)
     assert_equal destino.id, @sorder_item.reload.sorder_id
   end

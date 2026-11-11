@@ -56,13 +56,13 @@ class RelacaoOrdensPdf < Prawn::Document
 
   def ordem(linha)
     sorder = linha.sorder
-    [sorder.id.to_s, data(sorder.data), sorder.destination&.description, sorder.tourguide&.sname, sorder.driver&.sname,
+    [sorder.numero.to_s, data(sorder.data), sorder.destination&.description, sorder.tourguide&.sname, sorder.driver&.sname,
      sorder.vehicle&.license].map { |texto| limpo(texto) } + valores(RelacaoOrdens.totais(linha.itens))
   end
 
   def passageiro(item)
     nome = item.cancelado? ? "#{item.nome_passageiro} (cancelado)" : item.nome_passageiro
-    [item.sorder_id.to_s, data(item.sorder.data), item.sorder.destination&.description, nome, item.hotel&.sname,
+    [item.sorder.numero.to_s, data(item.sorder.data), item.sorder.destination&.description, nome, item.hotel&.sname,
      item.vendor&.sname].map { |texto| limpo(texto) } + valores(RelacaoOrdens.totais([item]))
   end
 

@@ -40,7 +40,7 @@ class ReciboCaixaPdf < Prawn::Document
   def comissoes
     linhas = @lancamento.payables.includes(sorder_item: :sorder, sorder: :destination).order(:sorder_id, :id).map do |conta|
       ordem = conta.sorder
-      [ordem&.id.to_s, ordem&.data ? data(ordem.data) : "", ordem&.destination&.description.to_s,
+      [ordem&.numero.to_s, ordem&.data ? data(ordem.data) : "", ordem&.destination&.description.to_s,
        conta.sorder_item&.nome_passageiro.to_s, moeda(conta.valor_pago)]
     end
     table [["OS", "Data", "Roteiro", "Passageiro", "Valor"]] + linhas + [["", "", "", "Total", moeda(@lancamento.valor)]],

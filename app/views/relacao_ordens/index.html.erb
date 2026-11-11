@@ -76,7 +76,7 @@
       <% if relacao.analitico? %>
         <% itens.each do |item| %>
           <tr class="<%= "text-muted" if item.cancelado? %>">
-            <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+            <td><%= link_to item.sorder.numero, sorder_path(item.sorder_id) %></td>
             <td><%= l(item.sorder.data.to_date) %></td>
             <td><%= item.sorder.destination&.description %></td>
             <td><%= item.nome_passageiro %><%= " (cancelado)" if item.cancelado? %></td>
@@ -89,7 +89,7 @@
         <% relacao.linhas(itens).each do |linha| %>
           <% sorder = linha.sorder %>
           <tr>
-            <td><%= link_to sorder.id, sorder_path(sorder) %></td>
+            <td><%= link_to sorder.numero, sorder_path(sorder) %></td>
             <td><%= l(sorder.data.to_date) %></td>
             <td><%= sorder.destination&.description %></td>
             <td><%= sorder.tourguide&.sname %></td>

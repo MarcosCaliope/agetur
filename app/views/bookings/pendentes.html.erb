@@ -18,7 +18,7 @@
       </span>
       <span>
         <% if ordens.any? %>
-          OS: <% ordens.each do |ordem| %><%= link_to "nº #{ordem.id}", ordem, class: "mr-1" %><% end %>
+          OS: <% ordens.each do |ordem| %><%= link_to "nº #{ordem.numero}", ordem, class: "mr-1" %><% end %>
         <% else %>
           <span class="text-muted">sem OS ·</span> <%= link_to "Nova OS", new_sorder_path %>
         <% end %>
@@ -36,7 +36,7 @@
             <td class="text-right"><%= number_to_currency(passeio.valor) %> (pago <%= number_to_currency(passeio.pago) %>)</td>
             <td class="text-right text-nowrap">
               <% ordens.each do |ordem| %>
-                <%= link_to "Lançar na OS nº #{ordem.id}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
+                <%= link_to "Lançar na OS nº #{ordem.numero}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
                       class: "btn btn-outline-success btn-sm" %>
               <% end %>
             </td>

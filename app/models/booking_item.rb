@@ -72,7 +72,7 @@ class BookingItem < ApplicationRecord
   # Takes it back out of the order; its down payments stay with the booking.
   def retirar_da_os!
     raise NaoLancado, "Passeio não está em ordem de serviço." unless lancado?
-    raise NaoLancado, "A OS nº #{sorder_item.sorder_id} está encerrada." if sorder_item.sorder.encerrada?
+    raise NaoLancado, "A OS nº #{sorder_item.sorder.numero} está encerrada." if sorder_item.sorder.encerrada?
 
     transaction do
       item = sorder_item
@@ -95,9 +95,9 @@ class BookingItem < ApplicationRecord
 
   def verificar_lancamento!(sorder)
     raise NaoLancado, "Passeio cancelado." if cancelado?
-    raise NaoLancado, "Passeio já lançado na OS nº #{sorder_item.sorder_id}." if lancado?
-    raise NaoLancado, "A OS nº #{sorder.id} está encerrada." if sorder.encerrada?
-    raise NaoLancado, "A OS nº #{sorder.id} é de outro roteiro." if sorder.destination_id != destination_id
+    raise NaoLancado, "Passeio já lançado na OS nº #{sorder_item.sorder.numero}." if lancado?
+    raise NaoLancado, "A OS nº #{sorder.numero} está encerrada." if sorder.encerrada?
+    raise NaoLancado, "A OS nº #{sorder.numero} é de outro roteiro." if sorder.destination_id != destination_id
   end
 
   def dados_para_ordem
@@ -143,7 +143,7 @@ class BookingItem < ApplicationRecord
   def exigir_nao_lancado
     return unless lancado?
 
-    errors.add(:base, "Passeio lançado na OS nº #{sorder_item.sorder_id}: retire-o da OS antes de excluir.")
+    errors.add(:base, "Passeio lançado na OS nº #{sorder_item.sorder.numero}: retire-o da OS antes de excluir.")
     throw :abort
   end
 end

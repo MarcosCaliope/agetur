@@ -10,7 +10,7 @@
   <%= date_field_tag :inicio, @inicio, class: "form-control form-control-sm mr-1" %>
   <%= label_tag :fim, "até", class: "mr-1" %>
   <%= date_field_tag :fim, @fim, class: "form-control form-control-sm mr-2" %>
-  <%= number_field_tag :sorder_id, params[:sorder_id], class: "form-control form-control-sm mr-2", placeholder: "Nº OS", min: 1,
+  <%= number_field_tag :numero_os, params[:numero_os], class: "form-control form-control-sm mr-2", placeholder: "Nº OS", min: 1,
         style: "width: 7em", aria: { label: "Nº da OS" } %>
   <%= submit_tag "Pesquisar", name: nil, class: "btn btn-primary btn-sm" %>
 <% end %>
@@ -49,7 +49,7 @@
         <% comissao, pago = vendedor ? [item.amountcomission, item.amountcomissionpay] : [item.amountcomissionrep, item.amountcomissionreppay] %>
         <tr>
           <td><%= check_box_tag "itens[]", item.id, false, id: "item_#{item.id}", class: "comissao-item" %></td>
-          <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+          <td><%= link_to item.sorder.numero, sorder_path(item.sorder_id) %></td>
           <td><%= item.sorder.data && l(item.sorder.data.to_date) %></td>
           <td><%= (vendedor ? item.vendor : item.agency)&.sname %></td>
           <td>

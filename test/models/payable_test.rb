@@ -18,7 +18,7 @@ class PayableTest < ActiveSupport::TestCase
     assert_equal [["comissao_vendedor", "vendedor", 30.0, vendors(:one).sname, vencimento],
                   ["custo_os", "guia", 80.0, @ordem.tourguide.sname, vencimento],
                   ["custo_os", "pedagio", 12.5, "Pedágio", vencimento]], contas
-    assert_equal "Comissão OS #{@ordem.id} PAX Ana", @ordem.payables.find_by!(origem: "vendedor").descricao
+    assert_equal "Comissão OS #{@ordem.numero} PAX Ana", @ordem.payables.find_by!(origem: "vendedor").descricao
 
     assert_no_difference("Payable.count") { @ordem.encerrar! }
   end
@@ -66,7 +66,7 @@ class PayableTest < ActiveSupport::TestCase
     saidas = Payable.pagar_em_lote!(contas, data: Date.new(2026, 10, 9), forma_pagamento: "O", usuario: "a@b.c")
 
     assert_equal [[vendors(:one).sname, 55], ["OUTRO", 5]], saidas.map { |s| [s.requerente, s.valor] }
-    assert_equal "Pagamento de comissões a #{vendors(:one).sname}: 2 passageiro(s) - OS #{@ordem.id}", saidas.first.descricao
+    assert_equal "Pagamento de comissões a #{vendors(:one).sname}: 2 passageiro(s) - OS #{@ordem.numero}", saidas.first.descricao
     assert_equal [40.0, 25.0, 5.0], [@item, item2, item3].map { |i| i.reload.amountcomissionpay }
     assert_equal 1, contas.first.reload.lote.count
 

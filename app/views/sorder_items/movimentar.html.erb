@@ -3,7 +3,7 @@
 <p>
   <strong>Passageiro:</strong> <%= @sorder_item.nome_passageiro %>
   (<%= @sorder_item.qtdepax.to_i %> PAX, <%= @sorder_item.qtdechd.to_i %> CHD)<br>
-  <strong>OS atual:</strong> nº <%= @sorder_item.sorder_id %> — <%= descricao_registro(@sorder_item.sorder) %>
+  <strong>OS atual:</strong> nº <%= @sorder_item.sorder.numero %> — <%= descricao_registro(@sorder_item.sorder) %>
 </p>
 
 <ul class="small text-muted">

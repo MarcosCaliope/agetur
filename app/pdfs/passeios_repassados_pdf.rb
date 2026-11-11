@@ -26,7 +26,7 @@ class PasseiosRepassadosPdf < Prawn::Document
       linhas << [{ content: limpo(agencia.sname), colspan: COLUNAS }]
       itens.each do |item|
         nome = item.cancelado? ? "#{item.nome_passageiro} (cancelado)" : item.nome_passageiro
-        linhas << [data(item.sorder.data), number_with_delimiter(item.sorder_id, delimiter: "."),
+        linhas << [data(item.sorder.data), number_with_delimiter(item.sorder.numero, delimiter: "."),
                    item.sorder.destination&.description, nome, [item.hotel&.sname, item.apto.presence].compact.join(" / "),
                    moeda(item.total_passeio), moeda(item.amountcomissionrep.to_f), moeda(item.amountcomissionreppay.to_f),
                    moeda(item.comissao_repasse_a_pagar)].map { |texto| limpo(texto) }

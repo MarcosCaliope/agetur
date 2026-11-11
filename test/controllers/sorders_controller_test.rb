@@ -24,7 +24,7 @@ class SordersControllerTest < ActionDispatch::IntegrationTest
     sorder.sorder_items.create!(snomepax: "Ana", qtdepax: 3, qtdechd: 1)
     sorder.sorder_items.create!(snomepax: "Bia", qtdepax: 2, qtdechd: 2, scancelado: "S")
     get sorders_url
-    linha = css_select("tbody tr").find { |tr| tr.at_css("td").text.strip.start_with?(sorder.id.to_s) }
+    linha = css_select("tbody tr").find { |tr| tr.at_css("td").text.strip.start_with?(sorder.numero.to_s) }
     assert_equal %w[3 1], linha.css("td")[5..6].map { |td| td.text.strip }
   end
 

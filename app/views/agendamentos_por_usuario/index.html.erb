@@ -40,7 +40,7 @@
       <% itens.each do |item| %>
         <tr class="<%= "text-muted" if item.cancelado? %>">
           <td><%= l(item.sorder.data.to_date) %></td>
-          <td><%= link_to item.sorder_id, sorder_path(item.sorder_id) %></td>
+          <td><%= link_to item.sorder.numero, sorder_path(item.sorder_id) %></td>
           <td><%= item.sorder.destination&.description %></td>
           <td><%= item.nome_passageiro %><%= " (cancelado)" if item.cancelado? %></td>
           <td><%= item.hotel&.sname %></td>

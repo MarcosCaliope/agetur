@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_12_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -76,8 +76,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.float "commission"
     t.bigint "vendor_id"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_agencies_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_agencies_on_company_id"
-    t.index ["sistger_id"], name: "index_agencies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_agencies_on_state_id"
     t.index ["vendor_id"], name: "index_agencies_on_vendor_id"
   end
@@ -156,9 +156,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_numero", "sistger_linha"], name: "idx_on_company_id_sistger_numero_sistger_linha_8c7dfbc3d3", unique: true
     t.index ["company_id"], name: "index_cash_entries_on_company_id"
     t.index ["data"], name: "index_cash_entries_on_data"
-    t.index ["sistger_numero", "sistger_linha"], name: "index_cash_entries_on_sistger_numero_and_sistger_linha", unique: true
     t.index ["sorder_id"], name: "index_cash_entries_on_sorder_id"
     t.index ["sorder_item_id"], name: "index_cash_entries_on_sorder_item_id"
   end
@@ -192,7 +192,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.decimal "mensalidade_valor", precision: 10, scale: 2
     t.integer "dia_vencimento"
     t.integer "dias_tolerancia", default: 5, null: false
-    t.index ["sistger_id"], name: "index_companies_on_sistger_id", unique: true
+    t.index ["sistger_id"], name: "index_companies_on_sistger_id"
     t.index ["state_id"], name: "index_companies_on_state_id"
   end
 
@@ -225,8 +225,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.string "billing_fax"
     t.bigint "company_id", null: false
     t.index ["billing_state_id"], name: "index_customers_on_billing_state_id"
+    t.index ["company_id", "sistger_id"], name: "index_customers_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_customers_on_company_id"
-    t.index ["sistger_id"], name: "index_customers_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_customers_on_state_id"
   end
 
@@ -248,8 +248,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.float "value_net_combo"
     t.float "value_net_combo_chd"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_destinations_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_destinations_on_company_id"
-    t.index ["sistger_id"], name: "index_destinations_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_destinations_on_state_id"
   end
 
@@ -272,8 +272,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.string "document"
     t.integer "sistger_id"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_drivers_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_drivers_on_company_id"
-    t.index ["sistger_id"], name: "index_drivers_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_drivers_on_state_id"
   end
 
@@ -297,8 +297,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.string "contact"
     t.string "document"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_hotels_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_hotels_on_company_id"
-    t.index ["sistger_id"], name: "index_hotels_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_hotels_on_state_id"
   end
 
@@ -452,10 +452,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.string "forma_pagamento", limit: 1
     t.string "usuario"
     t.index ["agency_id"], name: "index_sorder_items_on_agency_id"
+    t.index ["company_id", "sistger_numero", "sistger_sequencial"], name: "idx_on_company_id_sistger_numero_sistger_sequencial_8956971b66", unique: true
     t.index ["company_id"], name: "index_sorder_items_on_company_id"
     t.index ["customer_id"], name: "index_sorder_items_on_customer_id"
     t.index ["hotel_id"], name: "index_sorder_items_on_hotel_id"
-    t.index ["sistger_numero", "sistger_sequencial"], name: "index_sorder_items_on_sistger_numero_and_sistger_sequencial", unique: true
     t.index ["sorder_id"], name: "index_sorder_items_on_sorder_id"
     t.index ["vendor_id"], name: "index_sorder_items_on_vendor_id"
   end
@@ -480,10 +480,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.integer "sistger_id"
     t.boolean "encerrada", default: false, null: false
     t.integer "lock_version", default: 0, null: false
+    t.integer "numero", null: false
+    t.index ["company_id", "numero"], name: "index_sorders_on_company_id_and_numero", unique: true
+    t.index ["company_id", "sistger_id"], name: "index_sorders_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_sorders_on_company_id"
     t.index ["destination_id"], name: "index_sorders_on_destination_id"
     t.index ["driver_id"], name: "index_sorders_on_driver_id"
-    t.index ["sistger_id"], name: "index_sorders_on_sistger_id", unique: true
     t.index ["tourguide_id"], name: "index_sorders_on_tourguide_id"
     t.index ["vehicle_id"], name: "index_sorders_on_vehicle_id"
   end
@@ -514,8 +516,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.string "document"
     t.integer "sistger_id"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_tourguides_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_tourguides_on_company_id"
-    t.index ["sistger_id"], name: "index_tourguides_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_tourguides_on_state_id"
   end
 
@@ -562,8 +564,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.date "acquired_on"
     t.string "insurance_kit"
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_vehicles_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_vehicles_on_company_id"
-    t.index ["sistger_id"], name: "index_vehicles_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_vehicles_on_state_id"
   end
 
@@ -605,8 +607,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_11_150000) do
     t.boolean "active", default: true, null: false
     t.boolean "no_commission", default: false, null: false
     t.bigint "company_id", null: false
+    t.index ["company_id", "sistger_id"], name: "index_vendors_on_company_id_and_sistger_id", unique: true
     t.index ["company_id"], name: "index_vendors_on_company_id"
-    t.index ["sistger_id"], name: "index_vendors_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_vendors_on_state_id"
   end
 

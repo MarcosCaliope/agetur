@@ -42,7 +42,7 @@
   <tbody>
     <% @sorders.each do |sorder| %>
       <tr>
-        <td><%= sorder.id %><% if sorder.encerrada? %> <span class="badge badge-secondary">Encerrada</span><% end %></td>
+        <td><%= sorder.numero %><% if sorder.encerrada? %> <span class="badge badge-secondary">Encerrada</span><% end %></td>
         <td><%= sorder.data&.strftime("%d/%m/%Y") %></td>
         <td><%= sorder.destination.description%></td>
         <td><%= sorder.sobservacoes %></td>

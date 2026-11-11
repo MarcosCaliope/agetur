@@ -17,7 +17,7 @@ class SorderPdf < Prawn::Document
     end
     
     def sorder_id_all
-    [["id", "Destino", "Guia", "Motorista", "Veículo", "Data", "PAX", "CHD"]] +
+    [["Nº", "Destino", "Guia", "Motorista", "Veículo", "Data", "PAX", "CHD"]] +
         @sorders.map do |s|
             pax, chd = @totais_pax.fetch(s.id, [0, 0])
             [s.id, s.destination.description, s.tourguide.sname, s.driver.sname, s.vehicle.license, s.data&.strftime('%d/%m/%Y'), pax, chd]

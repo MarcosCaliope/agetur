@@ -23,7 +23,7 @@ class PasseiosRepassados
       escopo = escopo.ativos unless cancelados?
       escopo = escopo.where(agency_id: agencia_id) if agencia_id
       escopo.includes(:agency, :hotel, sorder: :destination)
-        .order("agencies.sname", "sorders.data", :sorder_id, :sistger_sequencial, :id).to_a
+        .order("agencies.sname", "sorders.data", "sorders.numero", :sistger_sequencial, :id).to_a
     end
   end
 

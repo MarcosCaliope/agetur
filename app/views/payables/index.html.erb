@@ -38,7 +38,7 @@
         <td><%= conta.nome_tipo %></td>
         <td>
           <%= conta.descricao %>
-          <% if conta.sorder_id %>· <%= link_to "OS #{conta.sorder_id}", sorder_path(conta.sorder_id) %><% end %>
+          <% if conta.sorder_id %>· <%= link_to "OS #{conta.sorder&.numero}", sorder_path(conta.sorder_id) %><% end %>
         </td>
         <td><%= conta.nome_credor %></td>
         <td class="text-right"><%= number_to_currency(conta.valor) %></td>

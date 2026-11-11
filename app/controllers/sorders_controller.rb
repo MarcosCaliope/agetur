@@ -56,7 +56,7 @@ class SordersController < ApplicationController
   # GET /sorders/1/export
   def export
     pdf = SorderExportPdf.new(@sorder)
-    send_data pdf.render, filename: "sorder_#{@sorder.id}.pdf", type: 'application/pdf', disposition: "inline"
+    send_data pdf.render, filename: "sorder_#{@sorder.numero}.pdf", type: 'application/pdf', disposition: "inline"
   end
 
   # GET /sorders/1/historico: who did what to the order (SorderAuditoria).

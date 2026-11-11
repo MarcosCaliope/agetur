@@ -117,6 +117,17 @@ class SistgerImportTest < ActiveSupport::TestCase
       "sNomeCliente" => nome, "sTipoDoc" => "RG        ", "sNumeroDoc" => "0000   ", "SCHD" => chd, "SCOLO" => colo }
   end
 
+  # An order imported into the company created by the "empresa" step (the
+  # fixtures' company :two has its own orders numbered 1 and 2).
+  def ordem_importada(numero)
+    Sorder.unscoped.where(company_id: Company.find_by!(sistger_id: 1).id).find_by!(numero: numero)
+  end
+
+  # A second company to import the same SISTGER base into.
+  def outra_empresa
+    Company.create!(name: "ENSEADA", state: @ce)
+  end
+
   def importar_cadastros
     %w[empresa clientes vendedores agencias hoteis guias motoristas veiculos roteiros].each { |etapa| @import.importar(etapa) }
   end
@@ -197,9 +208,9 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_equal "MANUAL", manual.reload.nome
   end
 
-  test "orders need the company and destinations first" do
+  test "orders need destinations first" do
     erro = assert_raises(SistgerImport::Erro) { @import.importar("ordens") }
-    assert_equal "Importe empresa antes de ordens de serviço.", erro.message
+    assert_equal "Importe roteiros antes de ordens de serviço.", erro.message
   end
 
   test "orders link guides and drivers from the register by name or unique short name, else by the text" do
@@ -225,37 +236,26 @@ class SistgerImportTest < ActiveSupport::TestCase
     importar_cadastros
     @import.importar("ordens")
 
-    assert_equal [1, 2, 3, 4], Sorder.where(sistger_id: 1..4).order(:id).pluck(:id)
+    assert_equal [1, 2, 3, 4], Sorder.where(sistger_id: 1..4).order(:sistger_id).pluck(:numero)
+    primeira = ordem_importada(1)
     # SISTGER's wall-clock 01/10/2025 00:00 is that time in Brasília, not in UTC.
-    assert_equal Time.zone.local(2025, 10, 1), Sorder.find(1).data
-    assert_operator Sorder.create!(Sorder.find(1).attributes.except("id", "sistger_id")).id, :>, 4, "new orders continue after the imported numbers"
+    assert_equal Time.zone.local(2025, 10, 1), primeira.data
+    nova = Sorder.create!(primeira.attributes.except("id", "sistger_id", "numero"))
+    assert_equal 5, nova.numero, "new orders continue after the company's imported numbers"
     assert_no_difference("Sorder.count") { @import.importar("ordens") }
-  end
-
-  test "orders imported under another number are renumbered with their passengers" do
-    importar_cadastros
-    @import.importar("ordens")
-    Sorder.connection.execute("UPDATE sorders SET id = id + 100 WHERE sistger_id IS NOT NULL")
-    Sorder.find(101).update!(sobservacoes: "alterada aqui")
-
-    @import.importar("ordens")
-
-    assert_equal 1, Sorder.find_by!(sistger_id: 1).id
-    assert_equal 1, SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1).sorder_id
-    assert_equal [[1, "alterou"]], SorderAuditoria.pluck(:sorder_id, :acao), "the history follows the order; the import adds none"
   end
 
   test "an order created here keeps its number and the SISTGER order with that number is skipped" do
     importar_cadastros
     @import.importar("ordens")
-    Sorder.find(2).destroy!
-    local = Sorder.create!(Sorder.find(1).attributes.except("id", "sistger_id").merge("id" => 2))
+    ordem_importada(2).destroy!
+    local = Sorder.create!(ordem_importada(1).attributes.except("id", "sistger_id", "numero").merge("numero" => 2))
 
     resultado = @import.importar("ordens")
 
     assert_match "1 ordem(ns) ignorada(s) porque o número já é de outra ordem deste sistema (nº 2)", resultado.avisos.join
     assert_nil local.reload.sistger_id
-    assert_equal [1, 3, 4], Sorder.where.not(sistger_id: nil).order(:id).pluck(:id)
+    assert_equal [1, 3, 4], Sorder.unscoped.where(company_id: local.company_id).where.not(sistger_id: nil).order(:numero).pluck(:numero)
   end
 
   test "orders bring their passengers, which resolve hotel and agency by code, else by the text" do
@@ -283,7 +283,7 @@ class SistgerImportTest < ActiveSupport::TestCase
     importar_cadastros
     resultado = @import.importar("ordens")
     assert_match "1 recebimento(s) sem valor ou data ignorado(s)", resultado.avisos.join
-    assert_equal [false, true], [Sorder.find(1).encerrada?, Sorder.find(4).encerrada?]
+    assert_equal [false, true], [ordem_importada(1).encerrada?, ordem_importada(4).encerrada?]
 
     jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
     assert_equal 100.0, jorge.amountpay, "imported payments don't move the paid amount SISTGER already has"
@@ -311,7 +311,7 @@ class SistgerImportTest < ActiveSupport::TestCase
     jorge = SorderItem.find_by!(sistger_numero: 1, sistger_sequencial: 1)
     entrada, saida, avulso = [7, 8, 9].map { |n| CashEntry.find_by!(sistger_numero: n) }
     assert_equal ["E", "O", 60, "Recebimento de passeio", "123.456", 1, jorge.id],
-                 [entrada.tipo, entrada.forma_pagamento, entrada.valor, entrada.categoria, entrada.documento, entrada.sorder_id, entrada.sorder_item_id]
+                 [entrada.tipo, entrada.forma_pagamento, entrada.valor, entrada.categoria, entrada.documento, entrada.sorder&.numero, entrada.sorder_item_id]
     assert_equal ["S", 15, "Pagamento de conta"], [saida.tipo, saida.valor, saida.categoria]
     assert_equal ["D", "Lançamento do SISTGER nº 9", nil, "Outros", nil], [avulso.forma_pagamento, avulso.descricao, avulso.documento, avulso.categoria, avulso.sorder_id]
     assert_equal 75, CashEntry.saldo
@@ -384,26 +384,47 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_equal [empresa.id], Customer.unscoped.where.not(sistger_id: nil).distinct.pluck(:company_id)
   end
 
-  test "empresa_id imports into the given company and warns about records it moves there" do
+  test "each company keeps its own copy of a SISTGER base" do
     importar_cadastros
+    @import.importar("ordens")
     empresa = Company.find_by!(sistger_id: 1)
-    destino = companies(:two)
+    destino = outra_empresa
     importador = SistgerImport.new(@fonte, empresa_id: destino.id)
-
     assert_equal destino.id, importador.empresa_destino_id
-    assert_equal({ "hoteis" => 1 }, importador.importados_em_outras_empresas(%w[empresa hoteis horarios]))
-    importador.importar("hoteis")
-    assert_equal destino.id, Hotel.unscoped.find_by!(sistger_id: 2).company_id
-    assert_equal empresa.id, Customer.unscoped.find_by!(sistger_id: 10).company_id, "steps not chosen stay"
-    assert_empty importador.importados_em_outras_empresas(%w[hoteis])
+
+    assert_difference("Hotel.unscoped.where(sistger_id: 2).count") { importador.importar("hoteis") }
+    assert_equal [destino.id, empresa.id].sort, Hotel.unscoped.where(sistger_id: 2).pluck(:company_id).sort
+    assert_equal({ sistger: 1, importados: 1, ultimo_sistger: 2, ultimo_importado: 2 }, importador.contagens["hoteis"])
+
+    importador.importar("roteiros")
+    assert_difference("Sorder.unscoped.count", 4) { importador.importar("ordens") }
+    [empresa, destino].each do |companhia|
+      ordens = Sorder.unscoped.where(company_id: companhia.id, sistger_id: 1..4)
+      assert_equal [1, 2, 3, 4], ordens.order(:numero).pluck(:numero), "numbered 1..4 in #{companhia.name}"
+      roteiros = Destination.unscoped.where(id: ordens.select(:destination_id)).distinct.pluck(:company_id)
+      assert_equal [companhia.id], roteiros, "orders use their own company's destinations"
+      itens = SorderItem.unscoped.where(sistger_numero: 1, company_id: companhia.id)
+      assert_equal 2, itens.count
+      assert_equal [companhia.id], Sorder.unscoped.where(id: itens.select(:sorder_id)).distinct.pluck(:company_id)
+    end
+  end
+
+  test "the empresa step writes SISTGER's company data onto the destination" do
+    destino = companies(:two)
+    assert_no_difference("Company.unscoped.count") do
+      SistgerImport.new(@fonte, empresa_id: destino.id).importar("empresa")
+    end
+    assert_equal ["ISA TURISMO", 1, 2], destino.reload.values_at(:name, :sistger_id, :osmodel)
   end
 
   test "names are matched only within the destination company" do
     importar_cadastros
     empresa = Company.find_by!(sistger_id: 1)
     outro = Hotel.unscoped.create!(sname: "BRASIL TROPICAL", company_id: empresa.id)
-    destino = companies(:two)
-    SistgerImport.new(@fonte, empresa_id: destino.id).importar("ordens")
+    destino = outra_empresa
+    importador = SistgerImport.new(@fonte, empresa_id: destino.id)
+    importador.importar("roteiros")
+    importador.importar("ordens")
 
     hotel = SorderItem.unscoped.find_by!(sistger_numero: 1, sistger_sequencial: 2).hotel_id
     assert_not_equal outro.id, hotel

@@ -82,7 +82,7 @@ class SorderItem < ApplicationRecord
       self.sorder = destino
       self.hour = nil if destino.destination_id != origem.destination_id # takes the new tour's pickup time
       self.sistger_numero = self.sistger_sequencial = nil
-      self.comments = anotar("Transferido da OS nº #{origem.id}")
+      self.comments = anotar("Transferido da OS nº #{origem.numero}")
       save!
       CashEntry.where(sorder_item_id: id).update_all(sorder_id: destino.id)
       Payable.where(sorder_item_id: id).update_all(sorder_id: destino.id)
@@ -100,11 +100,11 @@ class SorderItem < ApplicationRecord
     transaction do
       copia = destino.sorder_items.new(attributes.except(*NAO_COPIADOS))
       copia.hour = nil if destino.destination_id != sorder.destination_id
-      copia.comments = anotar("Copiado da OS nº #{sorder_id}")
+      copia.comments = anotar("Copiado da OS nº #{sorder.numero}")
       companions.each { |pessoa| copia.companions.build(pessoa.attributes.slice(*%w[customer_id snome documenttype document chd colo])) }
       copia.manter_quantidades = true # the PAX/CHD typed in the original, not recounted from the list
       copia.save!
-      update!(comments: anotar("Copiado para a OS nº #{destino.id}"))
+      update!(comments: anotar("Copiado para a OS nº #{destino.numero}"))
       copia
     end
   rescue ActiveRecord::RecordInvalid => e
@@ -139,8 +139,8 @@ class SorderItem < ApplicationRecord
     raise NaoMovimentado, "OS de destino não encontrada." if destino.nil?
     raise NaoMovimentado, "Escolha uma OS diferente da atual." if destino.id == sorder_id
     raise NaoMovimentado, "Passageiro cancelado: reative-o antes." if cancelado?
-    raise NaoMovimentado, "A OS nº #{sorder_id} está encerrada." if sorder.encerrada?
-    raise NaoMovimentado, "A OS nº #{destino.id} está encerrada." if destino.encerrada?
+    raise NaoMovimentado, "A OS nº #{sorder.numero} está encerrada." if sorder.encerrada?
+    raise NaoMovimentado, "A OS nº #{destino.numero} está encerrada." if destino.encerrada?
   end
 
   # The comments plus a dated note of a transfer or copy.

@@ -17,7 +17,7 @@ class PayablesController < ApplicationController
       termo = "%#{Payable.sanitize_sql_like(params[:busca].squish)}%"
       contas = contas.where("unaccent(payables.descricao) ILIKE unaccent(:t) OR unaccent(payables.credor_nome) ILIKE unaccent(:t)", t: termo)
     end
-    @payables = contas.preload(:credor).order(:vencimento, :id)
+    @payables = contas.preload(:credor, :sorder).order(:vencimento, :id)
     @total = contas.sum(:valor)
   end
 

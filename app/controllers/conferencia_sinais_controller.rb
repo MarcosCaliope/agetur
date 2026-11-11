@@ -7,7 +7,7 @@ class ConferenciaSinaisController < ApplicationController
 
   # GET /agendamentos/sinais-a-conferir
   def index
-    @pagamentos = SorderItemPayment.a_conferir.includes(:sorder_item, comprovante_attachment: :blob,
+    @pagamentos = SorderItemPayment.a_conferir.includes({ sorder_item: :sorder }, comprovante_attachment: :blob,
                                                         booking_item: [:destination, { booking: :vendor }])
                                    .order(:data, :id)
     @recentes = SorderItemPayment.where.not(conferido_em: nil).includes(booking_item: [:destination, { booking: :vendor }])

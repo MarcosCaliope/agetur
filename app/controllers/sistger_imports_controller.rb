@@ -1,7 +1,7 @@
 # Manutenção > Importar do SISTGER: reads the legacy SQL Server and imports
 # the chosen steps, each with its own filter (see SistgerImport::Filtro),
-# into the company picked in the header (empresa_atual). Records already
-# imported into another company move to it; the index warns how many.
+# into the company picked in the header (empresa_atual). Each company may
+# come from its own SISTGER base: the import only touches that company.
 class SistgerImportsController < ApplicationController
   # GET /manutencao/sistger
   def index
@@ -9,7 +9,6 @@ class SistgerImportsController < ApplicationController
     return unless @configurada
 
     @contagens = importador.contagens
-    @em_outras_empresas = importador.importados_em_outras_empresas(SistgerImport::ETAPAS.map(&:chave))
   rescue SistgerImport::Erro => e
     @erro = e.message
   ensure

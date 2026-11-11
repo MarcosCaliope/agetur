@@ -33,6 +33,20 @@ class Sorder < ApplicationRecord
     self.lock_optimistically = false
     before_update { self.lock_version += 1 }
 
+    # The order number shown everywhere. Numbered per company, since each
+    # company may be imported from its own SISTGER base (imported orders
+    # keep SISTGER's iNumero); id is only the database key, used in URLs.
+    before_create :numerar, unless: :numero?
+    validates :numero, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+    TRAVA_NUMERO = 7301 # pg advisory lock namespace
+
+    # Text an order number was typed as ("1.234", " 15 ") -> the order of
+    # the current company with that number, or nil.
+    def self.do_numero(texto)
+      numero = texto.to_s.gsub(/\D/, "")
+      find_by(numero: numero) if numero.present?
+    end
+
     # Costs of an order that become bills when it's closed: column, origem, description, creditor.
     CUSTOS = [
       [:valorguia, "guia", "Guia", :tourguide], [:valormotorista, "motorista", "Motorista", :driver],
@@ -146,7 +160,7 @@ class Sorder < ApplicationRecord
     end
 
     def self.ransackable_attributes(auth_object = nil)
-      ["company_id", "created_at", "data", "destination_id", "driver_id", "id", "id_value", "sobservacoes", "tourguide_id", "updated_at", "valorcombustivel", "valordespesas", "valorfinalos", "valorguia", "valormotorista", "valoros", "valorpedagio", "vehicle_id"]
+      ["company_id", "numero", "created_at", "data", "destination_id", "driver_id", "id", "id_value", "sobservacoes", "tourguide_id", "updated_at", "valorcombustivel", "valordespesas", "valorfinalos", "valorguia", "valormotorista", "valoros", "valorpedagio", "vehicle_id"]
     end
 
     private
@@ -156,5 +170,12 @@ class Sorder < ApplicationRecord
       return "alterou" unless saved_change_to_encerrada?
 
       encerrada? ? "encerrou" : "reabriu"
+    end
+
+    # The company's next number. The advisory lock, held until the
+    # transaction ends, keeps two orders saved at once from taking the same one.
+    def numerar
+      self.class.connection.execute("SELECT pg_advisory_xact_lock(#{TRAVA_NUMERO}, #{Integer(company_id)})")
+      self.numero = Sorder.unscoped.where(company_id: company_id).maximum(:numero).to_i + 1
     end
 end

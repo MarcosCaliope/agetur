@@ -61,12 +61,13 @@ module ApplicationHelper
   end
 
   # "Último registro: nº 42 — MARIA (código SISTGER 1.234)" for a cadastro
-  # list: the record with the highest number (id).
+  # list: the record with the highest number (id; an order's own number).
   def ultimo_registro(modelo)
-    registro = modelo.order(:id).last
+    numero = modelo.column_names.include?("numero") ? :numero : :id
+    registro = modelo.order(numero).last
     texto =
       if registro
-        partes = ["nº #{number_with_delimiter(registro.id)}", descricao_registro(registro).presence].compact.join(" — ")
+        partes = ["nº #{number_with_delimiter(registro.public_send(numero))}", descricao_registro(registro).presence].compact.join(" — ")
         codigo = registro.try(:sistger_id)
         codigo ? "#{partes} (código SISTGER #{number_with_delimiter(codigo)})" : partes
       else

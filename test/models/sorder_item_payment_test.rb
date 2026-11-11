@@ -12,7 +12,7 @@ class SorderItemPaymentTest < ActiveSupport::TestCase
     entrada = pagamento.reload.cash_entry
     assert_equal ["E", "O", 100, "Recebimento de passeio", @item.sorder_id, @item.id, "a@b.c"],
                  [entrada.tipo, entrada.forma_pagamento, entrada.valor, entrada.categoria, entrada.sorder_id, entrada.sorder_item_id, entrada.usuario]
-    assert_equal "Recebimento do passeio OS: #{@item.sorder_id} PAX: Ana - sinal", entrada.descricao
+    assert_equal "Recebimento do passeio OS: #{@item.sorder.numero} PAX: Ana - sinal", entrada.descricao
     assert entrada.automatico?
 
     assert_difference("CashEntry.count", -1) { pagamento.destroy! }

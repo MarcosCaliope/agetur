@@ -39,7 +39,7 @@ class BookingItemsController < ApplicationController
   def lancar
     ordem = Sorder.find(params[:sorder_id])
     @item.lancar_na_os!(ordem)
-    redirect_back fallback_location: @booking, notice: "Passeio lançado na OS nº #{ordem.id}."
+    redirect_back fallback_location: @booking, notice: "Passeio lançado na OS nº #{ordem.numero}."
   rescue BookingItem::NaoLancado => e
     redirect_back fallback_location: @booking, alert: "Não foi possível lançar: #{e.message}"
   end
@@ -70,7 +70,7 @@ class BookingItemsController < ApplicationController
   def aviso_ordem(item, texto)
     return texto if item.lancado? || item.cancelado?
 
-    ordens = item.ordens_candidatas.pluck(:id)
+    ordens = item.ordens_candidatas.pluck(:numero)
     ordens.any? ? "#{texto} Já existe OS do roteiro nesta data (nº #{ordens.join(', ')}): use \"Lançar na OS\"." : texto
   end
 end

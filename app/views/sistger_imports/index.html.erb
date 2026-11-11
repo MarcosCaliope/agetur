@@ -12,8 +12,8 @@
 <% else %>
   <div class="alert alert-info">
     Os dados serão gravados na empresa <strong><%= empresa_atual&.name || "importada do SISTGER" %></strong>.
-    Para outra empresa, troque a empresa no topo da página. Um registro do SISTGER só existe em uma empresa:
-    importá-lo aqui o move de onde estiver.
+    Para outra empresa, troque a empresa no topo da página. Cada empresa pode vir da sua própria base do SISTGER:
+    a importação só altera os dados desta empresa. A etapa Empresa grava os dados do SISTGER nesta empresa.
   </div>
   <p class="text-muted">
     Origem: <%= fonte.descricao %>. Marque as tabelas e escolha o filtro de cada uma. Importar de novo
@@ -50,11 +50,6 @@
               <td>
                 <label for="etapa_<%= etapa.chave %>" class="mb-0"><%= etapa.nome %></label><br>
                 <code class="small"><%= etapa.tabelas %></code>
-                <% if (movidos = @em_outras_empresas[etapa.chave]) %>
-                  <div class="small text-danger sistger-movidos">
-                    <%= number_with_delimiter(movidos) %> já importado(s) em outra empresa serão movidos para esta.
-                  </div>
-                <% end %>
               </td>
               <td class="text-right"><%= number_with_delimiter(contagem[:sistger]) %></td>
               <td class="text-right sistger-ultimo"><%= contagem[:ultimo_sistger] ? number_with_delimiter(contagem[:ultimo_sistger]) : "—" %></td>

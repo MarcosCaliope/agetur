@@ -63,8 +63,8 @@
         <td class="no-print text-nowrap">
           <% unless passeio.cancelado? || passeio.lancado? %>
             <% passeio.ordens_candidatas.each do |ordem| %>
-              <%= link_to "Lançar na OS nº #{ordem.id}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
-                    class: "btn btn-outline-success btn-sm", data: { confirm: "Incluir este passageiro na OS nº #{ordem.id}?" } %>
+              <%= link_to "Lançar na OS nº #{ordem.numero}", lancar_booking_item_path(b, passeio, sorder_id: ordem.id), method: :patch,
+                    class: "btn btn-outline-success btn-sm", data: { confirm: "Incluir este passageiro na OS nº #{ordem.numero}?" } %>
             <% end %>
           <% end %>
           <%= link_to (passeio.lancado? ? "Recebimentos" : "Sinal"), booking_item_recebimentos_path(b, passeio) %>

@@ -29,7 +29,7 @@ class AgendamentosPorUsuarioPdf < Prawn::Document
       linhas << [{ content: limpo(usuario), colspan: 6 }]
       itens.each do |item|
         nome = item.cancelado? ? "#{item.nome_passageiro} (cancelado)" : item.nome_passageiro
-        linhas << [usuario, data(item.sorder.data), number_with_delimiter(item.sorder_id, delimiter: "."), nome,
+        linhas << [usuario, data(item.sorder.data), number_with_delimiter(item.sorder.numero, delimiter: "."), nome,
                    item.hotel&.sname, data(AgendamentosPorUsuario.gravado_em(item))].map { |texto| limpo(texto) }
       end
       totais << linhas.size

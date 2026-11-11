@@ -12,11 +12,16 @@
 #
 # Everything imported belongs to `empresa_id:` (the screen passes the company
 # picked in the header; `sistger:importar` takes EMPRESA=). Without it, to the
-# company imported from SISTGER (the "empresa" step), or to the importing
-# person's company until that one is imported. Legacy keys are unique across
-# companies, so importing a record into another company moves it there. The
-# import reads and writes across companies (DaEmpresa's scope is off), but
-# matches names only within the destination company.
+# only company imported from SISTGER, if there is exactly one, else to the
+# importing person's company. Each company
+# may come from its own SISTGER base, so legacy keys are unique per company
+# and the import runs with DaEmpresa's scope set to the destination: it only
+# sees, matches and updates that company's records, never another's. The
+# "empresa" step writes SISTGER's company data onto the destination itself
+# (every base has filial 1), or creates the company when there's none.
+#
+# An order's number (Sorder#numero, per company) is SISTGER's iNumero; its id
+# is just the database key.
 class SistgerImport
   NAO_INFORMADO = "Não informado".freeze
 
@@ -123,35 +128,20 @@ class SistgerImport
     @empresa_id = empresa_id
   end
 
-  # The company the steps other than "empresa" write to, or nil while none
-  # was given nor imported.
+  # The company the import writes to, or nil while none was given and it
+  # isn't the only one imported from SISTGER.
   def empresa_destino_id
-    @empresa_id || Company.unscoped.where.not(sistger_id: nil).order(:sistger_id).pick(:id)
-  end
+    return @empresa_id if @empresa_id
 
-  # {chave => count} of records the chosen steps already imported into a
-  # company other than the destination: re-importing them moves them there.
-  def importados_em_outras_empresas(chaves)
-    destino = empresa_destino_id
-    return {} unless destino
-
-    sem_escopo_de_empresa do
-      ETAPAS.select { |etapa| chaves.include?(etapa.chave) && etapa.chave != "empresa" }.filter_map do |etapa|
-        modelo = etapa.modelo.constantize
-        coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
-        next unless modelo.column_names.include?(coluna.to_s) && modelo.column_names.include?("company_id")
-
-        total = modelo.where.not(coluna => nil).where.not(company_id: destino).count
-        [etapa.chave, total] if total.positive?
-      end.to_h
-    end
+    importadas = Company.unscoped.where.not(sistger_id: nil).limit(2).pluck(:id)
+    importadas.first if importadas.one?
   end
 
   # {chave => {sistger:, importados:, ultimo_sistger:, ultimo_importado:}}:
   # row counts and highest legacy code on each side, to help pick the code
   # range still to import.
   def contagens
-    sem_escopo_de_empresa do
+    na_empresa(empresa_destino_id) do
       ETAPAS.to_h do |etapa|
         coluna = etapa.chave == "caixa" ? :sistger_numero : :sistger_id
         importados = etapa.modelo.constantize.where.not(coluna => nil) unless etapa.chave == "horarios"
@@ -161,7 +151,7 @@ class SistgerImport
         end
         if etapa.chave == "comissoes_roteiro" # keyed by vendor + destination, counted by the vendor's code
           coluna = "vendors.sistger_id"
-          importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil })
+          importados = VendorDestination.joins(:vendor).where.not(vendors: { sistger_id: nil }).where(vendors: { company_id: empresa_destino_id })
         end
         origem = @fonte.resumo(etapa.from, etapa.codigo)
         [etapa.chave, { sistger: origem[:total], importados: importados.count,
@@ -182,7 +172,7 @@ class SistgerImport
     avisos = []
     @detalhes = []
     linhas = nil
-    gravados = sem_escopo_de_empresa(chave == "empresa" ? nil : empresa_importada_id) do
+    gravados = na_empresa(chave == "empresa" ? nil : empresa_importada_id) do
       verificar_dependencias(etapa)
       linhas = ler(etapa, filtro)
       etapa.modelo.constantize.transaction { gravar(chave, linhas.map { |l| mapear(chave, l) }, avisos) }
@@ -204,13 +194,15 @@ class SistgerImport
 
   # ---- Company -------------------------------------------------------------
 
-  def sem_escopo_de_empresa(empresa_id = nil, &)
-    Current.set(filtrar_empresa: false, so_a_propria_empresa: false, empresa_id: empresa_id, &)
+  # Runs with DaEmpresa's scope on the destination company (off without
+  # one: the "empresa" step), so every lookup stays within it.
+  def na_empresa(empresa_id, &)
+    Current.set(filtrar_empresa: empresa_id.present?, so_a_propria_empresa: false, empresa_id: empresa_id, &)
   end
 
   def empresa_importada_id
     empresa_destino_id || Current.empresa_id or
-      raise Erro, "Importe a empresa antes das outras etapas."
+      raise Erro, "Escolha a empresa de destino (ou importe a etapa Empresa antes das outras)."
   end
 
   # Rows written with upsert_all/insert_all skip callbacks: give them the company.
@@ -340,6 +332,8 @@ class SistgerImport
 
   def gravar(chave, registros, avisos)
     case chave
+    when "empresa"
+      gravar_empresa(registros, avisos)
     when "ordens"
       gravar_ordens(registros, avisos)
     when "comissoes_roteiro"
@@ -364,9 +358,25 @@ class SistgerImport
     end
   end
 
-  def upsert(modelo, registros, unique_by: :sistger_id)
+  def upsert(modelo, registros, unique_by: %i[company_id sistger_id])
     com_empresa(modelo, registros).each_slice(LOTE) { |lote| modelo.upsert_all(lote, unique_by: unique_by) }
     registros.size
+  end
+
+  # SISTGER's company (tblFilial) onto the destination company, or into a
+  # new one, which the other steps then write to.
+  def gravar_empresa(registros, avisos)
+    return 0 if registros.empty?
+
+    avisos << "O SISTGER tem #{registros.size} filiais: só a primeira (código #{registros.first[:sistger_id]}) foi gravada." if registros.size > 1
+    estados = estados_por_uf
+    dados = registros.first.except(:uf).merge(state_id: estados[registros.first[:uf]&.upcase] || estado_padrao(estados))
+    if (empresa = Company.unscoped.find_by(id: empresa_destino_id))
+      empresa.update_columns(dados.merge(updated_at: Time.current))
+    else
+      @empresa_id = Company.insert_all([dados], returning: :id).rows.first.first
+    end
+    1
   end
 
   def gravar_ordens(registros, avisos)
@@ -388,10 +398,9 @@ class SistgerImport
       avisos << "#{datas_estranhas.size} ordem(ns) com data fora do normal importada(s) como estão (#{exemplos})."
     end
 
-    # The order number (id) is SISTGER's iNumero. A number already taken by
-    # an order created here stays with it, and the legacy order is skipped.
-    renumerar_ordens
-    ocupados = Sorder.where(id: validos.map { |r| r[:sistger_id] }).where("sistger_id IS DISTINCT FROM id").pluck(:id)
+    # The order number is SISTGER's iNumero. A number already taken by an
+    # order created here stays with it, and the legacy order is skipped.
+    ocupados = Sorder.where(numero: validos.map { |r| r[:sistger_id] }).where("sistger_id IS DISTINCT FROM numero").pluck(:numero)
     if ocupados.any?
       avisos << "#{ocupados.size} ordem(ns) ignorada(s) porque o número já é de outra ordem deste sistema (nº #{ocupados.sort.first(5).join(', ')})."
       validos = validos.reject { |r| ocupados.include?(r[:sistger_id]) }
@@ -399,13 +408,12 @@ class SistgerImport
 
     linhas = validos.map do |r|
       r.except(:roteiro, :guia, :motorista, :veiculo, :placa).merge(
-        id: r[:sistger_id], destination_id: roteiros[r[:roteiro]], tourguide_id: guias[r[:guia]], driver_id: motoristas[r[:motorista]],
+        numero: r[:sistger_id], destination_id: roteiros[r[:roteiro]], tourguide_id: guias[r[:guia]], driver_id: motoristas[r[:motorista]],
         vehicle_id: veiculos_codigo[r[:veiculo]] || placas[r[:placa]]
       )
     end
     gravados = upsert(Sorder, linhas)
-    Sorder.connection.reset_pk_sequence!(Sorder.table_name)
-    gravar_partes_da_ordem(linhas.map { |l| l[:id] }, avisos)
+    gravar_partes_da_ordem(linhas.map { |l| l[:sistger_id] }, avisos)
     gravados
   end
 
@@ -419,22 +427,6 @@ class SistgerImport
     @detalhes << "#{gravar_recebimentos(numeros, pagos, avisos)} recebimento(s)"
     pax = ler_da_ordem(lista_pax, numeros).map { |l| mapear("lista_pax", l) }
     @detalhes << "#{gravar_lista_pax(numeros, pax, avisos)} na lista pax"
-  end
-
-  # Gives imported orders numbered otherwise (before iNumero became the id)
-  # their SISTGER number, when it's free. Passengers follow via the FK's
-  # ON UPDATE CASCADE. Negating first avoids clashes while swapping.
-  def renumerar_ordens
-    conexao = Sorder.connection
-    # The orders' history (sorder_auditorias, no foreign key) follows them.
-    conexao.execute("UPDATE sorder_auditorias SET sorder_id = -sorder_id " \
-                    "WHERE sorder_id IN (SELECT id FROM sorders WHERE sistger_id IS NOT NULL AND id <> sistger_id)")
-    conexao.execute("UPDATE sorders SET id = -id WHERE sistger_id IS NOT NULL AND id <> sistger_id")
-    conexao.execute("UPDATE sorder_auditorias a SET sorder_id = s.sistger_id FROM sorders s " \
-                    "WHERE a.sorder_id = s.id AND s.id < 0 AND s.sistger_id NOT IN (SELECT id FROM sorders WHERE id > 0)")
-    conexao.execute("UPDATE sorders SET id = sistger_id WHERE id < 0 AND sistger_id NOT IN (SELECT id FROM sorders WHERE id > 0)")
-    conexao.execute("UPDATE sorders SET id = -id WHERE id < 0")
-    conexao.execute("UPDATE sorder_auditorias SET sorder_id = -sorder_id WHERE sorder_id < 0")
   end
 
   def gravar_comissoes_roteiro(registros, avisos)
@@ -469,7 +461,7 @@ class SistgerImport
         agency_id: agencias_codigo[r[:agencia_codigo]] || agencias[r[:agencia]]
       )
     end
-    upsert(SorderItem, linhas, unique_by: %i[sistger_numero sistger_sequencial])
+    upsert(SorderItem, linhas, unique_by: %i[company_id sistger_numero sistger_sequencial])
   end
 
   # Payments of imported items are replaced by SISTGER's (those added here
@@ -501,22 +493,24 @@ class SistgerImport
     invalidos, validos = registros.partition { |r| r[:valor].to_f <= 0 || r[:data].nil? }
     avisos << "#{invalidos.size} lançamento(s) de caixa sem valor ou data ignorado(s)." if invalidos.any?
 
-    ordens = Sorder.where(id: validos.map { |r| r[:ordem] }.uniq).pluck(:id).to_set
-    itens = itens_importados(ordens.to_a)
+    ordens = Sorder.where(sistger_id: validos.map { |r| r[:ordem] }.uniq).pluck(:sistger_id, :id).to_h
+    itens = itens_importados(ordens.keys)
     linhas = validos.map do |r|
       r.except(:ordem, :sequencial).merge(
         categoria: r[:tipo] == "S" ? "Pagamento de conta" : (r[:ordem].positive? ? "Recebimento de passeio" : "Outros"),
-        sorder_id: (r[:ordem] if ordens.include?(r[:ordem])), sorder_item_id: itens[[r[:ordem], r[:sequencial]]]
+        sorder_id: ordens[r[:ordem]], sorder_item_id: itens[[r[:ordem], r[:sequencial]]]
       )
     end
-    gravados = upsert(CashEntry, linhas, unique_by: %i[sistger_numero sistger_linha])
+    gravados = upsert(CashEntry, linhas, unique_by: %i[company_id sistger_numero sistger_linha])
 
+    empresa = Integer(Current.empresa_id)
     SorderItemPayment.connection.execute(<<~SQL)
       UPDATE sorder_item_payments p
          SET cash_entry_id = c.id, forma_pagamento = c.forma_pagamento
         FROM (SELECT DISTINCT ON (sistger_numero) id, sistger_numero, forma_pagamento
-                FROM cash_entries WHERE sistger_numero IS NOT NULL ORDER BY sistger_numero, sistger_linha) c
-       WHERE p.sistger_caixa = c.sistger_numero
+                FROM cash_entries WHERE sistger_numero IS NOT NULL AND company_id = #{empresa}
+               ORDER BY sistger_numero, sistger_linha) c
+       WHERE p.sistger_caixa = c.sistger_numero AND p.company_id = #{empresa}
     SQL
     gravados
   end
@@ -574,7 +568,7 @@ class SistgerImport
   def ids_por_nome(modelo, coluna, nomes, extras = {}, tambem: nil)
     nomes = nomes.compact.uniq
     ids = {}
-    existentes = modelo < DaEmpresa ? modelo.where(company_id: Current.empresa_id) : modelo # the scope is off: stay in the destination
+    existentes = modelo.all # DaEmpresa's scope keeps it in the destination
     if tambem
       existentes.where(tambem => nomes).pluck(tambem, :id).group_by(&:first).each do |nome, pares|
         ids[nome] = pares.first.last if pares.one?
@@ -594,6 +588,7 @@ class SistgerImport
   def verificar_dependencias(etapa)
     Array(etapa.depende_de).each do |chave|
       dependencia = self.class.etapa(chave)
+      next if chave == "empresa" # the destination company exists by now
       modelo = dependencia.modelo.constantize
       next if modelo.where.not(sistger_id: nil).exists?
 
@@ -606,10 +601,10 @@ class SistgerImport
   end
 
   # States are required on companies, vehicles and destinations; when SISTGER
-  # has none, use the imported company's state (the agency's home state).
+  # has none, use the destination company's state (the agency's home state).
   def estado_padrao(estados)
-    Company.where.not(sistger_id: nil).order(:sistger_id).pick(:state_id) ||
-      Company.order(:id).pick(:state_id) || estados.values.first
+    Company.unscoped.where(id: @empresa_id || Current.empresa_id).pick(:state_id) ||
+      Company.unscoped.order(:id).pick(:state_id) || estados.values.first
   end
 
   # ---- Value helpers ------------------------------------------------------------

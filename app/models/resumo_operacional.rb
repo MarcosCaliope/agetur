@@ -22,7 +22,7 @@ class ResumoOperacional
 
   def linhas
     @linhas ||= begin
-      ordens = Sorder.where(data: inicio.beginning_of_day..fim.end_of_day).includes(:destination, :tourguide, :vehicle).order(:id).to_a
+      ordens = Sorder.where(data: inicio.beginning_of_day..fim.end_of_day).includes(:destination, :tourguide, :vehicle).order(:numero).to_a
       somas = SorderItem.ativos.where(sorder_id: ordens.map(&:id)).group(:sorder_id).pluck(
         :sorder_id,
         Arel.sql("SUM(COALESCE(amount, 0) - COALESCE(discount, 0) - COALESCE(vendor_discount, 0))"),

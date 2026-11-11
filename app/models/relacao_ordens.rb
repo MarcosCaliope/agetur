@@ -52,7 +52,7 @@ class RelacaoOrdens
       escopo = escopo.ativos unless cancelados?
       escopo = escopo.where(sorders: { encerrada: situacao == "encerradas" }) if situacao.present?
       FILTROS.each { |nome, (coluna, *)| escopo = escopo.where(coluna => filtro(nome)) if filtro(nome) }
-      escopo.order("sorders.data", :sorder_id, :sistger_sequencial, :id).to_a
+      escopo.order("sorders.data", "sorders.numero", :sistger_sequencial, :id).to_a
     end
   end
 

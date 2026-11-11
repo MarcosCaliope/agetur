@@ -80,11 +80,11 @@ class SorderFormTest < ApplicationSystemTestCase
     destino = sorders(:two)
     visit edit_sorder_path(@sorder)
     click_on "Transferir / copiar"
-    fill_in "Nº da OS de destino", with: destino.id
-    assert_selector "#destino-movimentacao .alert-info", text: "OS nº #{destino.id}"
+    fill_in "Nº da OS de destino", with: destino.numero
+    assert_selector "#destino-movimentacao .alert-info", text: "OS nº #{destino.numero}"
     accept_confirm { click_on "Transferir" }
 
-    assert_text "Passageiro Maria transferido da OS nº #{@sorder.id} para a OS nº #{destino.id}."
+    assert_text "Passageiro Maria transferido da OS nº #{@sorder.numero} para a OS nº #{destino.numero}."
     assert_current_path edit_sorder_path(@sorder)
     assert_no_link "Transferir / copiar"
     assert_equal destino.id, @item.reload.sorder_id

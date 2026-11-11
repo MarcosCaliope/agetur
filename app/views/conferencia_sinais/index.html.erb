@@ -24,7 +24,7 @@
           <td><%= link_to passeio.booking.snome, booking_path(passeio.booking_id) %></td>
           <td>
             <%= passeio.destination.description %> <%= l(passeio.data_passeio) %>
-            <% if pagamento.sorder_item %><span class="badge badge-info">OS nº <%= pagamento.sorder_item.sorder_id %></span><% end %>
+            <% if pagamento.sorder_item %><span class="badge badge-info">OS nº <%= pagamento.sorder_item.sorder.numero %></span><% end %>
           </td>
           <td><%= pagamento.nome_forma %></td>
           <td class="text-right"><%= number_to_currency(pagamento.valor) %></td>

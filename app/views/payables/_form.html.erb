@@ -1,7 +1,7 @@
 <%= form_with(model: payable, local: true) do |form| %>
   <%= render "shared/erros", registro: payable %>
   <% unless payable.tipo == "avulsa" %>
-    <p class="text-muted"><%= payable.nome_tipo %><%= " da OS nº #{payable.sorder_id}" if payable.sorder_id %></p>
+    <p class="text-muted"><%= payable.nome_tipo %><%= " da OS nº #{payable.sorder&.numero}" if payable.sorder_id %></p>
   <% end %>
   <div class="form-group">
     <%= form.label :descricao %>

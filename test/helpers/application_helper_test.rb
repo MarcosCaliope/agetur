@@ -9,8 +9,9 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test "ultimo_registro describes service orders by date and destination" do
-    ordem = sorders(:one).dup.tap { |o| o.data = Time.zone.local(2026, 6, 16); o.save! }
-    assert_includes ultimo_registro(Sorder), "nº #{number_with_delimiter(ordem.id)} — 16/06/2026 — #{ordem.destination.description}"
+    ordem = sorders(:one).dup.tap { |o| o.numero = nil; o.data = Time.zone.local(2026, 6, 16); o.save! }
+    assert_equal 3, ordem.numero, "the company's next number"
+    assert_includes ultimo_registro(Sorder), "nº #{number_with_delimiter(ordem.numero)} — 16/06/2026 — #{ordem.destination.description}"
   end
 
   test "ultimo_registro says when there are none" do

@@ -20,7 +20,7 @@ class ResumoOperacionalControllerTest < ActionDispatch::IntegrationTest
     get resumo_operacional_url(@periodo)
     assert_response :success
     assert_select "tbody tr", 1
-    assert_select "tbody a[href=?]", sorder_path(@ordem), text: @ordem.id.to_s
+    assert_select "tbody a[href=?]", sorder_path(@ordem), text: @ordem.numero.to_s
     assert_select "tbody td div", text: "Sandra"
     linha = css_select("tbody tr td").map { |td| td.text.strip }
     # Guia, motorista, pedágio, combustível, despesas; valor OS (650 less

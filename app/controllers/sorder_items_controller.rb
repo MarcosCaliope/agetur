@@ -15,7 +15,7 @@ class SorderItemsController < ApplicationController
   # GET /showcomis
   def showcomis
     @q = SorderItem.ransack(comissoes_query)
-    @sorder_items = @q.result.includes(:vendor, :hotel, :customer).order(:created_at)
+    @sorder_items = @q.result.includes(:vendor, :hotel, :customer, :sorder).order(:created_at)
   end
 
   # GET /sorder_items/new
@@ -69,25 +69,25 @@ class SorderItemsController < ApplicationController
   # just the description of that order. retorno=edicao (the order form's
   # link) goes back to the form of the order it came from.
   def movimentar
-    @destino = Sorder.find_by(id: params[:destino_id]) if params[:destino_id].present?
+    @destino = Sorder.do_numero(params[:destino_id])
     render partial: "destino" if request.xhr?
   end
 
   # POST /sorder_items/1/transferir (SorderItem#transferir_para!)
   def transferir
     origem = @sorder_item.sorder
-    @sorder_item.transferir_para!(Sorder.find_by(id: params[:destino_id]))
+    @sorder_item.transferir_para!(Sorder.do_numero(params[:destino_id]))
     redirect_to retorno_da_movimentacao(origem, @sorder_item.sorder),
-                notice: "Passageiro #{@sorder_item.nome_passageiro} transferido da OS nº #{origem.id} para a OS nº #{@sorder_item.sorder_id}."
+                notice: "Passageiro #{@sorder_item.nome_passageiro} transferido da OS nº #{origem.numero} para a OS nº #{@sorder_item.sorder.numero}."
   rescue SorderItem::NaoMovimentado => e
     voltar_para_movimentar(e)
   end
 
   # POST /sorder_items/1/copiar (SorderItem#copiar_para!)
   def copiar
-    copia = @sorder_item.copiar_para!(Sorder.find_by(id: params[:destino_id]))
+    copia = @sorder_item.copiar_para!(Sorder.do_numero(params[:destino_id]))
     redirect_to retorno_da_movimentacao(@sorder_item.sorder, copia.sorder),
-                notice: "Passageiro #{copia.nome_passageiro} copiado da OS nº #{@sorder_item.sorder_id} para a OS nº #{copia.sorder_id}."
+                notice: "Passageiro #{copia.nome_passageiro} copiado da OS nº #{@sorder_item.sorder.numero} para a OS nº #{copia.sorder.numero}."
   rescue SorderItem::NaoMovimentado => e
     voltar_para_movimentar(e)
   end

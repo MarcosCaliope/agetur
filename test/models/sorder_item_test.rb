@@ -81,7 +81,7 @@ class SorderItemTest < ActiveSupport::TestCase
 
     item.reload
     assert_equal destino.id, item.sorder_id
-    assert_equal "Janela Transferido da OS nº #{origem.id} em #{I18n.l(Date.current)}.", item.comments
+    assert_equal "Janela Transferido da OS nº #{origem.numero} em #{I18n.l(Date.current)}.", item.comments
     assert_equal 40, item.amountpay
     assert_equal ["Filho"], item.companions.map(&:snome)
     assert_equal destino.id, pagamento.cash_entry.reload.sorder_id
@@ -109,8 +109,8 @@ class SorderItemTest < ActiveSupport::TestCase
     assert_equal [3, 0], [copia.qtdepax, copia.qtdechd], "keeps the original's PAX/CHD"
     assert_equal ["Filho"], copia.companions.map(&:snome)
     assert_empty copia.pagamentos
-    assert_equal "Copiado da OS nº #{origem.id} em #{data}.", copia.comments
-    assert_equal "Copiado para a OS nº #{destino.id} em #{data}.", item.reload.comments
+    assert_equal "Copiado da OS nº #{origem.numero} em #{data}.", copia.comments
+    assert_equal "Copiado para a OS nº #{destino.numero} em #{data}.", item.reload.comments
     assert_equal origem.id, item.sorder_id
     assert_equal ["Filho"], item.companions.map(&:snome)
   end
@@ -123,7 +123,7 @@ class SorderItemTest < ActiveSupport::TestCase
     assert_equal "OS de destino não encontrada.", erro.(nil)
     assert_equal "Escolha uma OS diferente da atual.", erro.(item.sorder)
     destino.update!(encerrada: true)
-    assert_equal "A OS nº #{destino.id} está encerrada.", erro.(destino)
+    assert_equal "A OS nº #{destino.numero} está encerrada.", erro.(destino)
     destino.update!(encerrada: false)
     item.update!(scancelado: "S")
     assert_equal "Passageiro cancelado: reative-o antes.", erro.(destino)

@@ -37,7 +37,7 @@ class Payable < ApplicationRecord
 
     conta = abertas.find_or_initialize_by(sorder_item_id: item.id, origem: COMISSOES.fetch(tipo))
     conta.assign_attributes(tipo: tipo, credor: credor, sorder_id: item.sorder_id, valor: saldo,
-                            descricao: "#{vendedor ? 'Comissão' : 'Comissão de repasse'} OS #{item.sorder_id} PAX #{item.nome_passageiro}")
+                            descricao: "#{vendedor ? 'Comissão' : 'Comissão de repasse'} OS #{item.sorder.numero} PAX #{item.nome_passageiro}")
     conta.vencimento ||= vencimento
     conta
   end
@@ -47,7 +47,7 @@ class Payable < ApplicationRecord
   def self.pagar_em_lote!(contas, data:, forma_pagamento:, usuario: nil)
     transaction do
       contas.group_by { |conta| [conta.credor_type, conta.credor_id, conta.nome_credor] }.map do |(_, _, nome), grupo|
-        ordens = grupo.filter_map(&:sorder_id).uniq.sort
+        ordens = grupo.filter_map { |conta| conta.sorder&.numero }.uniq.sort
         saida = CashEntry.create!(
           data: data, tipo: "S", categoria: "Pagamento de conta", forma_pagamento: forma_pagamento, valor: grupo.sum(&:valor),
           descricao: "Pagamento de comissões a #{nome}: #{grupo.size} passageiro(s)#{" - OS #{ordens.join(', ')}" if ordens.any?}",

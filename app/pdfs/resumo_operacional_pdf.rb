@@ -46,7 +46,7 @@ class ResumoOperacionalPdf < Prawn::Document
     topo = cursor
 
     rotulo "O.S:", 0, topo
-    valor number_with_delimiter(sorder.id, delimiter: "."), 22, topo, 60, style: :bold
+    valor number_with_delimiter(sorder.numero, delimiter: "."), 22, topo, 60, style: :bold
     valor sorder.tourguide&.sname, 0, topo - LINHA, 105
     rotulo "Data", 110, topo
     valor data(sorder.data), 135, topo, 55

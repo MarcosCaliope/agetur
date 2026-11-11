@@ -13,7 +13,7 @@ class CashEntriesController < ApplicationController
     @inicio, @fim = @fim, @inicio if @inicio > @fim
 
     periodo = CashEntry.where(data: @inicio..@fim)
-    @lancamentos = periodo.includes(:pagamento, :payables).order(:data, :id)
+    @lancamentos = periodo.includes(:pagamento, :payables, :sorder).order(:data, :id)
     @saldo_anterior = CashEntry.where(data: ...@inicio).saldo
     @entradas = periodo.entradas.sum(:valor)
     @saidas = periodo.saidas.sum(:valor)

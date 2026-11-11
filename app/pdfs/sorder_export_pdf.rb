@@ -59,7 +59,7 @@ class SorderExportPdf < Prawn::Document
   attr_reader :modelo
 
   def initialize(sorder, modelo: nil)
-    super(page_size: "A4", page_layout: :landscape, margin: 20, info: { Title: "Ordem de Serviço #{sorder.id}" })
+    super(page_size: "A4", page_layout: :landscape, margin: 20, info: { Title: "Ordem de Serviço #{sorder.numero}" })
     @sorder = sorder
     @empresa = sorder.company
     @modelo = MODELOS.key?(modelo) ? modelo : self.class.modelo_da(@empresa)
@@ -118,7 +118,7 @@ class SorderExportPdf < Prawn::Document
 
       stroke_vertical_line bounds.top, bounds.top - 78, at: 462
       ordem = [
-        [["ORDEM DE SERVIÇO   ", true], ["#{number_with_delimiter(@sorder.id, delimiter: '.')}      ", true], ["DATA:  ", true],
+        [["ORDEM DE SERVIÇO   ", true], ["#{number_with_delimiter(@sorder.numero, delimiter: '.')}      ", true], ["DATA:  ", true],
          [@sorder.data && data(@sorder.data)]],
         [["DESTINO:  ", true], [@sorder.destination&.description]],
         [["VEÍCULO PLACA:  ", true], ["#{@sorder.vehicle&.license}    "], ["MOTORISTA:  ", true], [@sorder.driver&.sname]],

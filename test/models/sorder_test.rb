@@ -28,4 +28,27 @@ class SorderTest < ActiveSupport::TestCase
     item.update!(scancelado: "N")
     assert_equal "reativou", sorder.auditorias.last.acao
   end
+
+  test "orders are numbered per company, and a typed number finds the current company's order" do
+    atributos = sorders(:one).attributes.except("id", "numero", "company_id", "sistger_id")
+    assert_equal 3, Sorder.create!(atributos).numero, "company :two already has orders 1 and 2"
+
+    outra = Company.create!(name: "OUTRA", state: states(:two))
+    ordem_da_outra = Current.set(empresa_id: outra.id, filtrar_empresa: true) do
+      Sorder.create!(atributos.merge(destination_id: nil, tourguide_id: nil, driver_id: nil, vehicle_id: nil).merge(
+        destination: Destination.unscoped.create!(description: "X", state: states(:two), company: outra),
+        tourguide: Tourguide.unscoped.create!(sname: "G", company: outra), driver: Driver.unscoped.create!(sname: "M", company: outra),
+        vehicle: Vehicle.unscoped.create!(license: "P", state: states(:two), company: outra)
+      ))
+    end
+    assert_equal 1, ordem_da_outra.numero, "each company starts at 1"
+
+    Current.set(filtrar_empresa: true) do
+      assert_equal sorders(:one), Sorder.do_numero(" 1 ")
+      assert_equal sorders(:two), Sorder.do_numero("2")
+      assert_nil Sorder.do_numero("4")
+      assert_nil Sorder.do_numero("")
+    end
+    Current.set(empresa_id: outra.id, filtrar_empresa: true) { assert_equal ordem_da_outra, Sorder.do_numero("1") }
+  end
 end

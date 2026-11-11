@@ -2,7 +2,7 @@ module SorderItemsHelper
   # "OS nº 15 — 05/11/2026 08:00 — City tour": the order a passenger is
   # transferred or copied to (movimentar).
   def descricao_destino(sorder)
-    ["OS nº #{sorder.id}", sorder.data && l(sorder.data, format: "%d/%m/%Y %H:%M"), sorder.destination&.description]
+    ["OS nº #{sorder.numero}", sorder.data && l(sorder.data, format: "%d/%m/%Y %H:%M"), sorder.destination&.description]
       .compact.join(" — ")
   end
 

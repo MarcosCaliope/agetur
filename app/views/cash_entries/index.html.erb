@@ -46,7 +46,7 @@
         <td><%= lancamento.categoria %></td>
         <td>
           <%= lancamento.descricao %>
-          <% if lancamento.sorder_id %>· <%= link_to "OS #{lancamento.sorder_id}", sorder_path(lancamento.sorder_id) %><% end %>
+          <% if lancamento.sorder_id %>· <%= link_to "OS #{lancamento.sorder&.numero}", sorder_path(lancamento.sorder_id) %><% end %>
         </td>
         <td><%= lancamento.nome_forma %></td>
         <td class="text-right"><%= number_to_currency(lancamento.valor) if lancamento.entrada? %></td>

@@ -39,7 +39,7 @@
         <% sorder = linha.sorder %>
         <tr>
           <td>
-            <%= link_to sorder.id, sorder_path(sorder) %>
+            <%= link_to sorder.numero, sorder_path(sorder) %>
             <div class="text-muted"><%= sorder.tourguide&.sname %></div>
           </td>
           <td><%= l(sorder.data.to_date) %></td>

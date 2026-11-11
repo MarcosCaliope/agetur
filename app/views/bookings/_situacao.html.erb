@@ -2,7 +2,7 @@
 <% if passeio.cancelado? %>
   <span class="badge badge-secondary">Cancelado</span>
 <% elsif passeio.lancado? %>
-  <%= link_to "OS nº #{passeio.sorder_item.sorder_id}", sorder_path(passeio.sorder_item.sorder_id), class: "badge badge-success" %>
+  <%= link_to "OS nº #{passeio.sorder_item.sorder.numero}", sorder_path(passeio.sorder_item.sorder_id), class: "badge badge-success" %>
 <% else %>
   <span class="badge badge-warning">Pendente</span>
 <% end %>

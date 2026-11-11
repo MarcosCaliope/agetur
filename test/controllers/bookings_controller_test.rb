@@ -25,7 +25,7 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
 
     post booking_items_url(booking), params: { booking_item: { destination_id: @destino.id, data_passeio: "2026-11-05", qtdepax: "1", qtdechd: "1" } }
     follow_redirect!
-    assert_select ".alert-success", text: /Já existe OS do roteiro nesta data \(nº #{@ordem.id}\)/
+    assert_select ".alert-success", text: /Já existe OS do roteiro nesta data \(nº #{@ordem.numero}\)/
     assert_equal 150, booking.items.last.valor
   end
 
@@ -43,7 +43,7 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     assert @passeio.reload.lancado?
 
     get edit_booking_item_url(@booking, @passeio)
-    assert_select ".alert-info", text: /lançado na OS nº #{@ordem.id}/
+    assert_select ".alert-info", text: /lançado na OS nº #{@ordem.numero}/
     assert_difference("SorderItem.count", -1) { patch retirar_booking_item_url(@booking, @passeio) }
   end
 
@@ -63,7 +63,7 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     get pendentes_bookings_url(inicio: "2026-11-01")
     assert_response :success
     assert_select ".card-header", text: /05\/11\/2026 · #{@destino.description}/
-    assert_select "a", text: "Lançar na OS nº #{@ordem.id}"
+    assert_select "a", text: "Lançar na OS nº #{@ordem.numero}"
   end
 
   test "lists bookings that have no tour yet" do

@@ -26,7 +26,7 @@ class RelacaoOrdensControllerTest < ActionDispatch::IntegrationTest
     get relacao_ordens_url(@periodo)
     assert_response :success
     assert_select "tbody tr", 2
-    assert_select "tbody a[href=?]", sorder_path(@buzios), text: @buzios.id.to_s
+    assert_select "tbody a[href=?]", sorder_path(@buzios), text: @buzios.numero.to_s
     assert_select "tbody tr:first-child td", text: "Buzios"
     assert_select "tbody tr:first-child td", text: "R$ 150,00"
     assert_select "tfoot th", text: /2 ordens/

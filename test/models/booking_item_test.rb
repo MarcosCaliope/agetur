@@ -42,7 +42,7 @@ class BookingItemTest < ActiveSupport::TestCase
     assert_empty @passeio.ordens_candidatas.where.not(id: @ordem.id)
 
     erro = assert_raises(BookingItem::NaoLancado) { @passeio.lancar_na_os!(@ordem) }
-    assert_match "já lançado na OS nº #{@ordem.id}", erro.message
+    assert_match "já lançado na OS nº #{@ordem.numero}", erro.message
   end
 
   test "commission comes from the vendor's % for the destination, and none for vendors not paid commission" do

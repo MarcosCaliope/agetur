@@ -2,7 +2,7 @@
 <% ordem = item.sorder %>
 <h1>Recebimentos do passageiro</h1>
 <p>
-  <strong><%= item.nome_passageiro %></strong> — <%= link_to "OS nº #{ordem.id}", ordem %>
+  <strong><%= item.nome_passageiro %></strong> — <%= link_to "OS nº #{ordem.numero}", ordem %>
   <% if ordem.encerrada? %><span class="badge badge-secondary">OS encerrada</span><% end %>
 </p>
 

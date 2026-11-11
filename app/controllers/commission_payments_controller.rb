@@ -5,7 +5,8 @@
 class CommissionPaymentsController < ApplicationController
   before_action :carregar
 
-  # GET /comissoes/pagamento?tipo=&credor_id=&inicio=&fim=&sorder_id=
+  # GET /comissoes/pagamento?tipo=&credor_id=&inicio=&fim=&numero_os= (typed order number;
+  # sorder_id is the order form's own id, for its "Pagar comissão" menu)
   def index
     @data = Time.zone.today
     @recibos = CashEntry.where(id: Array(params[:recibos])).order(:id)
@@ -58,6 +59,7 @@ class CommissionPaymentsController < ApplicationController
     itens = itens.where(sorders: { data: @inicio.beginning_of_day.. }) if @inicio
     itens = itens.where(sorders: { data: ..@fim.end_of_day }) if @fim
     itens = itens.where(sorder_id: params[:sorder_id]) if params[:sorder_id].present?
+    itens = itens.where(sorders: { numero: params[:numero_os] }) if params[:numero_os].present?
     @itens = itens.order("sorders.data", :sorder_id, :id).to_a
 
     @abertas = Payable.abertas.where(sorder_item_id: @itens.map(&:id), origem: Payable::COMISSOES[@tipo]).index_by(&:sorder_item_id)
@@ -66,11 +68,11 @@ class CommissionPaymentsController < ApplicationController
 
   # Without creditor, order or dates, the list defaults to this month.
   def filtros_informados?
-    %i[credor_id sorder_id inicio fim].any? { |nome| params[nome].present? }
+    %i[credor_id sorder_id numero_os inicio fim].any? { |nome| params[nome].present? }
   end
 
   def filtros
-    { tipo: @tipo, credor_id: params[:credor_id].presence, sorder_id: params[:sorder_id].presence,
+    { tipo: @tipo, credor_id: params[:credor_id].presence, sorder_id: params[:sorder_id].presence, numero_os: params[:numero_os].presence,
       inicio: @inicio, fim: @fim }.compact
   end
   helper_method :filtros

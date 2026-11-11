@@ -42,7 +42,7 @@
   <tbody>
     <% @sorder_items.each do |sorder_item| %>
       <tr>
-        <td><%= sorder_item.sorder_id %></td>
+        <td><%= sorder_item.sorder&.numero %></td>
         <td><%= sorder_item.vendor&.sname %></td>
         <td><%= sorder_item.nome_passageiro %></td>
         <td><%= sorder_item.hotel&.sname %></td>

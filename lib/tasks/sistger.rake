@@ -6,10 +6,11 @@
 #   DATABASE_URL='<external URL>' ETAPAS=ordens,caixa bin/rails sistger:importar
 #   DATABASE_URL='<external URL>' ETAPAS=hoteis EMPRESA=3 bin/rails sistger:importar
 #
-# EMPRESA is the destination company's code in this app (default: the company
-# imported from SISTGER). Before writing, the task shows source, destination,
-# steps and the imported records it would move from another company, and asks
-# for confirmation. CONFIRMAR=s skips the question (scripts).
+# EMPRESA is the destination company's code in this app (default: the only
+# company imported from SISTGER; required when there are several, since each
+# may come from its own SISTGER base). Before writing, the task shows source,
+# destination and steps, and asks for confirmation. CONFIRMAR=s skips the
+# question (scripts).
 namespace :sistger do
   desc "Importa do SISTGER todas as etapas (ou ETAPAS=a,b) para o banco da DATABASE_URL (EMPRESA=código do destino)"
   task importar: :environment do
@@ -26,14 +27,14 @@ namespace :sistger do
     importador = SistgerImport.new(fonte, empresa_id: empresa&.id)
     banco = ActiveRecord::Base.connection_db_config.configuration_hash.values_at(:host, :database).compact.join("/")
     destino = Company.unscoped.find_by(id: importador.empresa_destino_id)
+    if destino.nil? && Company.unscoped.where.not(sistger_id: nil).exists?
+      abort "Erro: há mais de uma empresa importada do SISTGER. Informe EMPRESA=<código>. Empresas: " +
+            Company.unscoped.order(:id).map { |c| "#{c.id} (#{c.name})" }.join(", ")
+    end
     puts "SISTGER: #{fonte.descricao}"
     puts "Destino: #{banco}"
-    puts "Empresa: #{destino ? "#{destino.id} - #{destino.name}" : 'a que a etapa Empresa importar'}"
+    puts "Empresa: #{destino ? "#{destino.id} - #{destino.name}" : 'nova, criada pela etapa Empresa'}"
     puts "Etapas:  #{SistgerImport::ETAPAS.select { |e| chaves.include?(e.chave) }.map(&:nome).join(', ')}"
-    importador.importados_em_outras_empresas(chaves).each do |chave, total|
-      puts "  atenção: #{total} registro(s) de #{SistgerImport.etapa(chave).nome.downcase} já importados estão em outra empresa " \
-           "e serão movidos para esta se vierem de novo do SISTGER"
-    end
 
     unless ENV["CONFIRMAR"] == "s"
       print "Importar? (s/N) "

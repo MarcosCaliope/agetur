@@ -63,7 +63,7 @@ O Render não alcança o SQL Server da sua rede, então a importação roda **no
    ```
    Para importar só algumas etapas, use `ETAPAS=ordens,caixa`. Etapas: `empresa`, `clientes`, `vendedores`, `agencias`, `hoteis`, `guias`, `motoristas`, `veiculos`, `roteiros`, `horarios`, `comissoes_roteiro`, `ordens`, `caixa`. Sem `ETAPAS`, importa todas.
 
-   Para gravar numa empresa diferente da importada do SISTGER, use `EMPRESA=<código da empresa no sistema>`. Um registro do SISTGER só existe em uma empresa: importá-lo para outra o **move** para ela, e a tarefa avisa quantos estão nesse caso.
+   Para escolher a empresa de destino, use `EMPRESA=<código da empresa no sistema>`. É obrigatório quando já há mais de uma empresa importada. Cada empresa pode vir da sua própria base do SISTGER (por exemplo, outra instância do SQL Server, com outro `SISTGER_DB_PORT`): importar numa empresa nunca altera as outras.
 
    Antes de gravar, a tarefa mostra a origem, o destino, a empresa e as etapas, e pergunta `Importar? (s/N)`. Confira se o destino é o banco do Render. `CONFIRMAR=s` pula a pergunta.
 

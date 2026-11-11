@@ -126,7 +126,7 @@ class SorderItemPayment < ApplicationRecord
 
     item = sorder_item
     origem, pax = if item
-                    ["Recebimento do passeio OS: #{item.sorder_id}", item.nome_passageiro]
+                    ["Recebimento do passeio OS: #{item.sorder.numero}", item.nome_passageiro]
                   else
                     ["Sinal do agendamento nº #{booking_item.booking_id} (#{booking_item.destination.description})", booking_item.booking.snome]
                   end

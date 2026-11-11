@@ -75,24 +75,25 @@ class SistgerImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "tr[data-etapa=clientes] td.sistger-ultimo-importado", text: "30"
   end
 
-  test "imports into the company picked in the header and warns about records it moves" do
+  test "imports into the company picked in the header, leaving other companies' copies alone" do
     outra = Company.create!(name: "OUTRA", state: states(:two))
-    Customer.unscoped.create!(nome: "JA IMPORTADO", sistger_id: 10, company_id: outra.id)
+    ja_importado = Customer.unscoped.create!(nome: "JA IMPORTADO", sistger_id: 10, company_id: outra.id)
     sign_out :user
     sign_in admins(:one)
     patch trocar_empresa_url, params: { empresa_id: companies(:two).id }
 
     com_fonte { get sistger_imports_url }
     assert_select ".alert-info strong", companies(:two).name
-    assert_select "tr[data-etapa=clientes] .sistger-movidos", /1 já importado/
 
     com_fonte { post sistger_imports_url, params: { etapas: ["clientes"], filtros: { clientes: { modo: "todos" } } } }
-    assert_equal [companies(:two).id], Customer.unscoped.where(sistger_id: [10, 20, 30]).distinct.pluck(:company_id)
+    assert_equal [companies(:two).id], Customer.unscoped.where(company_id: companies(:two).id, sistger_id: [10, 20, 30]).distinct.pluck(:company_id)
     assert_match(/concluída em #{companies(:two).name}/, flash[:notice])
+    assert_equal [outra.id, "JA IMPORTADO"], ja_importado.reload.values_at(:company_id, :nome), "the other company's copy isn't touched"
 
     patch trocar_empresa_url, params: { empresa_id: outra.id }
     com_fonte { post sistger_imports_url, params: { etapas: ["clientes"], filtros: { clientes: { modo: "todos" } } } }
-    assert_equal [outra.id], Customer.unscoped.where(sistger_id: [10, 20, 30]).distinct.pluck(:company_id)
+    assert_equal 2, Customer.unscoped.where(sistger_id: 10).count, "one copy per company"
+    assert_not_equal "JA IMPORTADO", ja_importado.reload.nome, "re-importing into its company updates it"
   end
 
   test "asks to select at least one step" do
@@ -108,7 +109,7 @@ class SistgerImportsControllerTest < ActionDispatch::IntegrationTest
 
     com_fonte { post sistger_imports_url, params: { etapas: ["ordens"] } }
     follow_redirect!
-    assert_select ".alert-danger", text: "Importe empresa antes de ordens de serviço."
+    assert_select ".alert-danger", text: "Importe roteiros antes de ordens de serviço."
   end
 
   test "unknown steps are not found" do

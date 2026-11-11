@@ -22,7 +22,7 @@ class AgendamentosPorUsuario
       escopo = do_periodo.where.not(usuario: [nil, ""])
       escopo = escopo.where(usuario: usuario) if usuario
       escopo.includes(:hotel, booking_item: :booking, sorder: :destination)
-        .order(:usuario, "sorders.data", :sorder_id, :sistger_sequencial, :id).to_a
+        .order(:usuario, "sorders.data", "sorders.numero", :sistger_sequencial, :id).to_a
     end
   end
 
