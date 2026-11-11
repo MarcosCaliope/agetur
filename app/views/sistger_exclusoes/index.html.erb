@@ -12,7 +12,8 @@
     Se um registro que fica ainda usa um dos que seriam apagados (por exemplo, uma ordem usa o hotel), nada é
     apagado e a mensagem diz o que incluir. Ordens de serviço levam junto os passageiros, a lista pax, os
     recebimentos, as contas a pagar e o histórico. Lançamentos do caixa feitos por elas ficam, sem ligação com a
-    ordem, a não ser que o caixa também seja marcado. Ordens com passeios agendados não são apagadas.
+    ordem, a não ser que o caixa também seja marcado. Ordens com passeios agendados só são apagadas junto
+    com os agendamentos. Agendamentos levam os passeios, a lista pax e os sinais.
   </p>
 
   <% if @escolhidas.any? %>
@@ -25,7 +26,7 @@
           <h2 class="h5 card-title">Confirmar a exclusão</h2>
           <ul>
             <% @escolhidas.each do |chave| %>
-              <li><%= SistgerImport.etapa(chave).nome %>: <%= number_with_delimiter(@contagens[chave]) %> registro(s)</li>
+              <li><%= SistgerExclusao.etapa(chave).nome %>: <%= number_with_delimiter(@contagens[chave]) %> registro(s)</li>
             <% end %>
           </ul>
           <div class="form-group">

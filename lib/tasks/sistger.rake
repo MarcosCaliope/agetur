@@ -69,7 +69,7 @@ namespace :sistger do
     puts "Banco:   #{banco}"
     puts "Empresa: #{empresa.id} - #{empresa.name}"
     puts "Serão excluídos TODOS os registros (importados ou não):"
-    contagens.each { |chave, total| puts "  #{SistgerImport.etapa(chave).nome}: #{total}" }
+    contagens.each { |chave, total| puts "  #{SistgerExclusao.etapa(chave).nome}: #{total}" }
 
     unless ENV["CONFIRMAR"] == "s"
       print "Digite EXCLUIR para confirmar: "

@@ -33,8 +33,43 @@ class SistgerExclusaoTest < ActiveSupport::TestCase
     assert Sorder.exists?(item.sorder_id)
   end
 
+  test "agendamentos deletes the company's bookings with their tours and down payments" do
+    booking = Booking.create!(data: Date.current, snome: "Ana", vendor: vendors(:two), hotel: hotels(:two))
+    tour = booking.items.create!(destination: destinations(:two), data_passeio: Date.current, valor: 10)
+    vendedor_da_outra = Vendor.unscoped.create!(sname: "VENDEDOR DA OUTRA", company_id: @outra.id)
+    da_outra = Current.set(empresa_id: @outra.id) do
+      Booking.create!(data: Date.current, snome: "Bia", vendor: vendedor_da_outra, hotel: @hotel_da_outra)
+    end
+
+    resultado = @exclusao.excluir(%w[agendamentos]).first
+
+    assert_equal "Agendamentos", resultado.etapa.nome
+    assert_equal 0, Booking.unscoped.where(company_id: @empresa.id).count
+    assert_not BookingItem.unscoped.exists?(tour.id)
+    assert Booking.unscoped.exists?(da_outra.id)
+  end
+
+  test "bookings are what kept hotels from being deleted" do
+    Booking.create!(data: Date.current, snome: "Ana", vendor: vendors(:two), hotel: hotels(:two))
+    erro = assert_raises(SistgerExclusao::Erro) { @exclusao.excluir(%w[ordens hoteis]) }
+    assert_match(/agendamentos/i, erro.message)
+  end
+
+  test "refuses tours placed in orders that stay, but not when the orders go too" do
+    item = sorder_items(:two)
+    booking = Booking.create!(data: Date.current, snome: "Ana", vendor: vendors(:two), hotel: hotels(:two))
+    booking.items.create!(destination: destinations(:two), data_passeio: Date.current, valor: 10).update_columns(sorder_item_id: item.id)
+
+    erro = assert_raises(SistgerExclusao::Erro) { @exclusao.excluir(%w[agendamentos]) }
+    assert_match(/já estão em ordens/, erro.message)
+    assert Booking.unscoped.exists?(booking.id)
+
+    @exclusao.excluir(%w[ordens agendamentos])
+    assert_not Booking.unscoped.exists?(booking.id)
+    assert_not Sorder.unscoped.exists?(item.sorder_id)
+  end
+
   test "deletes every table of the company, imported or not, and nothing of another company" do
-    Booking.unscoped.where(company_id: @empresa.id).destroy_all
     User.where(vendor_id: Vendor.select(:id)).update_all(vendor_id: nil)
     SorderAuditoria.create!(sorder_id: Sorder.first.id, registro_type: "Sorder", acao: "criou", company_id: @empresa.id)
 
