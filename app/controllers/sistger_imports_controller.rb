@@ -9,6 +9,8 @@ class SistgerImportsController < ApplicationController
     return unless @configurada
 
     @contagens = importador.contagens
+    @filial = importador.filial_da_origem
+    @destino_confere = importador.destino_confere?
   rescue SistgerImport::Erro => e
     @erro = e.message
   ensure

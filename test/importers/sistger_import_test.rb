@@ -430,4 +430,27 @@ class SistgerImportTest < ActiveSupport::TestCase
     assert_not_equal outro.id, hotel
     assert_equal destino.id, Hotel.unscoped.find(hotel).company_id
   end
+
+  test "refuses a base whose company isn't the destination's, by CNPJ or else by name" do
+    destino = outra_empresa
+    destino.update_columns(sistger_id: 1, cnpj: nil)
+    importador = SistgerImport.new(@fonte, empresa_id: destino.id)
+    assert_equal({ nome: "ISA TURISMO", cnpj: "10.554.031/0001-48" }, importador.filial_da_origem)
+    assert_not importador.destino_confere?
+    erro = assert_raises(SistgerImport::Erro) { importador.importar("hoteis") }
+    assert_match(/é da ISA TURISMO, mas os dados iriam para a empresa ENSEADA/, erro.message)
+    assert_not Hotel.unscoped.where(company_id: destino.id).where.not(sistger_id: nil).exists?
+
+    destino.update_columns(name: "Isa  Turismo")
+    assert SistgerImport.new(@fonte, empresa_id: destino.id).destino_confere?, "same name ignoring case and spaces"
+    destino.update_columns(name: "ISA TURISMO", cnpj: "99.999.999/0001-99")
+    assert_not SistgerImport.new(@fonte, empresa_id: destino.id).destino_confere?, "CNPJs on both sides decide"
+    destino.update_columns(name: "OUTRO NOME", cnpj: "10554031000148")
+    assert SistgerImport.new(@fonte, empresa_id: destino.id).destino_confere?
+  end
+
+  test "a company never imported takes any base" do
+    destino = outra_empresa
+    assert SistgerImport.new(@fonte, empresa_id: destino.id).destino_confere?
+  end
 end

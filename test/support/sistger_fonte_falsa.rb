@@ -28,5 +28,7 @@ class SistgerFonteFalsa
     { total: linhas.size, ultimo: linhas.filter_map { |l| l[coluna] }.max }
   end
 
+  def descricao = "SISTGER de teste"
+
   def fechar; end
 end

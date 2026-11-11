@@ -31,7 +31,8 @@ namespace :sistger do
       abort "Erro: há mais de uma empresa importada do SISTGER. Informe EMPRESA=<código>. Empresas: " +
             Company.unscoped.order(:id).map { |c| "#{c.id} (#{c.name})" }.join(", ")
     end
-    puts "SISTGER: #{fonte.descricao}"
+    filial = importador.filial_da_origem
+    puts "SISTGER: #{fonte.descricao}#{", filial #{filial[:nome]}" if filial}"
     puts "Destino: #{banco}"
     puts "Empresa: #{destino ? "#{destino.id} - #{destino.name}" : 'nova, criada pela etapa Empresa'}"
     puts "Etapas:  #{SistgerImport::ETAPAS.select { |e| chaves.include?(e.chave) }.map(&:nome).join(', ')}"

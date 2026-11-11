@@ -10,13 +10,20 @@
 <% elsif @erro %>
   <div class="alert alert-danger"><%= @erro %></div>
 <% else %>
+  <% unless @destino_confere %>
+    <div class="alert alert-danger">
+      A base do SISTGER é da <strong><%= @filial[:nome] %></strong>, mas a empresa escolhida é
+      <strong><%= empresa_atual&.name %></strong>: a importação será recusada. Troque a empresa no topo da página, ou a
+      base no registro do SISTGER. Se for a mesma empresa com outro nome, corrija o nome ou o CNPJ dela.
+    </div>
+  <% end %>
   <div class="alert alert-info">
     Os dados serão gravados na empresa <strong><%= empresa_atual&.name || "importada do SISTGER" %></strong>.
     Para outra empresa, troque a empresa no topo da página. Cada empresa pode vir da sua própria base do SISTGER:
     a importação só altera os dados desta empresa. A etapa Empresa grava os dados do SISTGER nesta empresa.
   </div>
   <p class="text-muted">
-    Origem: <%= fonte.descricao %>. Marque as tabelas e escolha o filtro de cada uma. Importar de novo
+    Origem: <%= fonte.descricao %><%= ", filial #{@filial[:nome]}" if @filial %>. Marque as tabelas e escolha o filtro de cada uma. Importar de novo
     atualiza o que já foi importado, sem duplicar; registros criados diretamente neste sistema não são alterados.
   </p>
   <p class="text-muted small">

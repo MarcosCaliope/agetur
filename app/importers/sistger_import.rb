@@ -169,6 +169,7 @@ class SistgerImport
 
   def importar(chave, filtro = Filtro.todos)
     etapa = self.class.etapa(chave)
+    conferir_destino!
     avisos = []
     @detalhes = []
     linhas = nil
@@ -178,6 +179,40 @@ class SistgerImport
       etapa.modelo.constantize.transaction { gravar(chave, linhas.map { |l| mapear(chave, l) }, avisos) }
     end
     Resultado.new(etapa: etapa, filtro: filtro, lidos: linhas.size, gravados: gravados, avisos: avisos, detalhes: @detalhes)
+  end
+
+  # The source base's company (tblFilial): {nome:, cnpj:}, or nil.
+  def filial_da_origem
+    return @filial_da_origem if defined?(@filial_da_origem)
+
+    linha = @fonte.linhas("SELECT TOP 1 sNome AS sNome, sCNPJ AS sCNPJ FROM Tblfilial ORDER BY iCODIGO").first
+    @filial_da_origem = linha && { nome: texto(linha["sNome"]), cnpj: texto(linha["sCNPJ"]) }
+  end
+
+  # Whether the source base belongs to the destination company, so a base
+  # can't be imported into another company's data. Same CNPJ when both have
+  # one, else the same name (ignoring case, accents and spaces). A company
+  # never imported (no sistger_id) takes any base: its first import, through
+  # the "empresa" step, makes it that base's company.
+  def destino_confere?
+    empresa = Company.unscoped.find_by(id: empresa_destino_id)
+    filial = filial_da_origem
+    return true if empresa.nil? || empresa.sistger_id.nil? || filial.nil?
+
+    cnpjs = [empresa.cnpj, filial[:cnpj]].map { |c| c.to_s.gsub(/\D/, "") }
+    return cnpjs.first == cnpjs.last if cnpjs.all?(&:present?)
+
+    [empresa.name, filial[:nome]].map { |n| I18n.transliterate(n.to_s).upcase.squish }.uniq.one?
+  end
+
+  def conferir_destino!
+    return if @destino_conferido
+    return @destino_conferido = true if destino_confere?
+
+    empresa = Company.unscoped.find(empresa_destino_id)
+    raise Erro, "A base do SISTGER (#{@fonte.descricao}) é da #{filial_da_origem[:nome]}, mas os dados iriam para a empresa " \
+                "#{empresa.name}. Troque a empresa no topo da página, ou a base no registro do SISTGER. Se for a mesma " \
+                "empresa com outro nome, corrija o nome ou o CNPJ dela."
   end
 
   # Runs the chosen steps in dependency order. filtros: {chave => Filtro}.
