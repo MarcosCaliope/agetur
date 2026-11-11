@@ -32,6 +32,31 @@
   </div>
 </div>
 
+<%# After saving a changed pax list (BookingsController#update). %>
+<% fora = params[:conferir_pax].present? ? b.passeios_fora_da_lista : [] %>
+<% if fora.any? %>
+  <div class="alert alert-warning" id="conferir-pax">
+    <p class="mb-2">
+      A lista pax mudou: com o titular, são <strong><%= b.pax_sugerido %> PAX e <%= b.chd_sugerido %> CHD</strong>.
+      Atualizar estes passeios ainda não lançados em OS?
+    </p>
+    <ul class="mb-2">
+      <% fora.each do |passeio| %>
+        <li><%= l(passeio.data_passeio) %> · <%= passeio.destination.description %>:
+          <%= passeio.qtdepax %> PAX e <%= passeio.qtdechd %> CHD → <%= b.pax_sugerido %> PAX e <%= b.chd_sugerido %> CHD</li>
+      <% end %>
+    </ul>
+    <%= form_with url: atualizar_pax_booking_path(b), method: :patch, local: true, class: "form-inline" do %>
+      <div class="form-check mr-3">
+        <%= check_box_tag :recalcular_valor, "1", false, class: "form-check-input" %>
+        <%= label_tag :recalcular_valor, "Recalcular o valor pela tabela do roteiro", class: "form-check-label" %>
+      </div>
+      <%= submit_tag "Sim, atualizar", class: "btn btn-warning btn-sm mr-2", name: nil %>
+      <%= link_to "Não, manter como está", booking_path(b), class: "btn btn-link btn-sm" %>
+    <% end %>
+  </div>
+<% end %>
+
 <h2 class="h5">Passeios</h2>
 <table class="table table-sm table-hover">
   <thead>

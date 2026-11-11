@@ -2,7 +2,7 @@
 # its pax list and tours. The list is SISTGER's "Relação de Agendamento de
 # Passeios", one row per tour.
 class BookingsController < ApplicationController
-  before_action :set_booking, only: %i[show edit update destroy]
+  before_action :set_booking, only: %i[show edit update destroy atualizar_pax]
   before_action :set_options, only: %i[new create edit update]
 
   # GET /agendamentos?inicio=&fim=&situacao=&busca=
@@ -74,12 +74,25 @@ class BookingsController < ApplicationController
     end
   end
 
+  # When the pax list changed and pending tours no longer match it, the
+  # booking's page asks whether to update them (conferir_pax).
   def update
+    lista_antes = lista_pax(@booking)
     if @booking.update(booking_params)
-      redirect_to @booking, notice: "Agendamento atualizado com sucesso."
+      mudou = lista_pax(@booking.reload) != lista_antes
+      conferir = mudou && @booking.passeios_fora_da_lista.any?
+      redirect_to booking_path(@booking, conferir_pax: (1 if conferir)), notice: "Agendamento atualizado com sucesso."
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # PATCH /agendamentos/1/atualizar_pax(?recalcular_valor=1)
+  def atualizar_pax
+    total = @booking.atualizar_pax_dos_passeios!(recalcular_valor: params[:recalcular_valor] == "1")
+    redirect_to @booking, notice: "PAX/CHD atualizado em #{total} passeio(s): #{@booking.pax_sugerido} PAX e #{@booking.chd_sugerido} CHD."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @booking, alert: e.record.errors.full_messages.to_sentence
   end
 
   def destroy
@@ -91,6 +104,10 @@ class BookingsController < ApplicationController
   end
 
   private
+
+  def lista_pax(booking)
+    booking.companions.map { |pessoa| [pessoa.snome, pessoa.chd, pessoa.colo] }
+  end
 
   def set_booking
     @booking = Booking.find(params[:id])

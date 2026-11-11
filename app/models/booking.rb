@@ -36,6 +36,27 @@ class Booking < ApplicationRecord
   def pax_sugerido = 1 + companions.count { |pessoa| !pessoa.chd? && !pessoa.colo? }
   def chd_sugerido = companions.count { |pessoa| pessoa.chd? && !pessoa.colo? }
 
+  # Tours not yet in an order whose PAX/CHD no longer match the pax list.
+  # Placed tours are left alone: the order has its own copy of the list.
+  def passeios_fora_da_lista
+    items.pendentes.reject { |passeio| passeio.qtdepax == pax_sugerido && passeio.qtdechd == chd_sugerido }
+  end
+
+  # Asked after the list changes (BookingsController#atualizar_pax). The
+  # value is kept unless recalcular_valor, which prices it again by the
+  # roteiro's table (BookingItem#sugerir_hora_e_valor) for the new counts.
+  def atualizar_pax_dos_passeios!(recalcular_valor: false)
+    passeios = passeios_fora_da_lista
+    transaction do
+      passeios.each do |passeio|
+        passeio.assign_attributes(qtdepax: pax_sugerido, qtdechd: chd_sugerido)
+        passeio.valor = 0 if recalcular_valor
+        passeio.save!
+      end
+    end
+    passeios.size
+  end
+
   private
 
   def vendedor_ativo

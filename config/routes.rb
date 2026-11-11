@@ -38,6 +38,7 @@ Rails.application.routes.draw do
   end
   resources :bookings, path: "agendamentos" do
     get 'pendentes', on: :collection
+    patch 'atualizar-pax', on: :member, action: :atualizar_pax, as: :atualizar_pax
     resources :items, controller: "booking_items", path: "passeios", only: %i[create edit update destroy] do
       member do
         patch 'lancar'

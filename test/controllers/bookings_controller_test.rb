@@ -93,4 +93,34 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     @passeio.retirar_da_os!
     assert_difference("Booking.count", -1) { delete booking_url(@booking) }
   end
+
+  test "after the pax list changes, offers to update the pending tours and does it on confirmation" do
+    lancado = @booking.items.create!(destination: @destino, data_passeio: Date.new(2026, 11, 5))
+    lancado.lancar_na_os!(@ordem)
+    assert_equal [1, 0, 100], [@passeio.qtdepax, @passeio.qtdechd, @passeio.valor.to_i]
+
+    patch booking_url(@booking), params: { booking: { companions_attributes: { "0" => { snome: "Beto" }, "1" => { snome: "Lia", chd: "1" } } } }
+    assert_redirected_to booking_url(@booking, conferir_pax: 1)
+    follow_redirect!
+    assert_select "#conferir-pax", text: /2 PAX e 1 CHD/
+    assert_select "#conferir-pax li", 1, "the tour already in an order isn't offered"
+
+    patch atualizar_pax_booking_url(@booking)
+    assert_redirected_to booking_url(@booking)
+    assert_equal [2, 1, 100], @passeio.reload.values_at(:qtdepax, :qtdechd).push(@passeio.valor.to_i), "value kept"
+    assert_equal [1, 0], lancado.reload.values_at(:qtdepax, :qtdechd)
+
+    patch booking_url(@booking), params: { booking: { companions_attributes: { "2" => { snome: "Rui" } } } }
+    follow_redirect!
+    patch atualizar_pax_booking_url(@booking), params: { recalcular_valor: "1" }
+    assert_equal [3, 1, 350], @passeio.reload.values_at(:qtdepax, :qtdechd).push(@passeio.valor.to_i), "repriced by the table"
+  end
+
+  test "saving without touching the pax list doesn't ask" do
+    @booking.companions.create!(snome: "Beto")
+    patch booking_url(@booking), params: { booking: { observacoes: "Sem mudança na lista" } }
+    assert_redirected_to booking_url(@booking)
+    follow_redirect!
+    assert_select "#conferir-pax", 0
+  end
 end

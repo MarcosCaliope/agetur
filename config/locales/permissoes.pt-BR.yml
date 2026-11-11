@@ -26,6 +26,7 @@ pt-BR:
       destroy: "Excluir"
       bookings:
         pendentes: "Passeios pendentes"
+        atualizar_pax: "Atualizar PAX/CHD dos passeios pela lista"
       booking_items:
         lancar: "Lançar na OS"
         retirar: "Retirar da OS"
