@@ -1,0 +1,20 @@
+<h1 class="h3">Acesso das empresas</h1>
+<p class="text-muted">
+  Os usuários ligados a uma empresa bloqueada, ou com o acesso vencido, não conseguem entrar no sistema, e quem estiver
+  logado é desconectado na próxima página. Usuários com "Todas as empresas" e os administradores não são afetados.
+</p>
+
+<table class="table table-sm table-hover">
+  <thead><tr><th>Código</th><th>Empresa</th><th>Usuários</th><th>Situação</th><th></th></tr></thead>
+  <tbody>
+    <% @companies.each do |company| %>
+      <tr>
+        <td><%= company.id %></td>
+        <td><%= company.name %></td>
+        <td><%= @usuarios.fetch(company.id, 0) %></td>
+        <td><%= render "situacao", company: company %></td>
+        <td class="text-nowrap"><%= link_icone "pencil", "Editar acesso", edit_admins_backoffice_company_path(company) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

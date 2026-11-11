@@ -38,4 +38,17 @@ class CompanyTest < ActiveSupport::TestCase
     assert_not @company.valid?
     assert_includes @company.errors[:logo_formulario], "deve ter no máximo 2 MB"
   end
+
+  test "access is suspended when blocked by hand or after the paid-through day" do
+    hoje = Date.new(2026, 11, 11)
+    assert_not @company.acesso_suspenso?(hoje), "no date and no block: free"
+
+    @company.acesso_liberado_ate = hoje
+    assert_not @company.acesso_suspenso?(hoje), "the paid-through day itself still has access"
+    assert @company.acesso_suspenso?(hoje + 1)
+
+    @company.acesso_liberado_ate = nil
+    @company.acesso_bloqueado = true
+    assert @company.acesso_suspenso?(hoje)
+  end
 end

@@ -1,0 +1,11 @@
+<% if company.acesso_bloqueado? %>
+  <span class="badge badge-danger">Bloqueada</span>
+<% elsif company.acesso_vencido? %>
+  <span class="badge badge-danger">Suspensa</span> <small class="text-muted">venceu em <%= l company.acesso_liberado_ate %></small>
+<% elsif company.acesso_liberado_ate %>
+  <% dias = (company.acesso_liberado_ate - Date.current).to_i %>
+  <span class="badge <%= dias <= 5 ? "badge-warning" : "badge-success" %>">Liberada</span>
+  <small class="text-muted">até <%= l company.acesso_liberado_ate %> (<%= dias.zero? ? "último dia" : pluralize(dias, "dia", plural: "dias") %>)</small>
+<% else %>
+  <span class="badge badge-success">Liberada</span> <small class="text-muted">sem data limite</small>
+<% end %>

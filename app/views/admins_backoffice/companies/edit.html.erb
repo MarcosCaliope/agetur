@@ -1,0 +1,24 @@
+<h1 class="h3">Acesso da empresa</h1>
+<p class="lead mb-1"><%= @company.name %></p>
+<p class="mb-4">Situação atual: <%= render "situacao", company: @company %></p>
+
+<%= form_with(model: [:admins_backoffice, @company], local: true) do |form| %>
+  <%= render "shared/erros", registro: @company %>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <%= form.label :acesso_liberado_ate %>
+      <%= form.date_field :acesso_liberado_ate, class: "form-control" %>
+      <small class="form-text text-muted">
+        Último dia de acesso (até onde a mensalidade está paga). A partir do dia seguinte os usuários da empresa ficam
+        bloqueados. Em branco, sem data limite.
+      </small>
+    </div>
+  </div>
+  <div class="form-group form-check">
+    <%= form.check_box :acesso_bloqueado, class: "form-check-input" %>
+    <%= form.label :acesso_bloqueado, class: "form-check-label" %>
+    <small class="form-text text-muted">Bloqueia agora, independentemente da data.</small>
+  </div>
+  <%= form.submit "Salvar", class: "btn btn-primary" %>
+  <%= link_to "Voltar", admins_backoffice_companies_path, class: "btn btn-link" %>
+<% end %>

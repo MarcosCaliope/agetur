@@ -4,3 +4,4 @@ pt-BR:
   devise:
     failure:
       unauthenticated: "Para continuar, faça login."
+      empresa_suspensa: "O acesso da sua empresa ao sistema está suspenso. Entre em contato com o suporte para regularizar."

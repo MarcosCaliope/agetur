@@ -59,6 +59,8 @@ pt-BR:
         vendor: "Vendedor correspondente"
         vendor_id: "Vendedor correspondente"
       company:
+        acesso_bloqueado: "Bloquear acesso"
+        acesso_liberado_ate: "Acesso liberado até"
         cnpj: "CNPJ"
         short_name: "Nome reduzido"
         state_registration: "Inscrição estadual (CGF)"

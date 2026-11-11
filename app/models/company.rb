@@ -34,6 +34,19 @@ class Company < ApplicationRecord
   def exibir_repasse_na_os? = osshowrep == 1
   def incluir_chd_no_calculo? = osincludechdcalc == "S"
 
+  # Access control (monthly fee), set only by admins at
+  # /admins_backoffice/empresas: the company's own users (company_id, vendor
+  # logins included) can't sign in, and are signed out, while it's blocked
+  # by hand or past acesso_liberado_ate (the last day it's paid through;
+  # blank means no limit). See User#active_for_authentication?.
+  def acesso_suspenso?(hoje = Date.current)
+    acesso_bloqueado? || acesso_vencido?(hoje)
+  end
+
+  def acesso_vencido?(hoje = Date.current)
+    acesso_liberado_ate.present? && acesso_liberado_ate < hoje
+  end
+
   # The image to show for a logo (:entrada or :formulario): the upload, or a
   # legacy file name that actually exists under public/. nil when neither.
   def logo(tipo)

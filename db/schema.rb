@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_23_180000) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_11_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -187,6 +187,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_23_180000) do
     t.integer "sistger_id"
     t.string "short_name"
     t.string "state_registration"
+    t.boolean "acesso_bloqueado", default: false, null: false
+    t.date "acesso_liberado_ate"
     t.index ["sistger_id"], name: "index_companies_on_sistger_id", unique: true
     t.index ["state_id"], name: "index_companies_on_state_id"
   end

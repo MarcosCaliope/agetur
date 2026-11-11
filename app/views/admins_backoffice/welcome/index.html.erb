@@ -14,4 +14,16 @@
       </div>
     </div>
   </div>
+  <div class="col-md-6 mb-4">
+    <div class="card h-100 dashboard-card">
+      <div class="card-body">
+        <h2 class="h5 card-title">Acesso das empresas</h2>
+        <p class="dashboard-total mb-0"><%= Company.all.to_a.count(&:acesso_suspenso?) %> suspensa(s)</p>
+        <p class="text-muted small mb-0">Bloqueio e data limite de acesso dos usuários de cada empresa (mensalidade).</p>
+      </div>
+      <div class="card-footer bg-transparent border-top-0">
+        <%= link_to 'Abrir', admins_backoffice_companies_path, class: "btn btn-primary btn-sm" %>
+      </div>
+    </div>
+  </div>
 </div>
