@@ -1,24 +1,25 @@
-# README
+# Agetur
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Back-office for a tour/travel agency: customers, hotels, vehicles, guides, vendors and the service orders (OS) that bundle each trip's passengers. Rails 7.2, Ruby 3.4.5, PostgreSQL.
 
-Things you may want to cover:
+## Setup
 
-* Ruby version
+```bash
+cp .env.example .env     # database settings
+bin/setup                # bundle install + db:setup
+bin/rails dev:setup      # optional: recreate dev DB with admin@admin.com / user@user.com (123456)
+bin/rails db:seed        # Brazilian states, needed before companies/vehicles/destinations
+bin/rails server
+```
 
-* System dependencies
+## Tests
 
-* Configuration
+```bash
+bin/rails test           # everything except system tests
+bin/rails test:system    # headless Chrome
+```
 
-* Database creation
+## More
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- `CLAUDE.md`: architecture, conventions and the rules that are easy to break.
+- `docs/deploy-render.md`: deploying to Render.
