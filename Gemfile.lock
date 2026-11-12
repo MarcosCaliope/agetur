@@ -449,7 +449,7 @@ DEPENDENCIES
   prawn-rails
   prawn-table
   puma (>= 5.0)
-  rails (~> 7.1)
+  rails (~> 7.2)
   rails-i18n (~> 7.0)
   rails_db
   ransack

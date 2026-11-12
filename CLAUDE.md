@@ -8,6 +8,18 @@ Agetur is a Ruby on Rails 7.2 (Ruby 3.4.5, pinned via `.ruby-version` / `mise.to
 
 The app was upgraded from Rails 5.2 / Ruby 2.7 / MySQL. `config.load_defaults 7.2` is active, so `belongs_to` is required by default. Mark an association `optional: true` when the form allows it to be blank.
 
+## Rules that bite
+
+Each is explained in its section below. Breaking one rarely fails loudly:
+- Filter active passengers with `SorderItem.ativos`. A blank `scancelado` means *not* cancelled, so never test `== "N"`.
+- Show `sorder.numero` (or `item.sorder.numero`) to users, never `sorder.id`/`sorder_id`.
+- Writing items or paid amounts with `update_columns`/`update_all` skips callbacks: call `Sorder.nova_versao!(id)` and `SorderAuditoria.registrar!` yourself.
+- `upsert_all`/`insert_all` and raw SQL bypass `DaEmpresa`: pass and filter `company_id` yourself.
+- Use `empresa_atual` for the page's company, never `Company.first`. Outside a request (console, seeds) nothing is scoped.
+- Fixtures get `company: two`, and references to another resource point at its `:two` fixture (controller tests destroy `:one`).
+- A gem production needs goes in the Gemfile's default group, even when a dev gem already pulls it in.
+- Ransack only filters fields listed in `self.ransackable_attributes`.
+
 ## Commands
 
 ```bash
